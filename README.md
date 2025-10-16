@@ -1,18 +1,18 @@
-# 🎮 OffMarket - İş Simülasyon Oyunu
+# OffMarket - İş Simülasyon Oyunu
 
 Flutter tabanlı interaktif ticaret ve iş simülasyonu oyunu. Nakit yönetimi, ürün ticareti, dükkan kiralama ve itibar sistemi ile gerçekçi bir iş dünyası deneyimi.
 
-## 📱 Proje Hakkında
+## Proje Hakkında
 
 OffMarket, oyuncuların bir iş imparatorluğu kurmasını sağlayan kapsamlı bir simülasyon oyunudur. Oyuncular:
-- 💰 Nakit ve banka hesabı yönetimi
-- 📈 Dinamik piyasa fiyatları ile ürün alım-satımı
-- 🏢 Dükkan kiralama ve işletme yönetimi
-- ⚖️ Yasal ve sokak itibarı kazanma
-- 📊 Risk yönetimi ve strateji geliştirme
-- 🎯 Seviye atlama ve deneyim kazanma
+- Nakit ve banka hesabı yönetimi
+- Dinamik piyasa fiyatları ile ürün alım-satımı
+- Dükkan kiralama ve işletme yönetimi
+- Yasal ve sokak itibarı kazanma
+- Risk yönetimi ve strateji geliştirme
+- Seviye atlama ve deneyim kazanma
 
-## 🎨 Özellikler
+## Özellikler
 
 ### Oyun Mekaniği
 - **Dinamik Pazar Sistemi**: Volatilite ve talebe göre değişen ürün fiyatları
@@ -23,14 +23,14 @@ OffMarket, oyuncuların bir iş imparatorluğu kurmasını sağlayan kapsamlı b
 - **Finansal Araçlar**: Nakit, banka hesabı, borç sistemi
 
 ### Teknik Özellikler
-- 🎨 **Material 3 Dark Theme**: Modern ve şık karanlık tema
-- 🌈 **Gradient UI**: Görsel hiyerarşi için gradient kartlar
-- 😊 **Emoji-Rich Interface**: Sezgisel emoji ikonları
-- ⚡ **Riverpod State Management**: Reaktif ve performanslı state yönetimi
-- 🧊 **Freezed Models**: Immutable ve type-safe veri modelleri
-- 🔄 **Code Generation**: Otomatik kod üretimi ile hatasız geliştirme
+- **Material 3 Dark Theme**: Modern ve şık karanlık tema
+- **Gradient UI**: Görsel hiyerarşi için gradient kartlar
+- **Emoji Interface**: UI'da sezgisel emoji ikonları
+- **Riverpod State Management**: Reaktif ve performanslı state yönetimi
+- **Freezed Models**: Immutable ve type-safe veri modelleri
+- **Code Generation**: Otomatik kod üretimi ile hatasız geliştirme
 
-## 🏗️ Mimari
+## Mimari
 
 ### Katman Yapısı
 ```
@@ -55,7 +55,7 @@ lib/
 - **MarketNotifier**: Pazar ürünleri ve dinamik fiyatlandırma
 - **InventoryNotifier**: Oyuncu envanteri ve stok takibi
 
-## 🚀 Kurulum ve Çalıştırma
+## Kurulum ve Çalıştırma
 
 ### Gereksinimler
 - Flutter SDK 3.9.2 veya üzeri
@@ -90,7 +90,7 @@ flutter test
 flutter run -d chrome
 ```
 
-## 📦 Teknoloji Stack
+## Teknoloji Stack
 
 ### Core Dependencies
 - `flutter_riverpod ^2.6.1` - State management
@@ -109,9 +109,9 @@ flutter run -d chrome
 - `freezed ^2.5.7` - Model generation
 - `json_serializable ^6.9.2` - JSON generation
 
-## 🎯 Gelişim Planı
+## Gelişim Planı
 
-### ✅ Tamamlanan (Faz 1-5)
+### Tamamlanan (Faz 1-5)
 - [x] Flutter proje kurulumu ve yapılandırma
 - [x] Core modeller (Player, Product, Shop, InventoryItem)
 - [x] State management (Riverpod providers)
@@ -119,35 +119,49 @@ flutter run -d chrome
 - [x] Common widgets (StatCard, GradientCard)
 - [x] HomeScreen (Dashboard) implementasyonu
 - [x] Dokümantasyon (CLAUDE.md, FLUTTER_MIGRATION.md)
+- [x] Android debug APK build (138 MB)
 
-### 🚧 Devam Eden (Faz 6)
+### Devam Eden (Faz 6)
 - [ ] MarketScreen - Ürün alım-satım ekranı
 - [ ] InventoryScreen - Stok yönetimi
 - [ ] ShopsScreen - Dükkan kiralama listesi
 - [ ] BusinessScreen - İşletme detayları
 - [ ] StatsScreen - İstatistikler ve geçmiş
 
-### 📅 Planlanan (Faz 7-9)
+### Planlanan (Faz 7-9)
 - [ ] Navigation (Bottom nav bar, routing)
 - [ ] Game systems (Trading, Shop, Event, Risk, Reputation)
 - [ ] Unit & widget testleri
 - [ ] Performance optimizasyonu
-- [ ] Android build ve APK
+- [ ] Release APK ve Play Store yayını
 
-## 📝 Son Güncelleme
+## Android APK
+
+Debug APK test için hazır:
+- **Konum**: `build/app/outputs/flutter-apk/app-debug.apk`
+- **Boyut**: 138 MB
+- **Build Tarihi**: 16 Ekim 2025, 23:56
+- **Minimum SDK**: Android 5.0 (API 21)
+
+APK'yı Android cihazınıza yükleyip test edebilirsiniz.
+
+## Son Güncelleme
 
 **Tarih**: 16 Ekim 2025
-**Saat**: 21:30 TSİ
+**Saat**: 23:58 TSİ
 **Versiyon**: 0.1.0
 
 ### Son Değişiklikler
-- ✨ CLAUDE.md oluşturuldu (Türkçe, otonom çalışma izinleri)
-- ✨ README.md güncellendi (proje açıklaması, gelişim planı)
-- 📚 Dokümantasyon Türkçeleştirildi
-- 🎨 Tema sistemi ve widget'lar oluşturuldu
-- 🏗️ Temel mimari kuruldu
+- ✅ Android debug APK başarıyla build edildi (138 MB)
+- ✅ Disk alan sorunu çözüldü (19GB dosya taşıma)
+- ✅ Build optimizasyonu ve cache temizleme
+- ✅ CLAUDE.md oluşturuldu (Türkçe, otonom çalışma izinleri)
+- ✅ README.md güncellendi (proje açıklaması, gelişim planı)
+- ✅ Dokümantasyon Türkçeleştirildi
+- ✅ Tema sistemi ve widget'lar oluşturuldu
+- ✅ Temel mimari kuruldu
 
-## 🤝 Katkıda Bulunma
+## Katkıda Bulunma
 
 Bu proje aktif geliştirme aşamasındadır. Katkılarınız için:
 1. Fork yapın
@@ -156,15 +170,11 @@ Bu proje aktif geliştirme aşamasındadır. Katkılarınız için:
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request açın
 
-## 📄 Lisans
+## Lisans
 
 Bu proje özel bir projedir ve şu anda açık kaynak lisansı altında değildir.
 
-## 👨‍💻 Geliştirici
+## Geliştirici
 
 **byhawk**
 GitHub: [@byhawk](https://github.com/byhawk)
-
----
-
-⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!
