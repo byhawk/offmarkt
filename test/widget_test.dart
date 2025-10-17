@@ -1,5 +1,4 @@
 // OffMarket widget test
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:offmarket_flutter/main.dart';
 

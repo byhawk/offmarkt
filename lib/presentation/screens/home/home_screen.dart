@@ -21,23 +21,7 @@ class HomeScreen extends ConsumerWidget {
     final products = ref.watch(marketNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('OffMarket'),
-        actions: [
-          // Gün göstergesi
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Text(
-                Formatters.formatDay(player.currentDay),
-                style: AppTextStyles.label.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('OffMarket')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -45,10 +29,7 @@ class HomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Oyuncu bilgileri
-              Text(
-                'Hoş Geldin, ${player.name}!',
-                style: AppTextStyles.h2,
-              ),
+              Text('Hoş Geldin, ${player.name}!', style: AppTextStyles.h2),
               const Gap(AppSpacing.xs),
               Text(
                 'Seviye ${player.level} - ${player.experience}/1000 EXP',
@@ -57,10 +38,7 @@ class HomeScreen extends ConsumerWidget {
               const Gap(AppSpacing.lg),
 
               // Finansal durum kartları
-              Text(
-                'Finansal Durum',
-                style: AppTextStyles.h4,
-              ),
+              Text('Finansal Durum', style: AppTextStyles.h4),
               const Gap(AppSpacing.md),
 
               Row(
@@ -96,10 +74,7 @@ class HomeScreen extends ConsumerWidget {
               const Gap(AppSpacing.lg),
 
               // İtibar kartları
-              Text(
-                'İtibar',
-                style: AppTextStyles.h4,
-              ),
+              Text('İtibar', style: AppTextStyles.h4),
               const Gap(AppSpacing.md),
 
               Row(
@@ -128,10 +103,7 @@ class HomeScreen extends ConsumerWidget {
               const Gap(AppSpacing.lg),
 
               // Hızlı aksiyonlar
-              Text(
-                'Hızlı Aksiyonlar',
-                style: AppTextStyles.h4,
-              ),
+              Text('Hızlı Aksiyonlar', style: AppTextStyles.h4),
               const Gap(AppSpacing.md),
 
               GradientCard(
@@ -181,10 +153,7 @@ class HomeScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Dükkan Kirala', style: AppTextStyles.h4),
-                          Text(
-                            'İşletmeni büyüt',
-                            style: AppTextStyles.caption,
-                          ),
+                          Text('İşletmeni büyüt', style: AppTextStyles.caption),
                         ],
                       ),
                     ),
@@ -195,10 +164,7 @@ class HomeScreen extends ConsumerWidget {
               const Gap(AppSpacing.lg),
 
               // İstatistikler
-              Text(
-                'İstatistikler',
-                style: AppTextStyles.h4,
-              ),
+              Text('İstatistikler', style: AppTextStyles.h4),
               const Gap(AppSpacing.md),
 
               StatCard(

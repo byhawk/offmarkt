@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Oyuncular</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎮 OffMarket</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/players.html" class="nav-item active">
+                    <span>👥</span> Oyuncular
+                </a>
+                <a href="/products.html" class="nav-item">
+                    <span>📦</span> Ürünler
+                </a>
+                <a href="/shops.html" class="nav-item">
+                    <span>🏪</span> Dükkanlar
+                </a>
+                <a href="/transactions.html" class="nav-item">
+                    <span>💰</span> İşlemler
+                </a>
+                <a href="/events.html" class="nav-item">
+                    <span>⚡</span> Olaylar
+                </a>
+                <a href="/banned-words.html" class="nav-item">
+                    <span>🚫</span> Yasaklı Kelimeler
+                </a>
+                <a href="/analytics.html" class="nav-item">
+                    <span>📈</span> Analitik
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info" id="adminInfo"></div>
+                <button onclick="logout()" class="btn-logout">Çıkış</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Oyuncular</h1>
+                <div class="header-actions">
+                    <input type="text" id="searchInput" placeholder="Oyuncu ara..." class="search-input">
+                    <button onclick="refreshPlayers()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters">
+                <select id="statusFilter" onchange="filterPlayers()">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="banned">Banlı</option>
+                </select>
+                <select id="sortBy" onchange="filterPlayers()">
+                    <option value="createdAt">Kayıt Tarihi</option>
+                    <option value="level">Seviye</option>
+                    <option value="cash">Para</option>
+                    <option value="totalProfit">Toplam Kar</option>
+                </select>
+            </div>
+
+            <!-- Players Table -->
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Kullanıcı Adı</th>
+                                <th>Email</th>
+                                <th>Seviye</th>
+                                <th>Para</th>
+                                <th>Toplam Kar</th>
+                                <th>Durum</th>
+                                <th>Kayıt Tarihi</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTable">
+                            <tr><td colspan="8" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ban Modal -->
+    <div id="banModal" class="modal">
+        <div class="modal-content">
+            <h2>Oyuncuyu Banla</h2>
+            <form id="banForm">
+                <div class="form-group">
+                    <label>Sebep</label>
+                    <textarea id="banReason" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Süre (gün)</label>
+                    <input type="number" id="banDuration" min="1" value="7">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeBanModal()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-danger">Banla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allPlayers = [];
+        let selectedPlayerId = null;
+
+        async function loadPlayers() {
+            const result = await getPlayers();
+            if (result && result.success) {
+                allPlayers = result.data.players || result.data || [];
+                displayPlayers(allPlayers);
+            }
+        }
+
+        function displayPlayers(players) {
+            const tbody = document.getElementById('playersTable');
+            if (!players || players.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">Oyuncu bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = players.map(player => `
+                <tr>
+                    <td><strong>${player.username}</strong></td>
+                    <td>${player.email}</td>
+                    <td>Lvl ${player.level}</td>
+                    <td>${formatCurrency(player.cash)}</td>
+                    <td>${formatCurrency(player.totalProfit)}</td>
+                    <td>
+                        <span class="badge ${player.isBanned ? 'badge-danger' : 'badge-success'}">
+                            ${player.isBanned ? 'Banlı' : 'Aktif'}
+                        </span>
+                    </td>
+                    <td>${formatDate(player.createdAt)}</td>
+                    <td>
+                        <button onclick="viewPlayer('${player._id}')" class="btn-sm">Detay</button>
+                        ${player.isBanned 
+                            ? `<button onclick="unbanPlayerAction('${player._id}')" class="btn-sm btn-success">Unban</button>`
+                            : `<button onclick="openBanModal('${player._id}')" class="btn-sm btn-danger">Ban</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterPlayers() {
+            const status = document.getElementById('statusFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            let filtered = [...allPlayers];
+            
+            if (status === 'active') {
+                filtered = filtered.filter(p => !p.isBanned);
+            } else if (status === 'banned') {
+                filtered = filtered.filter(p => p.isBanned);
+            }
+            
+            filtered.sort((a, b) => {
+                if (sortBy === 'createdAt') return new Date(b.createdAt) - new Date(a.createdAt);
+                if (sortBy === 'level') return b.level - a.level;
+                if (sortBy === 'cash') return b.cash - a.cash;
+                if (sortBy === 'totalProfit') return b.totalProfit - a.totalProfit;
+                return 0;
+            });
+            
+            displayPlayers(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            const filtered = allPlayers.filter(p => 
+                p.username.toLowerCase().includes(search) ||
+                p.email.toLowerCase().includes(search)
+            );
+            displayPlayers(filtered);
+        });
+
+        function openBanModal(playerId) {
+            selectedPlayerId = playerId;
+            document.getElementById('banModal').style.display = 'flex';
+        }
+
+        function closeBanModal() {
+            document.getElementById('banModal').style.display = 'none';
+            selectedPlayerId = null;
+        }
+
+        document.getElementById('banForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const reason = document.getElementById('banReason').value;
+            const duration = parseInt(document.getElementById('banDuration').value);
+            
+            const result = await banPlayer(selectedPlayerId, reason, duration);
+            if (result && result.success) {
+                alert('Oyuncu başarıyla banlandı');
+                closeBanModal();
+                loadPlayers();
+            }
+        });
+
+        async function unbanPlayerAction(playerId) {
+            if (!confirm('Bu oyuncunun banını kaldırmak istediğinizden emin misiniz?')) return;
+            
+            const result = await unbanPlayer(playerId);
+            if (result && result.success) {
+                alert('Ban başarıyla kaldırıldı');
+                loadPlayers();
+            }
+        }
+
+        function viewPlayer(playerId) {
+            window.location.href = `/player-detail.html?id=${playerId}`;
+        }
+
+        function refreshPlayers() {
+            loadPlayers();
+        }
+
+        // Load on page load
+        loadPlayers();
+    </script>
+</body>
+</html>

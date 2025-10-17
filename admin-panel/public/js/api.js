@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/admin';
+const API_URL = 'http://213.142.159.245:3000/api/admin';
 
 // Generic API request function
 async function apiRequest(endpoint, options = {}) {
@@ -57,6 +57,13 @@ async function unbanPlayer(id) {
     });
 }
 
+async function resetPlayerPassword(id, newPassword) {
+    return await apiRequest(`/players/${id}/reset-password`, {
+        method: 'PUT',
+        body: JSON.stringify({ newPassword })
+    });
+}
+
 // Products API
 async function getProducts() {
     return await apiRequest('/products');
@@ -79,6 +86,12 @@ async function updateProduct(id, data) {
 async function deleteProduct(id) {
     return await apiRequest(`/products/${id}`, {
         method: 'DELETE'
+    });
+}
+
+async function toggleProductActive(id) {
+    return await apiRequest(`/products/${id}/toggle-active`, {
+        method: 'PUT'
     });
 }
 
@@ -152,6 +165,18 @@ async function checkText(text) {
         method: 'POST',
         body: JSON.stringify({ text })
     });
+}
+
+// Transactions API
+async function getTransactions(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/transactions?${query}`);
+}
+
+// Events API
+async function getEvents(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/events?${query}`);
 }
 
 // Utility functions

@@ -73,7 +73,6 @@ router.post('/register', [
 // @desc    Giriş yap
 // @access  Public
 router.post('/login', [
-  body('username').trim().notEmpty().withMessage('Kullanıcı adı gerekli'),
   body('password').notEmpty().withMessage('Şifre gerekli')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -85,15 +84,27 @@ router.post('/login', [
     });
   }
 
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
+  
+  // Email veya username ile giriş
+  const loginField = email || username;
+  
+  if (!loginField) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email veya kullanıcı adı gerekli'
+    });
+  }
 
-  // Oyuncuyu bul
-  const player = await Player.findOne({ username });
+  // Oyuncuyu email veya username ile bul
+  const player = await Player.findOne({
+    $or: [{ email: loginField }, { username: loginField }]
+  });
 
   if (!player) {
     return res.status(401).json({
       success: false,
-      message: 'Kullanıcı adı veya şifre hatalı'
+      message: 'Email/kullanıcı adı veya şifre hatalı'
     });
   }
 

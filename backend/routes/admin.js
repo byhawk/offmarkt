@@ -229,6 +229,37 @@ router.put('/players/:id/unban', protectAdmin, checkPermission('ban_players'), a
   });
 }));
 
+// @route   PUT /api/admin/players/:id/reset-password
+// @desc    Oyuncu şifresini sıfırla
+// @access  Private (Admin)
+router.put('/players/:id/reset-password', protectAdmin, checkPermission('manage_players'), asyncHandler(async (req, res) => {
+  const { newPassword } = req.body;
+  
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: 'Şifre en az 6 karakter olmalı'
+    });
+  }
+
+  const player = await Player.findById(req.params.id);
+
+  if (!player) {
+    return res.status(404).json({
+      success: false,
+      message: 'Oyuncu bulunamadı'
+    });
+  }
+
+  player.password = newPassword;
+  await player.save();
+
+  res.json({
+    success: true,
+    message: 'Şifre başarıyla sıfırlandı'
+  });
+}));
+
 // @route   GET /api/admin/products
 // @desc    Tüm ürünler
 // @access  Private (Admin)
@@ -245,7 +276,14 @@ router.get('/products', protectAdmin, checkPermission('manage_products'), asyncH
 // @desc    Yeni ürün ekle
 // @access  Private (Admin)
 router.post('/products', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
-  const product = await Product.create(req.body);
+  // Emoji ve currentPrice otomatik ekle
+  const productData = {
+    ...req.body,
+    emoji: req.body.emoji || '📦',
+    currentPrice: req.body.currentPrice || req.body.basePrice
+  };
+  
+  const product = await Product.create(productData);
   
   res.status(201).json({
     success: true,
@@ -298,6 +336,29 @@ router.delete('/products/:id', protectAdmin, checkPermission('manage_products'),
   res.json({
     success: true,
     message: 'Ürün silindi'
+  });
+}));
+
+// @route   PUT /api/admin/products/:id/toggle-active
+// @desc    Ürünü pazara ekle/çıkar
+// @access  Private (Admin)
+router.put('/products/:id/toggle-active', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ürün bulunamadı'
+    });
+  }
+
+  product.isActive = !product.isActive;
+  await product.save();
+
+  res.json({
+    success: true,
+    message: product.isActive ? 'Ürün pazara eklendi' : 'Ürün pazardan çıkarıldı',
+    data: { product }
   });
 }));
 
@@ -372,6 +433,70 @@ router.post('/events/trigger', protectAdmin, checkPermission('manage_events'), a
     success: true,
     message: 'Olay tetiklendi',
     data: { event }
+  });
+}));
+
+// @route   GET /api/admin/transactions
+// @desc    Tüm işlemler
+// @access  Private (Admin)
+router.get('/transactions', protectAdmin, checkPermission('view_analytics'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50, type, playerId } = req.query;
+  
+  let query = {};
+  if (type) query.type = type;
+  if (playerId) query.playerId = playerId;
+
+  const transactions = await Transaction.find(query)
+    .populate('playerId', 'username email')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip((parseInt(page) - 1) * parseInt(limit));
+
+  const total = await Transaction.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      transactions,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }
+  });
+}));
+
+// @route   GET /api/admin/events
+// @desc    Tüm olaylar
+// @access  Private (Admin)
+router.get('/events', protectAdmin, checkPermission('manage_events'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50, status, playerId } = req.query;
+  
+  let query = {};
+  if (status) query.status = status;
+  if (playerId) query.playerId = playerId;
+
+  const events = await Event.find(query)
+    .populate('playerId', 'username email')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip((parseInt(page) - 1) * parseInt(limit));
+
+  const total = await Event.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      events,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    }
   });
 }));
 

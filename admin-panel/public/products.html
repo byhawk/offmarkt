@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Ürünler</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎮 OffMarket</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
+                <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
+                <a href="/products.html" class="nav-item active"><span>📦</span> Ürünler</a>
+                <a href="/shops.html" class="nav-item"><span>🏪</span> Dükkanlar</a>
+                <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
+                <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
+                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info" id="adminInfo"></div>
+                <button onclick="logout()" class="btn-logout">Çıkış</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Ürünler</h1>
+                <div class="header-actions">
+                    <button onclick="openCreateModal()" class="btn-refresh">➕ Yeni Ürün</button>
+                    <button onclick="refreshProducts()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ürün Adı</th>
+                                <th>Kategori</th>
+                                <th>Taban Fiyat</th>
+                                <th>Mevcut Fiyat</th>
+                                <th>Volatilite</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable">
+                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Yeni Ürün</h2>
+            <form id="productForm">
+                <div class="form-group">
+                    <label>Ürün Adı</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="productCategory" required>
+                        <option value="electronics">Elektronik</option>
+                        <option value="clothing">Giyim</option>
+                        <option value="food">Gıda</option>
+                        <option value="furniture">Mobilya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Taban Fiyat</label>
+                    <input type="number" id="productBasePrice" min="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeProductModal()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allProducts = [];
+        let editingProductId = null;
+
+        async function loadProducts() {
+            const result = await getProducts();
+            if (result && result.success) {
+                allProducts = result.data.products || result.data || [];
+                displayProducts(allProducts);
+            }
+        }
+
+        function displayProducts(products) {
+            const tbody = document.getElementById('productsTable');
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Ürün bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><strong>${product.name}</strong></td>
+                    <td>${product.category}</td>
+                    <td>${formatCurrency(product.basePrice)}</td>
+                    <td>${formatCurrency(product.currentPrice)}</td>
+                    <td>${(product.volatility * 100).toFixed(1)}%</td>
+                    <td>
+                        <button onclick="toggleProductActiveAction('${product._id}')" class="btn-sm ${product.isActive ? 'btn-danger' : 'btn-success'}">
+                            ${product.isActive ? '🚫 Pazardan Çıkar' : '✅ Pazara Ekle'}
+                        </button>
+                        <button onclick="editProduct('${product._id}')" class="btn-sm">Düzenle</button>
+                        <button onclick="deleteProductAction('${product._id}')" class="btn-sm btn-danger">Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCreateModal() {
+            editingProductId = null;
+            document.getElementById('modalTitle').textContent = 'Yeni Ürün';
+            document.getElementById('productForm').reset();
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+            editingProductId = null;
+        }
+
+        async function editProduct(id) {
+            const product = allProducts.find(p => p._id === id);
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('modalTitle').textContent = 'Ürün Düzenle';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productBasePrice').value = product.basePrice;
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                basePrice: parseFloat(document.getElementById('productBasePrice').value)
+            };
+
+            let result;
+            try {
+                if (editingProductId) {
+                    result = await updateProduct(editingProductId, data);
+                } else {
+                    result = await createProduct(data);
+                }
+
+                if (result && result.success) {
+                    alert(editingProductId ? 'Ürün güncellendi!' : 'Ürün başarıyla oluşturuldu!');
+                    closeProductModal();
+                    loadProducts();
+                } else {
+                    alert('Hata: ' + (result?.message || 'İşlem başarısız'));
+                }
+            } catch (error) {
+                console.error('Form error:', error);
+                alert('Bir hata oluştu: ' + error.message);
+            }
+        });
+
+        async function toggleProductActiveAction(id) {
+            const result = await toggleProductActive(id);
+            if (result && result.success) {
+                alert(result.message);
+                loadProducts();
+            } else {
+                alert('Hata: ' + (result?.message || 'İşlem başarısız'));
+            }
+        }
+
+        async function deleteProductAction(id) {
+            if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) return;
+            
+            const result = await deleteProduct(id);
+            if (result && result.success) {
+                alert('Ürün silindi');
+                loadProducts();
+            }
+        }
+
+        function refreshProducts() {
+            loadProducts();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>

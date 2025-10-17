@@ -196,4 +196,21 @@ class ApiService {
     final token = await _storage.read(key: 'access_token');
     return token != null;
   }
+
+  // ============ MARKET API ============
+
+  /// Pazar ürünlerini getir
+  Future<List<Map<String, dynamic>>> getMarketProducts() async {
+    try {
+      final response = await get('/market/products');
+      if (response.data['success'] == true) {
+        final products = response.data['data']['products'] as List;
+        return products.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      print('Market products error: $e');
+      return [];
+    }
+  }
 }

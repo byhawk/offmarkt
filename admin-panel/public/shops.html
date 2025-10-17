@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Dükkanlar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎮 OffMarket</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
+                <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
+                <a href="/products.html" class="nav-item"><span>📦</span> Ürünler</a>
+                <a href="/shops.html" class="nav-item active"><span>🏪</span> Dükkanlar</a>
+                <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
+                <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
+                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info" id="adminInfo"></div>
+                <button onclick="logout()" class="btn-logout">Çıkış</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Dükkanlar</h1>
+                <div class="header-actions">
+                    <button onclick="openCreateModal()" class="btn-refresh">➕ Yeni Dükkan</button>
+                    <button onclick="refreshShops()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="filters">
+                <select id="statusFilter" onchange="filterShops()">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="available">Müsait</option>
+                    <option value="rented">Kiralı</option>
+                </select>
+            </div>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Dükkan Adı</th>
+                                <th>Lokasyon</th>
+                                <th>Kira</th>
+                                <th>Durum</th>
+                                <th>Kiracı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopsTable">
+                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Yeni Dükkan</h2>
+            <form id="shopForm">
+                <div class="form-group">
+                    <label>Dükkan Adı</label>
+                    <input type="text" id="shopName" required>
+                </div>
+                <div class="form-group">
+                    <label>Lokasyon</label>
+                    <input type="text" id="shopLocation" required>
+                </div>
+                <div class="form-group">
+                    <label>Kira (Günlük)</label>
+                    <input type="number" id="shopRent" min="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeShopModal()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allShops = [];
+        let editingShopId = null;
+
+        async function loadShops() {
+            const result = await getShops();
+            if (result && result.success) {
+                allShops = result.data.shops || result.data || [];
+                displayShops(allShops);
+            }
+        }
+
+        function displayShops(shops) {
+            const tbody = document.getElementById('shopsTable');
+            if (!shops || shops.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Dükkan bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = shops.map(shop => `
+                <tr>
+                    <td><strong>${shop.name}</strong></td>
+                    <td>${shop.location}</td>
+                    <td>${formatCurrency(shop.rentPerDay)}/gün</td>
+                    <td>
+                        <span class="badge ${shop.isRented ? 'badge-danger' : 'badge-success'}">
+                            ${shop.isRented ? 'Kiralı' : 'Müsait'}
+                        </span>
+                    </td>
+                    <td>${shop.currentTenant || '-'}</td>
+                    <td>
+                        <button onclick="editShop('${shop._id}')" class="btn-sm">Düzenle</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterShops() {
+            const status = document.getElementById('statusFilter').value;
+            let filtered = [...allShops];
+            
+            if (status === 'available') {
+                filtered = filtered.filter(s => !s.isRented);
+            } else if (status === 'rented') {
+                filtered = filtered.filter(s => s.isRented);
+            }
+            
+            displayShops(filtered);
+        }
+
+        function openCreateModal() {
+            editingShopId = null;
+            document.getElementById('modalTitle').textContent = 'Yeni Dükkan';
+            document.getElementById('shopForm').reset();
+            document.getElementById('shopModal').style.display = 'flex';
+        }
+
+        function closeShopModal() {
+            document.getElementById('shopModal').style.display = 'none';
+            editingShopId = null;
+        }
+
+        async function editShop(id) {
+            const shop = allShops.find(s => s._id === id);
+            if (!shop) return;
+
+            editingShopId = id;
+            document.getElementById('modalTitle').textContent = 'Dükkan Düzenle';
+            document.getElementById('shopName').value = shop.name;
+            document.getElementById('shopLocation').value = shop.location;
+            document.getElementById('shopRent').value = shop.rentPerDay;
+            document.getElementById('shopModal').style.display = 'flex';
+        }
+
+        document.getElementById('shopForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('shopName').value,
+                location: document.getElementById('shopLocation').value,
+                rentPerDay: parseFloat(document.getElementById('shopRent').value)
+            };
+
+            let result;
+            try {
+                if (editingShopId) {
+                    result = await updateShop(editingShopId, data);
+                } else {
+                    result = await createShop(data);
+                }
+
+                if (result && result.success) {
+                    alert(editingShopId ? 'Dükkan güncellendi!' : 'Dükkan başarıyla oluşturuldu!');
+                    closeShopModal();
+                    loadShops();
+                } else {
+                    alert('Hata: ' + (result?.message || 'İşlem başarısız'));
+                }
+            } catch (error) {
+                console.error('Form error:', error);
+                alert('Bir hata oluştu: ' + error.message);
+            }
+        });
+
+        function refreshShops() {
+            loadShops();
+        }
+
+        loadShops();
+    </script>
+</body>
+</html>

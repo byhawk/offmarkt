@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Oyuncu Detay</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🎮 OffMarket</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
+                <a href="/players.html" class="nav-item active"><span>👥</span> Oyuncular</a>
+                <a href="/products.html" class="nav-item"><span>📦</span> Ürünler</a>
+                <a href="/shops.html" class="nav-item"><span>🏪</span> Dükkanlar</a>
+                <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
+                <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
+                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="admin-info" id="adminInfo"></div>
+                <button onclick="logout()" class="btn-logout">Çıkış</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Oyuncu Detay</h1>
+                <div class="header-actions">
+                    <button onclick="window.location.href='/players.html'" class="btn-secondary">← Geri</button>
+                    <button onclick="loadPlayerDetail()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div id="playerInfo" class="loading">Yükleniyor...</div>
+
+            <div class="section">
+                <h2>Hızlı İşlemler</h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="openResetPasswordModal()" class="btn-primary">🔑 Şifre Sıfırla</button>
+                    <button onclick="banPlayerAction()" class="btn-danger" id="banBtn">🚫 Banla</button>
+                    <button onclick="unbanPlayerAction()" class="btn-success" id="unbanBtn" style="display: none;">✅ Ban Kaldır</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Son İşlemler</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Tip</th>
+                                <th>Miktar</th>
+                                <th>Detay</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <tr><td colspan="4" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Şifre Sıfırlama Modal -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>Şifre Sıfırla</h2>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label>Yeni Şifre</label>
+                    <input type="password" id="newPassword" minlength="6" required>
+                    <small>En az 6 karakter</small>
+                </div>
+                <div class="form-group">
+                    <label>Şifre Tekrar</label>
+                    <input type="password" id="confirmPassword" minlength="6" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeResetPasswordModal()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">Şifreyi Sıfırla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let currentPlayer = null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerId = urlParams.get('id');
+
+        if (!playerId) {
+            alert('Oyuncu ID bulunamadı');
+            window.location.href = '/players.html';
+        }
+
+        async function loadPlayerDetail() {
+            const result = await getPlayer(playerId);
+            if (result && result.success) {
+                currentPlayer = result.data.player;
+                displayPlayerInfo(currentPlayer);
+                displayTransactions(result.data.recentTransactions || []);
+                updateBanButton();
+            } else {
+                document.getElementById('playerInfo').innerHTML = '<p class="no-data">Oyuncu bulunamadı</p>';
+            }
+        }
+
+        function displayPlayerInfo(player) {
+            const isBanned = player.isBanned;
+            const banInfo = isBanned ? `
+                <div class="alert alert-danger">
+                    <strong>⚠️ BANLI OYUNCU</strong><br>
+                    Sebep: ${player.banReason || 'Belirtilmemiş'}<br>
+                    ${player.banExpires ? `Bitiş: ${formatDate(player.banExpires)}` : 'Süresiz'}
+                </div>
+            ` : '';
+
+            document.getElementById('playerInfo').innerHTML = `
+                ${banInfo}
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Temel Bilgiler</h3>
+                        <p><strong>Kullanıcı Adı:</strong> ${player.username}</p>
+                        <p><strong>Email:</strong> ${player.email}</p>
+                        <p><strong>Ad Soyad:</strong> ${player.name || '-'}</p>
+                        <p><strong>Kayıt Tarihi:</strong> ${formatDate(player.createdAt)}</p>
+                        <p><strong>Son Giriş:</strong> ${player.lastLogin ? formatDate(player.lastLogin) : 'Hiç'}</p>
+                        <p><strong>Durum:</strong> 
+                            <span class="badge ${player.isOnline ? 'badge-success' : 'badge-secondary'}">
+                                ${player.isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Oyun İstatistikleri</h3>
+                        <p><strong>Seviye:</strong> ${player.level}</p>
+                        <p><strong>XP:</strong> ${formatNumber(player.xp)} / ${formatNumber(player.xpToNextLevel)}</p>
+                        <p><strong>Para:</strong> ${formatCurrency(player.money)}</p>
+                        <p><strong>Toplam Kar:</strong> ${formatCurrency(player.totalProfit || 0)}</p>
+                        <p><strong>Enerji:</strong> ${player.energy} / ${player.maxEnergy}</p>
+                        <p><strong>Sağlık:</strong> ${player.health} / 100</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>İşletme</h3>
+                        <p><strong>Envanter:</strong> ${player.inventory?.length || 0} ürün</p>
+                        <p><strong>Dükkan:</strong> ${player.ownedShops?.length || 0} adet</p>
+                        <p><strong>İtibar:</strong> ${player.reputation || 0}</p>
+                        <p><strong>Risk Seviyesi:</strong> ${player.riskLevel || 0}</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Araştırma & Geliştirme</h3>
+                        <p><strong>Aktif Araştırma:</strong> ${player.activeResearch ? 'Var' : 'Yok'}</p>
+                        <p><strong>Tamamlanan:</strong> ${player.completedResearch?.length || 0}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayTransactions(transactions) {
+            const tbody = document.getElementById('transactionsTable');
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="no-data">İşlem bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${formatDate(t.createdAt)}</td>
+                    <td><span class="badge badge-info">${t.type}</span></td>
+                    <td>${formatCurrency(t.amount)}</td>
+                    <td>${t.description || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateBanButton() {
+            const banBtn = document.getElementById('banBtn');
+            const unbanBtn = document.getElementById('unbanBtn');
+            
+            if (currentPlayer.isBanned) {
+                banBtn.style.display = 'none';
+                unbanBtn.style.display = 'inline-block';
+            } else {
+                banBtn.style.display = 'inline-block';
+                unbanBtn.style.display = 'none';
+            }
+        }
+
+        async function banPlayerAction() {
+            const reason = prompt('Ban sebebi:');
+            if (!reason) return;
+            
+            const duration = prompt('Süre (gün, boş bırakırsanız süresiz):');
+            
+            const result = await banPlayer(playerId, reason, duration ? parseInt(duration) : null);
+            if (result && result.success) {
+                alert('Oyuncu banlandı');
+                loadPlayerDetail();
+            }
+        }
+
+        async function unbanPlayerAction() {
+            if (!confirm('Ban kaldırılsın mı?')) return;
+            
+            const result = await unbanPlayer(playerId);
+            if (result && result.success) {
+                alert('Ban kaldırıldı');
+                loadPlayerDetail();
+            }
+        }
+
+        function openResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'flex';
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'none';
+            document.getElementById('resetPasswordForm').reset();
+        }
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                alert('Şifreler eşleşmiyor!');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Şifre en az 6 karakter olmalı!');
+                return;
+            }
+            
+            const result = await resetPlayerPassword(playerId, newPassword);
+            if (result && result.success) {
+                alert('Şifre başarıyla sıfırlandı!');
+                closeResetPasswordModal();
+            } else {
+                alert('Hata: ' + (result?.message || 'Şifre sıfırlanamadı'));
+            }
+        });
+
+        loadPlayerDetail();
+    </script>
+</body>
+</html>

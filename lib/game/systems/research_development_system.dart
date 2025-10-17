@@ -503,28 +503,30 @@ class ResearchDevelopmentSystem {
     for (var project in completedProjects) {
       if (project.level == RdProjectLevel.revolutionary) {
         reputation += 50;
-      } else if (project.level == RdProjectLevel.innovative)
+      } else if (project.level == RdProjectLevel.innovative) {
         reputation += 30;
-      else if (project.level == RdProjectLevel.expert)
+      } else if (project.level == RdProjectLevel.expert) {
         reputation += 20;
-      else if (project.level == RdProjectLevel.advanced)
+      } else if (project.level == RdProjectLevel.advanced) {
         reputation += 10;
-      else
+      } else {
         reputation += 5;
+      }
     }
 
     // Başarısız projeler
     for (var project in failedProjects) {
       if (project.level == RdProjectLevel.revolutionary) {
         reputation -= 20;
-      } else if (project.level == RdProjectLevel.innovative)
+      } else if (project.level == RdProjectLevel.innovative) {
         reputation -= 15;
-      else if (project.level == RdProjectLevel.expert)
+      } else if (project.level == RdProjectLevel.expert) {
         reputation -= 10;
-      else if (project.level == RdProjectLevel.advanced)
+      } else if (project.level == RdProjectLevel.advanced) {
         reputation -= 5;
-      else
+      } else {
         reputation -= 2;
+      }
     }
 
     return reputation.clamp(0, 500); // 0-500 arası

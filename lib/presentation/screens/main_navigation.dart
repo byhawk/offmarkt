@@ -43,17 +43,13 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: IndexedStack(index: _selectedIndex, children: _screens),
+        bottomNavigationBar: _selectedIndex < 3 ? _buildBottomNav() : null,
+        bottomSheet: _selectedIndex >= 3 ? _buildExtendedNav() : null,
       ),
-      bottomNavigationBar: _selectedIndex < 3
-          ? _buildBottomNav()
-          : null,
-      bottomSheet: _selectedIndex >= 3
-          ? _buildExtendedNav()
-          : null,
     );
   }
 
@@ -137,7 +133,9 @@ class _MainNavigationState extends State<MainNavigation> {
                       style: TextStyle(
                         fontSize: 11,
                         color: isSelected ? AppColors.primary : Colors.grey,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 1,

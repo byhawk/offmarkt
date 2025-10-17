@@ -31,8 +31,8 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Auto Event Triggers
 
 #### 2. Admin Panel (%100)
-- **Kod Miktarı**: ~1,000+ satır
-- **Sayfalar**: Login, Dashboard
+- **Kod Miktarı**: ~1,500+ satır
+- **Sayfalar**: 9 sayfa (Login, Dashboard, Players, Products, Shops, Transactions, Events, Banned Words, Player Detail)
 - **Özellikler**:
   - Modern Responsive UI
   - JWT Authentication
@@ -40,8 +40,11 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Auto-refresh (30s)
   - API Integration
   - LocalStorage Token Management
+  - Pazara Ürün Ekleme/Çıkarma
+  - Oyuncu Detay Sayfası
+  - Şifre Sıfırlama
 
-#### 3. Flutter App (%90)
+#### 3. Flutter App (%95)
 - **Kod Miktarı**: ~3,200+ satır (sadece game systems)
 - **Ekranlar**: 6 ana ekran
 - **Sistemler**: 9 oyun sistemi
@@ -49,7 +52,11 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
 - **Özellikler**:
   - Material 3 Dark Theme
   - Riverpod State Management
-  - API Service Ready
+  - API Service (Backend Entegrasyonu)
+  - Email/Username Login
+  - Backend'den Dinamik Ürün Yükleme
+  - Geri Tuşu Kontrolü (PopScope)
+  - Navigation Stack Yönetimi
   - Cross-platform (Android, iOS, Web, Linux)
 
 ## 📊 Teknik Detaylar

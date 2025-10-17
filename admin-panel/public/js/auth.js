@@ -33,7 +33,8 @@ function getToken() {
     return localStorage.getItem('adminToken');
 }
 
-// Check auth on page load
-if (window.location.pathname !== '/login.html') {
+// Check auth on page load (only once)
+if (window.location.pathname !== '/login.html' && !window.authChecked) {
+    window.authChecked = true;
     checkAuth();
 }

@@ -1,7 +1,7 @@
 name: offmarket_flutter
-description: "A new Flutter project."
+description: "OffMarkt - Online Multiplayer İş Simülasyon Oyunu"
 publish_to: 'none'
-version: 0.1.0
+version: 0.0.0+1
 
 environment:
   sdk: ^3.9.2

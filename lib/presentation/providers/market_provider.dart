@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/product.dart';
+import '../../services/api_service.dart';
 
 part 'market_provider.g.dart';
 
@@ -7,55 +8,36 @@ part 'market_provider.g.dart';
 class MarketNotifier extends _$MarketNotifier {
   @override
   List<Product> build() {
-    // Başlangıç ürünleri (React Native'deki products.json'dan basitleştirilmiş)
-    return [
-      const Product(
-        id: 'electronics',
-        name: 'Elektronik',
-        emoji: '📱',
-        basePrice: 1000.0,
-        currentPrice: 1000.0,
-        demand: 60,
-        volatility: 1.2,
-        isTrending: true,
-      ),
-      const Product(
-        id: 'clothing',
-        name: 'Giyim',
-        emoji: '👕',
-        basePrice: 500.0,
-        currentPrice: 500.0,
-        demand: 70,
-        volatility: 0.8,
-      ),
-      const Product(
-        id: 'food',
-        name: 'Gıda',
-        emoji: '🍔',
-        basePrice: 200.0,
-        currentPrice: 200.0,
-        demand: 80,
-        volatility: 0.5,
-      ),
-      const Product(
-        id: 'jewelry',
-        name: 'Mücevher',
-        emoji: '💎',
-        basePrice: 5000.0,
-        currentPrice: 5000.0,
-        demand: 40,
-        volatility: 1.5,
-      ),
-      const Product(
-        id: 'vehicles',
-        name: 'Araç',
-        emoji: '🚗',
-        basePrice: 50000.0,
-        currentPrice: 50000.0,
-        demand: 30,
-        volatility: 1.3,
-      ),
-    ];
+    // Backend'den ürünleri yükle
+    loadProducts();
+    return [];
+  }
+
+  /// Backend'den ürünleri yükle
+  Future<void> loadProducts() async {
+    try {
+      final apiService = ApiService();
+      final productsData = await apiService.getMarketProducts();
+
+      final products = productsData.map((data) {
+        return Product(
+          id: data['_id'] ?? '',
+          name: data['name'] ?? '',
+          emoji: data['emoji'] ?? '📦',
+          basePrice: (data['basePrice'] ?? 0).toDouble(),
+          currentPrice: (data['currentPrice'] ?? 0).toDouble(),
+          demand: (data['demand'] ?? 50).toInt(),
+          volatility: (data['volatility'] ?? 0.1).toDouble(),
+          isTrending: data['trending'] ?? false,
+        );
+      }).toList();
+
+      state = products;
+    } catch (e) {
+      print('Error loading products: $e');
+      // Hata durumunda boş liste
+      state = [];
+    }
   }
 
   /// Fiyatları güncelle (pazar dinamiği)
