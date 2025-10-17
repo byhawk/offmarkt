@@ -20,6 +20,7 @@ _$PlayerImpl _$$PlayerImplFromJson(Map<String, dynamic> json) => _$PlayerImpl(
   currentDay: (json['currentDay'] as num?)?.toInt() ?? 1,
   totalTransactions: (json['totalTransactions'] as num?)?.toInt() ?? 0,
   totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
+  portfolioValue: (json['portfolioValue'] as num?)?.toDouble() ?? 0.0,
 );
 
 Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
@@ -37,4 +38,5 @@ Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
       'currentDay': instance.currentDay,
       'totalTransactions': instance.totalTransactions,
       'totalProfit': instance.totalProfit,
+      'portfolioValue': instance.portfolioValue,
     };

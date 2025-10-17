@@ -19,6 +19,7 @@ class Player with _$Player {
     @Default(1) int currentDay,
     @Default(0) int totalTransactions,
     @Default(0.0) double totalProfit,
+    @Default(0.0) double portfolioValue,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);

@@ -34,6 +34,7 @@ mixin _$Player {
   int get currentDay => throw _privateConstructorUsedError;
   int get totalTransactions => throw _privateConstructorUsedError;
   double get totalProfit => throw _privateConstructorUsedError;
+  double get portfolioValue => throw _privateConstructorUsedError;
 
   /// Serializes this Player to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -63,6 +64,7 @@ abstract class $PlayerCopyWith<$Res> {
     int currentDay,
     int totalTransactions,
     double totalProfit,
+    double portfolioValue,
   });
 }
 
@@ -94,6 +96,7 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
     Object? currentDay = null,
     Object? totalTransactions = null,
     Object? totalProfit = null,
+    Object? portfolioValue = null,
   }) {
     return _then(
       _value.copyWith(
@@ -149,6 +152,10 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
                 ? _value.totalProfit
                 : totalProfit // ignore: cast_nullable_to_non_nullable
                       as double,
+            portfolioValue: null == portfolioValue
+                ? _value.portfolioValue
+                : portfolioValue // ignore: cast_nullable_to_non_nullable
+                      as double,
           )
           as $Val,
     );
@@ -177,6 +184,7 @@ abstract class _$$PlayerImplCopyWith<$Res> implements $PlayerCopyWith<$Res> {
     int currentDay,
     int totalTransactions,
     double totalProfit,
+    double portfolioValue,
   });
 }
 
@@ -207,6 +215,7 @@ class __$$PlayerImplCopyWithImpl<$Res>
     Object? currentDay = null,
     Object? totalTransactions = null,
     Object? totalProfit = null,
+    Object? portfolioValue = null,
   }) {
     return _then(
       _$PlayerImpl(
@@ -262,6 +271,10 @@ class __$$PlayerImplCopyWithImpl<$Res>
             ? _value.totalProfit
             : totalProfit // ignore: cast_nullable_to_non_nullable
                   as double,
+        portfolioValue: null == portfolioValue
+            ? _value.portfolioValue
+            : portfolioValue // ignore: cast_nullable_to_non_nullable
+                  as double,
       ),
     );
   }
@@ -284,6 +297,7 @@ class _$PlayerImpl implements _Player {
     this.currentDay = 1,
     this.totalTransactions = 0,
     this.totalProfit = 0.0,
+    this.portfolioValue = 0.0,
   });
 
   factory _$PlayerImpl.fromJson(Map<String, dynamic> json) =>
@@ -328,10 +342,13 @@ class _$PlayerImpl implements _Player {
   @override
   @JsonKey()
   final double totalProfit;
+  @override
+  @JsonKey()
+  final double portfolioValue;
 
   @override
   String toString() {
-    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, legalReputation: $legalReputation, streetReputation: $streetReputation, riskLevel: $riskLevel, suspicionLevel: $suspicionLevel, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit)';
+    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, legalReputation: $legalReputation, streetReputation: $streetReputation, riskLevel: $riskLevel, suspicionLevel: $suspicionLevel, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue)';
   }
 
   @override
@@ -360,7 +377,9 @@ class _$PlayerImpl implements _Player {
             (identical(other.totalTransactions, totalTransactions) ||
                 other.totalTransactions == totalTransactions) &&
             (identical(other.totalProfit, totalProfit) ||
-                other.totalProfit == totalProfit));
+                other.totalProfit == totalProfit) &&
+            (identical(other.portfolioValue, portfolioValue) ||
+                other.portfolioValue == portfolioValue));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -380,6 +399,7 @@ class _$PlayerImpl implements _Player {
     currentDay,
     totalTransactions,
     totalProfit,
+    portfolioValue,
   );
 
   /// Create a copy of Player
@@ -411,6 +431,7 @@ abstract class _Player implements Player {
     final int currentDay,
     final int totalTransactions,
     final double totalProfit,
+    final double portfolioValue,
   }) = _$PlayerImpl;
 
   factory _Player.fromJson(Map<String, dynamic> json) = _$PlayerImpl.fromJson;
@@ -441,6 +462,8 @@ abstract class _Player implements Player {
   int get totalTransactions;
   @override
   double get totalProfit;
+  @override
+  double get portfolioValue;
 
   /// Create a copy of Player
   /// with the given fields replaced by the non-null parameter values.

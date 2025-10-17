@@ -5,6 +5,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/player.dart';
+import '../../../game/systems/risk_system.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/common/stat_card.dart';
@@ -121,16 +123,9 @@ class HomeScreen extends ConsumerWidget {
               ),
               const Gap(AppSpacing.lg),
 
-              // Risk göstergesi
-              if (player.riskLevel > 0) ...[
-                StatCard(
-                  emoji: '⚠️',
-                  label: 'Risk Seviyesi',
-                  value: '${player.riskLevel}/100',
-                  gradientColors: AppColors.warningGradient,
-                ),
-                const Gap(AppSpacing.lg),
-              ],
+              // Risk göstergesi (RiskSystem ile)
+              _buildRiskIndicator(player),
+              const Gap(AppSpacing.lg),
 
               // Hızlı aksiyonlar
               Text(
@@ -226,6 +221,137 @@ class HomeScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRiskIndicator(Player player) {
+    // RiskSystem ile risk analizi
+    final riskWarning = RiskSystem.getRiskWarning(player.riskLevel);
+
+    // Risk seviyesine göre gradient renkleri
+    List<Color> riskGradient;
+    if (player.riskLevel >= 90) {
+      riskGradient = [Colors.red.shade900, Colors.red.shade700];
+    } else if (player.riskLevel >= 70) {
+      riskGradient = AppColors.dangerGradient;
+    } else if (player.riskLevel >= 50) {
+      riskGradient = AppColors.warningGradient;
+    } else if (player.riskLevel >= 30) {
+      riskGradient = [Colors.orange.shade600, Colors.orange.shade400];
+    } else {
+      riskGradient = AppColors.successGradient;
+    }
+
+    // Güvenli işlem limiti
+    final safeLimit = RiskSystem.getSafeTransactionLimit(
+      riskLevel: player.riskLevel,
+      legalReputation: player.legalReputation,
+    );
+
+    return GradientCard(
+      gradientColors: riskGradient,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Text('⚠️', style: TextStyle(fontSize: 32)),
+                  const Gap(AppSpacing.md),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Risk Seviyesi',
+                        style: AppTextStyles.label.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                      Text(
+                        '${player.riskLevel}/100',
+                        style: AppTextStyles.h3.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              if (player.suspicionLevel > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('👮', style: TextStyle(fontSize: 16)),
+                      const Gap(4),
+                      Text(
+                        'Şüphe: ${player.suspicionLevel}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const Gap(AppSpacing.sm),
+
+          // Risk uyarısı
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    riskWarning,
+                    style: AppTextStyles.label.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Güvenli işlem limiti
+          if (player.riskLevel > 20) ...[
+            const Gap(AppSpacing.sm),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Güvenli İşlem Limiti:',
+                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                ),
+                Text(
+                  Formatters.formatCurrency(safeLimit),
+                  style: AppTextStyles.label.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

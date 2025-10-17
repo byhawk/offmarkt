@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_theme.dart';
-import 'presentation/screens/home/home_screen.dart';
+import 'presentation/screens/main_navigation.dart';
 
 void main() {
   runApp(
@@ -21,7 +21,7 @@ class MainApp extends StatelessWidget {
       title: 'OffMarket',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const HomeScreen(),
+      home: const MainNavigation(),
     );
   }
 }

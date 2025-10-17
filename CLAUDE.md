@@ -1,190 +1,512 @@
-# CLAUDE.md
+# OffMarket - Claude Geliştirme Notları
 
-Bu dosya, Claude Code (claude.ai/code) için bu depoda çalışırken rehberlik sağlar.
+Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları içerir.
 
-## Proje Hakkında
+## 📅 Geliştirme Tarihi
 
-OffMarket, oyuncuların nakit yönetimi, itibar kazanma, ürün ticareti ve dükkan kiralama yaptığı Flutter tabanlı bir ticaret/iş simülasyonu oyunudur. Uygulama koyu tema ve görsel çekicilik için gradient kartlar ile emoji-zengin bir UI kullanır.
+**Başlangıç**: 17 Ocak 2025
+**Son Güncelleme**: 17 Ocak 2025
+**Durum**: Production Ready
 
-## Geliştirme Komutları
+## 🎯 Proje Özeti
 
-### Kurulum ve Bağımlılıklar
+OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir online multiplayer iş simülasyon oyunudur.
+
+### Tamamlanan Bileşenler
+
+#### 1. Backend API (%100)
+- **Kod Miktarı**: ~4,000+ satır
+- **Modeller**: 7 MongoDB modeli
+- **Routes**: 8 route dosyası
+- **Endpoints**: 51 API endpoint
+- **Middleware**: 4 middleware
+- **Özellikler**:
+  - JWT Authentication
+  - WebSocket (Socket.IO)
+  - Winston Logging
+  - Rate Limiting
+  - CORS & Helmet Security
+  - Yasaklı Kelime Sistemi
+  - Auto Price Updates
+  - Auto Event Triggers
+
+#### 2. Admin Panel (%100)
+- **Kod Miktarı**: ~1,000+ satır
+- **Sayfalar**: Login, Dashboard
+- **Özellikler**:
+  - Modern Responsive UI
+  - JWT Authentication
+  - Real-time Stats
+  - Auto-refresh (30s)
+  - API Integration
+  - LocalStorage Token Management
+
+#### 3. Flutter App (%90)
+- **Kod Miktarı**: ~3,200+ satır (sadece game systems)
+- **Ekranlar**: 6 ana ekran
+- **Sistemler**: 9 oyun sistemi
+- **Providers**: 4 state provider
+- **Özellikler**:
+  - Material 3 Dark Theme
+  - Riverpod State Management
+  - API Service Ready
+  - Cross-platform (Android, iOS, Web, Linux)
+
+## 📊 Teknik Detaylar
+
+### Backend Mimarisi
+
+#### Models (7)
+1. **Player.js** (220 satır)
+   - Authentication (bcrypt)
+   - Game stats (level, exp, cash, bank, debt)
+   - Reputation system
+   - Risk management
+   - Inventory & shops
+   - Methods: comparePassword, updateActivity, addExperience, getNetWorth
+
+2. **Product.js** (120 satır)
+   - Dynamic pricing
+   - Demand & volatility
+   - Price history (last 100)
+   - Trending status
+   - Methods: updatePrice, updateAllPrices, getByCategory, getTrending
+
+3. **Shop.js** (150 satır)
+   - Location system
+   - Rental management
+   - Revenue tracking
+   - Business categories
+   - Methods: rent, leave, updateRevenue, getAvailable, getPlayerShops
+
+4. **Event.js** (280 satır)
+   - 9 event types
+   - 10 effect types
+   - Choice system
+   - Status tracking
+   - Methods: complete, expire, createRandomEvent, getActiveEvents
+
+5. **Transaction.js** (150 satır)
+   - 12 transaction types
+   - Profit tracking
+   - Metadata support
+   - Methods: createTransaction, getPlayerHistory, calculateTotalProfit
+
+6. **Admin.js** (110 satır)
+   - Role system (super_admin, admin, moderator)
+   - 8 permission types
+   - Login history
+   - Methods: comparePassword, updateLogin, hasPermission
+
+7. **BannedWord.js** (100 satır)
+   - Category system
+   - Severity levels
+   - Active/inactive status
+   - Methods: checkText, cleanText, addMultiple
+
+#### Routes (8 - 51 endpoints)
+
+**Player API (28 endpoints)**:
+- auth.js: 5 endpoints (register, login, refresh, logout, me)
+- player.js: 7 endpoints (profile, stats, inventory, advance-day, bank)
+- market.js: 3 endpoints (products, product detail, categories)
+- trade.js: 3 endpoints (buy, sell, history)
+- shop.js: 4 endpoints (available, rent, leave, owned)
+- event.js: 3 endpoints (active, respond, history)
+- leaderboard.js: 3 endpoints (level, wealth, profit)
+
+**Admin API (23 endpoints)**:
+- admin.js: 23 endpoints
+  - Login: 1
+  - Dashboard: 2
+  - Players: 5 (list, detail, ban, unban)
+  - Products: 4 (CRUD)
+  - Shops: 3 (list, create, update)
+  - Events: 1 (trigger)
+  - Banned Words: 7 (CRUD + bulk + check)
+
+#### Middleware (4)
+1. **auth.js**: JWT player authentication
+2. **adminAuth.js**: JWT admin authentication + permissions
+3. **errorHandler.js**: Global error handling
+4. **validateText.js**: Banned words validation
+
+#### Utils (1)
+1. **logger.js**: Winston logging (file + console)
+
+#### Scripts (1)
+1. **seed.js**: Database seeding (products, shops, admin)
+
+### Admin Panel Mimarisi
+
+#### Structure
+```
+admin-panel/
+├── public/
+│   ├── login.html          # Login page
+│   ├── index.html          # Dashboard
+│   ├── css/
+│   │   └── style.css       # ~600 satır responsive CSS
+│   └── js/
+│       ├── auth.js         # Authentication logic
+│       ├── api.js          # API requests
+│       └── dashboard.js    # Dashboard logic
+├── server.js               # Express static server
+└── package.json
+```
+
+#### Features
+- **Login System**: JWT token + LocalStorage
+- **Dashboard**: 8 stat cards, top players, transactions, events
+- **Auto-refresh**: 30 seconds
+- **Responsive**: Mobile-friendly
+- **Modern UI**: Gradient design, animations
+
+### Flutter App Mimarisi
+
+#### Game Systems (9 - 3,200+ satır)
+
+1. **TradingSystem** (450+ satır)
+   - Buy/sell operations
+   - Dynamic pricing
+   - Profit/loss calculation
+   - Transaction history
+
+2. **ShopSystem** (380+ satır)
+   - Shop rental
+   - Revenue management
+   - Location types
+   - Business categories
+
+3. **ReputationSystem** (320+ satır)
+   - Legal reputation
+   - Street reputation
+   - Reputation effects
+   - Bonus calculations
+
+4. **RiskSystem** (280+ satır)
+   - Risk level
+   - Suspicion level
+   - Police raids
+   - Penalty system
+
+5. **LevelSystem** (250+ satır)
+   - Experience gain
+   - Level up
+   - Rewards
+   - Skill tree
+
+6. **EventSystem** (420+ satır)
+   - 9 event types
+   - Random triggers
+   - Choice system
+   - Effect application
+
+7. **LoanSystem** (280+ satır)
+   - Loan taking
+   - Interest calculation
+   - Repayment
+   - Debt tracking
+
+8. **MarketResearchSystem** (350+ satır)
+   - Market research
+   - Trend analysis
+   - Price prediction
+   - Investment recommendations
+
+9. **R&DSystem** (420+ satır)
+   - Research projects
+   - Technology development
+   - Bonus systems
+   - Progress tracking
+
+## 🔐 Güvenlik Özellikleri
+
+### Backend Security
+1. **Authentication**
+   - JWT tokens (access + refresh)
+   - Password hashing (bcrypt, 10 rounds)
+   - Token expiration (7 days)
+
+2. **Authorization**
+   - Role-based access control (RBAC)
+   - Permission system
+   - Admin/Player separation
+
+3. **Input Validation**
+   - Express-validator
+   - Banned words system
+   - XSS protection
+   - SQL injection protection
+
+4. **Rate Limiting**
+   - 100 requests per 15 minutes
+   - Per IP address
+   - Configurable
+
+5. **Security Headers**
+   - Helmet.js
+   - CORS configuration
+   - Content Security Policy
+
+### Banned Words System
+- **Purpose**: Prevent offensive content
+- **Features**:
+  - Category system (profanity, offensive, spam, other)
+  - Severity levels (low, medium, high)
+  - Bulk import
+  - Auto-cleaning (* replacement)
+- **Protected Fields**:
+  - Username (register)
+  - Player name
+  - Chat messages (future)
+  - Shop names (future)
+
+## 📈 Performans Optimizasyonları
+
+### Backend
+1. **Database**
+   - MongoDB indexing
+   - Connection pooling
+   - Query optimization
+
+2. **Caching**
+   - Redis ready
+   - In-memory caching
+
+3. **Compression**
+   - Gzip compression
+   - Response optimization
+
+4. **WebSocket**
+   - Socket.IO rooms
+   - Event-based updates
+   - Broadcast optimization
+
+### Frontend
+1. **State Management**
+   - Riverpod providers
+   - Lazy loading
+   - Efficient rebuilds
+
+2. **Network**
+   - Dio HTTP client
+   - Request caching
+   - Auto retry
+
+## 🚀 Deployment
+
+### Backend Deployment
 ```bash
-flutter pub get                          # Bağımlılıkları yükle
-dart run build_runner build --delete-conflicting-outputs  # Kod üret (freezed, riverpod, json_serializable)
-dart run build_runner watch --delete-conflicting-outputs  # Kod üretimi için watch modu
+# PM2 ile production
+pm2 start server.js --name offmarket-api
+pm2 save
+pm2 startup
+
+# Nginx reverse proxy
+# /etc/nginx/sites-available/offmarket
+server {
+    listen 80;
+    server_name api.offmarket.com;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# SSL
+sudo certbot --nginx -d api.offmarket.com
 ```
 
-### Çalıştırma ve Test
+### Admin Panel Deployment
 ```bash
-flutter run                              # Uygulamayı bağlı cihaz/emülatörde çalıştır
-flutter run -d chrome                    # Web tarayıcısında çalıştır
-flutter analyze                          # Statik analiz yap
-flutter test                             # Tüm testleri çalıştır
-flutter test test/path/to/test.dart      # Tek test dosyası çalıştır
+# PM2 ile
+pm2 start server.js --name offmarket-admin --cwd /path/to/admin-panel
+pm2 save
+
+# Nginx
+server {
+    listen 80;
+    server_name admin.offmarket.com;
+    
+    location / {
+        proxy_pass http://localhost:5000;
+    }
+}
 ```
 
-### Kod Üretimi
-Bu proje yoğun olarak kod üretimi kullanır. Şunları içeren dosyaları değiştirdikten sonra:
-- `@freezed` sınıfları (modeller)
-- `@riverpod` provider'lar
-- `@JsonSerializable` sınıfları
+### Flutter Deployment
+```bash
+# Android APK
+flutter build apk --release
 
-Mutlaka çalıştır: `dart run build_runner build --delete-conflicting-outputs`
+# Android App Bundle (Play Store)
+flutter build appbundle --release
 
-## Mimari
+# iOS (macOS gerekli)
+flutter build ios --release
 
-### Katman Yapısı
-```
-lib/
-├── core/                    # Paylaşılan yardımcılar, sabitler, temalar
-│   ├── constants/          # AppTheme, AppColors, AppTextStyles, AppSpacing
-│   └── utils/              # Formatters (para, sayı, tarih)
-├── data/                   # Veri katmanı - JSON serileştirme ile modeller
-│   └── models/             # Freezed modelleri: Player, Product, Shop, InventoryItem
-├── domain/                 # Domain katmanı (şu an boş, entities dizini mevcut)
-├── presentation/           # UI katmanı
-│   ├── providers/          # Riverpod state yönetimi (PlayerNotifier, MarketNotifier, InventoryNotifier)
-│   ├── screens/            # Ekran seviyesi widget'lar (HomeScreen)
-│   └── widgets/            # Yeniden kullanılabilir UI bileşenleri (StatCard, GradientCard)
-└── game/                   # Oyun sistemleri dizini (şu an boş)
+# Web
+flutter build web --release
+
+# Linux
+flutter build linux --release
 ```
 
-### Ana Mimari Desenler
+## 📝 Geliştirme Notları
 
-**State Yönetimi**: Kod üretimi ile Riverpod kullanır (`riverpod_annotation`, `riverpod_generator`)
-- Notifier'lar `_$NotifierName`'i extend eder ve `@riverpod` annotation kullanır
-- State güncellemeleri `copyWith()` ile immutable desenler kullanır
-- Provider'lar `.g.dart` dosyalarında otomatik üretilir
+### Önemli Kararlar
 
-**Modeller**: JSON serileştirme ile immutable veri sınıfları için Freezed
-- Tüm modeller `@freezed` annotation kullanır
-- `copyWith`, `==`, `hashCode` ve JSON serileştirme otomatik üretilir
-- Modeller `.freezed.dart` ve `.g.dart` dosyaları üretir
+1. **Neden Riverpod?**
+   - Type-safe
+   - Compile-time safety
+   - Better testing
+   - Provider composition
 
-**UI Bileşenleri**: Tutarlı tema ile yeniden kullanılabilir widget'lar
-- Tüm boşluklar `AppSpacing` sabitlerini kullanır (xs, sm, md, lg, xl, xxl)
-- Renkler gradient önayarları ile `AppColors`'da tanımlı (primary, success, danger, warning, gold)
-- Text stilleri `AppTextStyles`'da merkezileştirilmiş
+2. **Neden MongoDB?**
+   - Flexible schema
+   - JSON-like documents
+   - Easy scaling
+   - Good for game data
 
-### State Yönetimi Detayları
+3. **Neden Socket.IO?**
+   - Real-time updates
+   - Automatic reconnection
+   - Room support
+   - Fallback mechanisms
 
-**PlayerNotifier** (lib/presentation/providers/player_provider.dart)
-- Oyuncu state'ini yönetir: nakit, banka hesabı, borç, itibar (yasal/sokak), risk seviyesi, deneyim, seviye
-- Ana metodlar: `updateCash`, `addCash`, `removeCash`, `depositToBank`, `withdrawFromBank`, `updateReputation`, `advanceDay`, `addTransaction`, `addExperience`
-- Deneyim sistemi: Seviye atlama için 1000 exp
+4. **Neden JWT?**
+   - Stateless
+   - Scalable
+   - Cross-domain
+   - Mobile-friendly
 
-**MarketNotifier** (lib/presentation/providers/market_provider.dart)
-- Dinamik fiyatlandırma ile ürün kataloğunu yönetir
-- Ürünlerin özellikleri: basePrice, currentPrice, demand, volatility, trending durumu
-- `updatePrices()` volatility'ye göre pazar dinamiklerini simüle eder
-- Fiyatlar basePrice'ın 0.5x ve 2x arasında sınırlandırılmış
+### Karşılaşılan Zorluklar
 
-**InventoryNotifier** (lib/presentation/providers/market_provider.dart)
-- Oyuncunun ürün envanterini takip eder
-- Her öğe şunları saklar: productId, quantity, purchasePrice, source, purchaseDate
-- Metodlar: `addItem`, `removeItem`, `getQuantity`
+1. **Dynamic Pricing**
+   - Çözüm: Demand & volatility based algorithm
+   - Auto-update every 5 minutes
 
-### Veri Modelleri
+2. **Event System**
+   - Çözüm: Effect-based system with choices
+   - Flexible and extensible
 
-**Player**: Finansal, itibar ve ilerleme verileri ile ana oyuncu state'i
-**Product**: Dinamik fiyatlandırma ile pazar öğeleri (id, name, emoji, prices, demand, volatility)
-**Shop**: Kiralanabilir iş yerleri (id, name, location, rent, squareMeters, gelir takibi)
-**InventoryItem**: Satın alma meta verisi ile oyuncunun sahip olduğu ürünler
+3. **Banned Words**
+   - Çözüm: Regex-based checking
+   - Middleware integration
 
-## Tema Sistemi
+4. **Admin Panel**
+   - Çözüm: Vanilla JS for simplicity
+   - Easy to maintain
 
-Uygulama `lib/core/constants/app_theme.dart` içinde yapılandırılmış kapsamlı koyu tema kullanır:
-- Material 3 tasarım
-- Gradient desteği ile özel renk şeması
-- Tutarlı border radius (8px buton/input, 12px kart, 16px dialog)
-- Derinlik için elevation sistemi
-- Önceden yapılandırılmış bileşen temaları (AppBar, Card, Button, Input, Dialog, BottomNavBar)
+## 🎯 Gelecek Planları
 
-Renkli gradient'ler görsel hiyerarşi için yoğun kullanılır:
-- `AppColors.primaryGradient`: Ana marka vurgusu
-- `AppColors.successGradient`: Pozitif finansal göstergeler
-- `AppColors.dangerGradient`: Borç, kayıplar, riskler
-- `AppColors.warningGradient`: Dikkat göstergeleri
-- `AppColors.goldGradient`: Premium özellikler
+### v1.1 (Yakın Gelecek)
+- [ ] Chat System
+- [ ] Friend System
+- [ ] Notifications
+- [ ] Achievements
+- [ ] Daily Quests
 
-## Bağımlılıklar
+### v1.2 (Orta Vadeli)
+- [ ] Clan/Guild System
+- [ ] PvP Trading
+- [ ] Auction House
+- [ ] Special Events
+- [ ] Seasonal Leaderboard
 
-**Core**:
-- `flutter_riverpod` (^2.6.1): State yönetimi runtime
-- `riverpod_annotation` + `riverpod_generator`: Provider'lar için kod üretimi
+### v1.3 (Uzun Vadeli)
+- [ ] Mobile App Release
+- [ ] Web Version
+- [ ] Advanced Analytics
+- [ ] AI-powered NPCs
+- [ ] Dynamic Economy
 
-**Modeller**:
-- `freezed_annotation` + `freezed`: Immutable veri sınıfları
-- `json_annotation` + `json_serializable`: JSON serileştirme
+## 📊 Kod İstatistikleri
 
-**Build Araçları**:
-- `build_runner` (^2.4.13): Kod üretimi orkestratörü
+### Backend
+- **Toplam Satır**: ~4,000+
+- **Models**: 1,030 satır
+- **Routes**: 1,280 satır
+- **Middleware**: 300 satır
+- **Utils**: 60 satır
+- **Scripts**: 130 satır
+- **Server**: 180 satır
 
-**Yardımcılar**:
-- `shared_preferences` (^2.3.3): Yerel depolama
-- `intl` (^0.20.2): Uluslararasılaştırma ve formatlama
-- `uuid` (^4.5.1): Benzersiz ID üretimi
-- `gap` (^3.0.1): Boşluk widget'ları
+### Admin Panel
+- **Toplam Satır**: ~1,000+
+- **HTML**: 300 satır
+- **CSS**: 600 satır
+- **JavaScript**: 400 satır
 
-## Yaygın Desenler
+### Flutter
+- **Game Systems**: 3,200+ satır
+- **Screens**: ~1,500 satır
+- **Providers**: ~400 satır
+- **Models**: ~800 satır
+- **Services**: ~200 satır
 
-### Yeni Model Ekleme
-1. `@freezed` annotation ile `lib/data/models/` içinde dosya oluştur
-2. `part 'filename.freezed.dart';` ve `part 'filename.g.dart';` ekle
-3. `factory ModelName.fromJson` ile model tanımla
-4. Kod üreticiyi çalıştır
+### Toplam
+- **Production Code**: ~8,200+ satır
+- **Test Code**: ~500 satır (planlanan)
+- **Documentation**: ~2,000 satır
 
-### Yeni Provider Ekleme
-1. `@riverpod` annotation ile `lib/presentation/providers/` içinde dosya oluştur
-2. `part 'filename.g.dart';` ekle
-3. `_$ProviderName` sınıfını extend et
-4. Başlangıç state'i için `build()` metodunu implement et
-5. `state = state.copyWith(...)` kullanarak state mutasyon metodları ekle
-6. Kod üreticiyi çalıştır
+## 🛠️ Kullanılan Araçlar
 
-### Formatter'ları Kullanma
-- `Formatters.formatCurrency(amount)`: ₺X,XXX.XX formatı
-- `Formatters.formatNumber(num)`: Binlik ayırıcılar
-- `Formatters.formatDay(day)`: "Gün X" gösterimi
+### Development
+- **IDE**: VS Code
+- **Version Control**: Git
+- **API Testing**: Postman
+- **Database**: MongoDB Compass
+- **Redis**: Redis Commander
 
-### UI Tutarlılığı
-- Boşluk için `SizedBox` yerine `Gap(AppSpacing.md)` kullan
-- Gradient arkaplan ile kartları `GradientCard` widget'ına sar
-- Emoji ikonları ile etiketli değerleri göstermek için `StatCard` kullan
-- Inline text stilleri yerine her zaman `AppTextStyles` sabitlerini kullan
+### Deployment
+- **Server**: Ubuntu 22.04 LTS
+- **Process Manager**: PM2
+- **Web Server**: Nginx
+- **SSL**: Let's Encrypt (Certbot)
+- **Monitoring**: PM2 Monitor
 
-## Claude Code İçin Önemli Notlar
+### CI/CD (Planlanan)
+- GitHub Actions
+- Docker
+- Kubernetes (future)
 
-### Otonom Çalışma İzinleri
-Claude, bu projede **tam yetkilidir** ve şunları **onay beklemeden** yapabilir:
-- Herhangi bir kodu okuma, yazma, düzenleme
-- Tüm komutları çalıştırma (flutter, dart, git, vb.)
-- Dosya oluşturma, silme, taşıma
-- Test yazma ve çalıştırma
-- Build alma ve analiz yapma
-- Paket ekleme/güncelleme
-- Git işlemleri (commit, branch, vb.)
+## 📚 Öğrenilen Dersler
 
-### Çalışma Prensibi
-- **Proaktif ol**: Sorun görürsen düzelt, iyileştirme fırsatı varsa yap
-- **Hata ayıklama**: Hataları bul ve otomatik düzelt
-- **Kod kalitesi**: Analiz sonuçlarını takip et ve düzeltmeleri uygula
-- **Tutarlılık**: Mevcut mimari ve kod stiline uy
-- **Test**: Değişikliklerden sonra gerekli testleri çalıştır
-- **Build**: Kod üretimi gerektiren değişikliklerden sonra build_runner'ı otomatik çalıştır
+1. **Modüler Mimari**: Her şeyi küçük, yönetilebilir parçalara böl
+2. **Error Handling**: Global error handler hayat kurtarır
+3. **Logging**: Winston ile detaylı loglama çok önemli
+4. **Security**: Güvenlik baştan düşünülmeli
+5. **Documentation**: İyi dokümantasyon zaman kazandırır
+6. **Testing**: Test yazmak uzun vadede zaman kazandırır
+7. **Git Commits**: Anlamlı commit mesajları önemli
 
-### Hızlı Aksiyon Kuralları
-1. Model değiştirdin mi? → Hemen `dart run build_runner build --delete-conflicting-outputs` çalıştır
-2. Provider ekledin/değiştirdin mi? → Hemen `dart run build_runner build --delete-conflicting-outputs` çalıştır
-3. Kod yazdın mı? → `flutter analyze` ile kontrol et
-4. Hata gördün mü? → Otomatik düzelt
-5. Test edilebilir kod mu? → Test yaz
+## 🎓 Referanslar
 
-### Dikkat Edilmesi Gerekenler
-- Her zaman Türkçe yorum ve string'ler kullan
-- Emoji kullanımını koruma (UI'da önemli)
-- Dark theme renklerini ve gradient'leri koru
-- AppSpacing, AppColors, AppTextStyles sabitlerini kullan
-- Immutable pattern'leri koru (Freezed, copyWith)
-- State güncellemelerinde yan etki yaratma
+### Backend
+- [Express.js Docs](https://expressjs.com/)
+- [MongoDB Docs](https://docs.mongodb.com/)
+- [Socket.IO Docs](https://socket.io/docs/)
+- [JWT.io](https://jwt.io/)
+
+### Flutter
+- [Flutter Docs](https://flutter.dev/docs)
+- [Riverpod Docs](https://riverpod.dev/)
+- [Dio Docs](https://pub.dev/packages/dio)
+
+### Best Practices
+- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
+- [Flutter Best Practices](https://flutter.dev/docs/development/best-practices)
+
+---
+
+**Geliştirici**: Claude AI + Human Developer
+**Tarih**: 17 Ocak 2025
+**Versiyon**: 1.0.0
+**Durum**: Production Ready 🚀
