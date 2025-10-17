@@ -11,8 +11,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <h2>🎮 OffMarket</h2>
-                <p>Admin Panel</p>
+                <h2>OffMarket Admin</h2>
+                <p>Yönetim Paneli</p>
             </div>
             <nav class="nav-menu">
                 <a href="/" class="nav-item active">
@@ -42,7 +42,7 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
-                <button onclick="logout()" class="btn-logout">Çıkış</button>
+                <button onclick="logout()" class="btn-logout">Çıkış Yap</button>
             </div>
         </aside>
 
@@ -60,56 +60,72 @@
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">👥</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">👥</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="totalPlayers">-</h3>
                         <p>Toplam Oyuncu</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🟢</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🟢</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="activePlayers">-</h3>
                         <p>Aktif Oyuncu</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🚫</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🚫</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="bannedPlayers">-</h3>
                         <p>Banlı Oyuncu</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">📦</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📦</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="totalProducts">-</h3>
                         <p>Toplam Ürün</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🏪</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🏪</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="totalShops">-</h3>
                         <p>Toplam Dükkan</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🔑</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🔑</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="rentedShops">-</h3>
                         <p>Kiralı Dükkan</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">💰</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">💰</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="totalTransactions">-</h3>
                         <p>Toplam İşlem</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">📅</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📅</div>
+                    </div>
                     <div class="stat-info">
                         <h3 id="todayTransactions">-</h3>
                         <p>Bugünkü İşlem</p>
@@ -119,7 +135,9 @@
 
             <!-- Top Players -->
             <div class="section">
-                <h2>🏆 En İyi Oyuncular</h2>
+                <div class="section-header">
+                    <h2>🏆 En İyi Oyuncular</h2>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -139,7 +157,9 @@
 
             <!-- Recent Transactions -->
             <div class="section">
-                <h2>💸 Son İşlemler</h2>
+                <div class="section-header">
+                    <h2>💸 Son İşlemler</h2>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
@@ -160,7 +180,9 @@
 
             <!-- Active Events -->
             <div class="section">
-                <h2>⚡ Aktif Olaylar</h2>
+                <div class="section-header">
+                    <h2>⚡ Aktif Olaylar</h2>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>

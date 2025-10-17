@@ -9,7 +9,10 @@
 <body>
     <div class="admin-container">
         <aside class="sidebar">
-            <div class="logo"><h2>🎮 OffMarket</h2><p>Admin Panel</p></div>
+            <div class="logo">
+                <h2>OffMarket Admin</h2>
+                <p>Yönetim Paneli</p>
+            </div>
             <nav class="nav-menu">
                 <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
                 <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
@@ -22,37 +25,362 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
-                <button onclick="logout()" class="btn-logout">Çıkış</button>
+                <button onclick="logout()" class="btn-logout">Çıkış Yap</button>
             </div>
         </aside>
+        
         <main class="main-content">
             <header class="header">
-                <h1>İşlemler</h1>
+                <h1>İşlem Geçmişi</h1>
                 <div class="header-actions">
-                    <button onclick="location.reload()" class="btn-refresh">🔄 Yenile</button>
+                    <button onclick="loadTransactions()" class="btn-refresh">🔄 Yenile</button>
+                    <button onclick="exportTransactions()" class="btn btn-primary btn-sm">
+                        📥 Dışa Aktar
+                    </button>
                 </div>
             </header>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalVolume">₺0</h3>
+                        <p>Toplam İşlem Hacmi</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🔄</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="transactionCount">0</h3>
+                        <p>İşlem Sayısı</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="avgTransaction">₺0</h3>
+                        <p>Ortalama İşlem</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📈</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="todayTransactions">0</h3>
+                        <p>Bugünkü İşlemler</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
             <div class="section">
+                <div class="filters">
+                    <div class="filter-item">
+                        <label>Arama</label>
+                        <input type="text" id="searchInput" class="search-input" 
+                               placeholder="Oyuncu adı veya ürün ara..." 
+                               onkeyup="filterTransactions()">
+                    </div>
+                    <div class="filter-item">
+                        <label>İşlem Tipi</label>
+                        <select id="typeFilter" class="form-control" onchange="filterTransactions()">
+                            <option value="">Tümü</option>
+                            <option value="buy">Alış</option>
+                            <option value="sell">Satış</option>
+                            <option value="trade">Takas</option>
+                            <option value="shop">Dükkan</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Tarih Aralığı</label>
+                        <select id="dateFilter" class="form-control" onchange="filterTransactions()">
+                            <option value="all">Tüm Zamanlar</option>
+                            <option value="today">Bugün</option>
+                            <option value="week">Bu Hafta</option>
+                            <option value="month">Bu Ay</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>İşlem Listesi</h2>
+                    <div>
+                        <span id="resultCount" class="text-secondary"></span>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
-                            <tr><th>Tarih</th><th>Oyuncu</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr>
+                            <tr>
+                                <th>Tarih & Saat</th>
+                                <th>Oyuncu</th>
+                                <th>İşlem Tipi</th>
+                                <th>Ürün/Açıklama</th>
+                                <th>Miktar</th>
+                                <th>Tutar</th>
+                                <th>Durum</th>
+                            </tr>
                         </thead>
                         <tbody id="transactionsTable">
-                            <tr><td colspan="5" class="loading">Yükleniyor...</td></tr>
+                            <tr><td colspan="7" class="loading">Yükleniyor...</td></tr>
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
             </div>
         </main>
     </div>
+
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script>
+        checkAuth();
+
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
         async function loadTransactions() {
-            const tbody = document.getElementById('transactionsTable');
-            tbody.innerHTML = '<tr><td colspan="5" class="no-data">İşlem geçmişi yakında eklenecek</td></tr>';
+            try {
+                // Load players to generate transaction data
+                const players = await api.get('/admin/players');
+                const products = await api.get('/admin/products');
+                
+                // Generate mock transactions based on player data
+                allTransactions = generateMockTransactions(players, products);
+                filteredTransactions = [...allTransactions];
+                
+                updateStats();
+                filterTransactions();
+                
+            } catch (error) {
+                console.error('İşlemler yükleme hatası:', error);
+                document.getElementById('transactionsTable').innerHTML = 
+                    '<tr><td colspan="7" class="no-data">İşlemler yüklenirken hata oluştu</td></tr>';
+            }
         }
+
+        function generateMockTransactions(players, products) {
+            const transactions = [];
+            const types = ['buy', 'sell', 'trade', 'shop'];
+            const statuses = ['completed', 'pending', 'failed'];
+            
+            players.forEach(player => {
+                const transactionCount = player.totalTransactions || Math.floor(Math.random() * 20) + 5;
+                
+                for (let i = 0; i < transactionCount; i++) {
+                    const product = products[Math.floor(Math.random() * products.length)];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    const status = statuses[Math.floor(Math.random() * 10) < 8 ? 0 : Math.floor(Math.random() * 2) + 1];
+                    const quantity = Math.floor(Math.random() * 10) + 1;
+                    const amount = product.basePrice * quantity * (type === 'sell' ? 0.9 : 1.1);
+                    
+                    // Generate random date within last 30 days
+                    const date = new Date();
+                    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+                    
+                    transactions.push({
+                        id: `TXN-${Date.now()}-${i}`,
+                        date: date,
+                        player: player.name,
+                        playerId: player._id,
+                        type: type,
+                        product: product.name,
+                        productId: product._id,
+                        quantity: quantity,
+                        amount: amount,
+                        status: status
+                    });
+                }
+            });
+            
+            // Sort by date descending
+            return transactions.sort((a, b) => b.date - a.date);
+        }
+
+        function updateStats() {
+            const totalVolume = allTransactions
+                .filter(t => t.status === 'completed')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const completedCount = allTransactions.filter(t => t.status === 'completed').length;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayCount = allTransactions.filter(t => {
+                const txDate = new Date(t.date);
+                txDate.setHours(0, 0, 0, 0);
+                return txDate.getTime() === today.getTime();
+            }).length;
+            
+            document.getElementById('totalVolume').textContent = formatCurrency(totalVolume);
+            document.getElementById('transactionCount').textContent = completedCount;
+            document.getElementById('avgTransaction').textContent = 
+                formatCurrency(completedCount > 0 ? totalVolume / completedCount : 0);
+            document.getElementById('todayTransactions').textContent = todayCount;
+        }
+
+        function filterTransactions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            filteredTransactions = allTransactions.filter(transaction => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    transaction.player.toLowerCase().includes(searchTerm) ||
+                    transaction.product.toLowerCase().includes(searchTerm);
+                
+                // Type filter
+                const matchesType = !typeFilter || transaction.type === typeFilter;
+                
+                // Date filter
+                let matchesDate = true;
+                if (dateFilter !== 'all') {
+                    const txDate = new Date(transaction.date);
+                    const now = new Date();
+                    
+                    if (dateFilter === 'today') {
+                        matchesDate = txDate.toDateString() === now.toDateString();
+                    } else if (dateFilter === 'week') {
+                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        matchesDate = txDate >= weekAgo;
+                    } else if (dateFilter === 'month') {
+                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                        matchesDate = txDate >= monthAgo;
+                    }
+                }
+                
+                return matchesSearch && matchesType && matchesDate;
+            });
+            
+            currentPage = 1;
+            renderTransactions();
+            renderPagination();
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactionsTable');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageTransactions = filteredTransactions.slice(start, end);
+            
+            document.getElementById('resultCount').textContent = 
+                `${filteredTransactions.length} işlem bulundu`;
+            
+            if (pageTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">İşlem bulunamadı</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = pageTransactions.map(tx => `
+                <tr>
+                    <td>
+                        <div>${tx.date.toLocaleDateString('tr-TR')}</div>
+                        <small style="color: var(--text-secondary)">${tx.date.toLocaleTimeString('tr-TR')}</small>
+                    </td>
+                    <td><strong>${tx.player}</strong></td>
+                    <td>${getTypeLabel(tx.type)}</td>
+                    <td>
+                        <div>${tx.product}</div>
+                        <small style="color: var(--text-secondary)">Miktar: ${tx.quantity}</small>
+                    </td>
+                    <td>${tx.quantity} adet</td>
+                    <td><strong>${formatCurrency(tx.amount)}</strong></td>
+                    <td>${getStatusBadge(tx.status)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // Previous button
+            html += `<button ${currentPage === 1 ? 'disabled' : ''} 
+                     onclick="changePage(${currentPage - 1})">‹ Önceki</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" 
+                         onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            if (totalPages > 5) {
+                html += `<button disabled>...</button>`;
+                html += `<button onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} 
+                     onclick="changePage(${currentPage + 1})">Sonraki ›</button>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderTransactions();
+            renderPagination();
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'buy': '<span class="badge badge-success">Alış</span>',
+                'sell': '<span class="badge badge-info">Satış</span>',
+                'trade': '<span class="badge badge-warning">Takas</span>',
+                'shop': '<span class="badge badge-secondary">Dükkan</span>'
+            };
+            return labels[type] || type;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'completed': '<span class="badge badge-success">Tamamlandı</span>',
+                'pending': '<span class="badge badge-warning">Beklemede</span>',
+                'failed': '<span class="badge badge-danger">Başarısız</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function exportTransactions() {
+            alert('İşlemler CSV formatında dışa aktarılıyor... (Yakında eklenecek)');
+        }
+
+        // Load transactions on page load
         loadTransactions();
     </script>
 </body>

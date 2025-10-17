@@ -53,7 +53,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: AppColors.danger,
+          ),
         );
       }
     } finally {
@@ -67,25 +70,38 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.primary,
-              AppColors.primary.withValues(alpha: 0.7),
+              AppColors.backgroundPrimary,
+              AppColors.backgroundSecondary,
             ],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // Back Button
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(),
+              // Back Button with Game UI Style
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.backgroundCard.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border, width: 1),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.primary,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
                 ),
               ),
 
@@ -99,7 +115,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Animated Logo
+                          // Animated Logo with Glow Effect
                           TweenAnimationBuilder(
                             duration: const Duration(milliseconds: 800),
                             tween: Tween<double>(begin: 0, end: 1),
@@ -109,15 +125,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(AppSpacing.lg),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
+                                    gradient: const LinearGradient(
+                                      colors: AppColors.successGradient,
+                                    ),
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.2,
+                                        color: AppColors.success.withValues(
+                                          alpha: 0.5,
                                         ),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
+                                        blurRadius: 30,
+                                        spreadRadius: 10,
                                       ),
                                     ],
                                   ),
@@ -132,7 +150,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           const SizedBox(height: AppSpacing.xl),
 
-                          // Title with animation
+                          // Title with Glow Effect
                           TweenAnimationBuilder(
                             duration: const Duration(milliseconds: 600),
                             tween: Tween<double>(begin: 0, end: 1),
@@ -141,13 +159,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 opacity: value,
                                 child: Column(
                                   children: [
-                                    const Text(
-                                      'Kayıt Ol',
-                                      style: TextStyle(
-                                        fontSize: 36,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        letterSpacing: 1,
+                                    ShaderMask(
+                                      shaderCallback: (bounds) =>
+                                          const LinearGradient(
+                                            colors: AppColors.successGradient,
+                                          ).createShader(bounds),
+                                      child: const Text(
+                                        'Kayıt Ol',
+                                        style: TextStyle(
+                                          fontSize: 42,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 1,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: AppSpacing.xs),
@@ -155,9 +179,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       'Yeni hesap oluştur',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white.withValues(
-                                          alpha: 0.9,
-                                        ),
+                                        color: AppColors.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -171,7 +193,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           _buildTextField(
                             controller: _nameController,
                             label: 'Ad Soyad',
-                            icon: Icons.person,
+                            icon: Icons.person_outline,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Ad soyad gerekli';
@@ -202,7 +224,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           _buildTextField(
                             controller: _emailController,
                             label: 'Email',
-                            icon: Icons.email,
+                            icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -217,77 +239,119 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: AppSpacing.md),
 
                           // Password Field
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              labelText: 'Şifre',
-                              labelStyle: const TextStyle(
-                                color: Colors.white70,
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppColors.backgroundCard.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                  AppColors.backgroundInput.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ],
                               ),
-                              prefixIcon: const Icon(
-                                Icons.lock,
-                                color: Colors.white70,
+                              border: Border.all(
+                                color: AppColors.border,
+                                width: 1,
                               ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: Colors.white70,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                                onPressed: () {
-                                  setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  );
-                                },
-                              ),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.1),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
+                              ],
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Şifre gerekli';
-                              }
-                              if (value.length < 6) {
-                                return 'Şifre en az 6 karakter olmalı';
-                              }
-                              return null;
-                            },
+                            child: TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                              ),
+                              decoration: InputDecoration(
+                                labelText: 'Şifre',
+                                labelStyle: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  color: AppColors.success,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  onPressed: () {
+                                    setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
+                                    );
+                                  },
+                                ),
+                                filled: true,
+                                fillColor: Colors.transparent,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.success,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Şifre gerekli';
+                                }
+                                if (value.length < 6) {
+                                  return 'Şifre en az 6 karakter olmalı';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
                           const SizedBox(height: AppSpacing.xl),
 
-                          // Register Button
-                          SizedBox(
+                          // Register Button with Gradient
+                          Container(
                             width: double.infinity,
                             height: 56,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: AppColors.successGradient,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.success.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _register,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: AppColors.primary,
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                shadowColor: Colors.transparent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                elevation: 0,
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -295,6 +359,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       width: 24,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : const Text(
@@ -302,6 +370,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
                                       ),
                                     ),
                             ),
@@ -326,30 +395,49 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
-        prefixIcon: Icon(icon, color: Colors.white70),
-        filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.1),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [
+            AppColors.backgroundCard.withValues(alpha: 0.5),
+            AppColors.backgroundInput.withValues(alpha: 0.5),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.white, width: 2),
-        ),
+        border: Border.all(color: AppColors.border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      validator: validator,
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+          prefixIcon: Icon(icon, color: AppColors.success),
+          filled: true,
+          fillColor: Colors.transparent,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.success, width: 2),
+          ),
+        ),
+        validator: validator,
+      ),
     );
   }
 }

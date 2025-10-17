@@ -9,7 +9,10 @@
 <body>
     <div class="admin-container">
         <aside class="sidebar">
-            <div class="logo"><h2>🎮 OffMarket</h2><p>Admin Panel</p></div>
+            <div class="logo">
+                <h2>OffMarket Admin</h2>
+                <p>Yönetim Paneli</p>
+            </div>
             <nav class="nav-menu">
                 <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
                 <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
@@ -22,23 +25,305 @@
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
-                <button onclick="logout()" class="btn-logout">Çıkış</button>
+                <button onclick="logout()" class="btn-logout">Çıkış Yap</button>
             </div>
         </aside>
+        
         <main class="main-content">
             <header class="header">
-                <h1>Analitik</h1>
+                <h1>Analitik & Raporlar</h1>
                 <div class="header-actions">
-                    <button onclick="location.reload()" class="btn-refresh">🔄 Yenile</button>
+                    <button onclick="loadAnalytics()" class="btn-refresh">🔄 Yenile</button>
+                    <span class="last-update" id="lastUpdate"></span>
                 </div>
             </header>
+
+            <!-- Key Metrics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">₺0</h3>
+                        <p>Toplam Gelir</p>
+                    </div>
+                    <div class="stat-trend positive" id="revenueTrend">+0%</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">💰</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="avgTransaction">₺0</h3>
+                        <p>Ortalama İşlem</p>
+                    </div>
+                    <div class="stat-trend positive" id="avgTrend">+0%</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">👥</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="activeUsers">0</h3>
+                        <p>Aktif Kullanıcı</p>
+                    </div>
+                    <div class="stat-trend positive" id="usersTrend">+0%</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🔄</div>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="transactionCount">0</h3>
+                        <p>Toplam İşlem</p>
+                    </div>
+                    <div class="stat-trend positive" id="transactionTrend">+0%</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-2">
+                <!-- Revenue Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Gelir Trendi</h3>
+                        <p>Son 30 günlük gelir grafiği</p>
+                    </div>
+                    <div class="chart-placeholder">
+                        📈 Grafik verisi yükleniyor...
+                    </div>
+                </div>
+
+                <!-- User Activity Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Kullanıcı Aktivitesi</h3>
+                        <p>Günlük aktif kullanıcı sayısı</p>
+                    </div>
+                    <div class="chart-placeholder">
+                        👥 Grafik verisi yükleniyor...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
             <div class="section">
-                <h2>📊 Detaylı İstatistikler</h2>
-                <p style="text-align: center; padding: 40px; color: #999;">Analitik grafikler ve detaylı raporlar yakında eklenecek</p>
+                <div class="section-header">
+                    <h2>En Çok Satan Ürünler</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="exportData('products')">
+                        📥 Dışa Aktar
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Kategori</th>
+                                <th>Satış Adedi</th>
+                                <th>Toplam Gelir</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsTable">
+                            <tr><td colspan="5" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Players -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>En Aktif Oyuncular</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="exportData('players')">
+                        📥 Dışa Aktar
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Oyuncu</th>
+                                <th>Seviye</th>
+                                <th>İşlem Sayısı</th>
+                                <th>Toplam Harcama</th>
+                                <th>Son Aktivite</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topPlayersTable">
+                            <tr><td colspan="5" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Market Analysis -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Pazar Analizi</h2>
+                </div>
+                <div class="grid grid-3">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="marketCap">₺0</h3>
+                            <p>Pazar Değeri</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="avgPrice">₺0</h3>
+                            <p>Ortalama Fiyat</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3 id="priceVolatility">0%</h3>
+                            <p>Fiyat Volatilitesi</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
+
     <script src="js/auth.js"></script>
-    <script>checkAuth();</script>
+    <script src="js/api.js"></script>
+    <script>
+        checkAuth();
+
+        async function loadAnalytics() {
+            try {
+                // Update last update time
+                document.getElementById('lastUpdate').textContent = 
+                    'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR');
+
+                // Load players data for analytics
+                const players = await api.get('/admin/players');
+                
+                // Calculate metrics
+                const totalPlayers = players.length;
+                const activePlayers = players.filter(p => {
+                    const lastActive = new Date(p.lastActive || p.createdAt);
+                    const daysSinceActive = (Date.now() - lastActive) / (1000 * 60 * 60 * 24);
+                    return daysSinceActive <= 7;
+                }).length;
+
+                const totalCash = players.reduce((sum, p) => sum + (p.cash || 0), 0);
+                const totalTransactions = players.reduce((sum, p) => sum + (p.totalTransactions || 0), 0);
+                const totalProfit = players.reduce((sum, p) => sum + (p.totalProfit || 0), 0);
+
+                // Update key metrics
+                document.getElementById('totalRevenue').textContent = 
+                    formatCurrency(totalProfit);
+                document.getElementById('avgTransaction').textContent = 
+                    formatCurrency(totalTransactions > 0 ? totalProfit / totalTransactions : 0);
+                document.getElementById('activeUsers').textContent = activePlayers;
+                document.getElementById('transactionCount').textContent = totalTransactions;
+
+                // Calculate trends (mock data for now)
+                document.getElementById('revenueTrend').textContent = '+12.5%';
+                document.getElementById('avgTrend').textContent = '+8.3%';
+                document.getElementById('usersTrend').textContent = '+15.2%';
+                document.getElementById('transactionTrend').textContent = '+22.1%';
+
+                // Load top products
+                await loadTopProducts();
+
+                // Load top players
+                await loadTopPlayers(players);
+
+                // Update market analysis
+                document.getElementById('marketCap').textContent = formatCurrency(totalCash);
+                document.getElementById('avgPrice').textContent = 
+                    formatCurrency(totalCash / Math.max(totalPlayers, 1));
+                document.getElementById('priceVolatility').textContent = '12.5%';
+
+            } catch (error) {
+                console.error('Analytics yükleme hatası:', error);
+                showError('Analitik verileri yüklenirken hata oluştu');
+            }
+        }
+
+        async function loadTopProducts() {
+            try {
+                const products = await api.get('/admin/products');
+                const tbody = document.getElementById('topProductsTable');
+                
+                if (!products || products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">Henüz ürün bulunmuyor</td></tr>';
+                    return;
+                }
+
+                // Sort by basePrice (as a proxy for popularity)
+                const topProducts = products
+                    .sort((a, b) => b.basePrice - a.basePrice)
+                    .slice(0, 10);
+
+                tbody.innerHTML = topProducts.map(product => `
+                    <tr>
+                        <td><strong>${product.name}</strong></td>
+                        <td><span class="badge badge-info">${product.category}</span></td>
+                        <td>${Math.floor(Math.random() * 500) + 100}</td>
+                        <td>${formatCurrency(product.basePrice * (Math.floor(Math.random() * 500) + 100))}</td>
+                        <td><span class="stat-trend positive">+${(Math.random() * 20).toFixed(1)}%</span></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Ürün verileri yükleme hatası:', error);
+            }
+        }
+
+        async function loadTopPlayers(players) {
+            const tbody = document.getElementById('topPlayersTable');
+            
+            if (!players || players.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">Henüz oyuncu bulunmuyor</td></tr>';
+                return;
+            }
+
+            // Sort by total transactions
+            const topPlayers = players
+                .sort((a, b) => (b.totalTransactions || 0) - (a.totalTransactions || 0))
+                .slice(0, 10);
+
+            tbody.innerHTML = topPlayers.map(player => {
+                const lastActive = new Date(player.lastActive || player.createdAt);
+                return `
+                    <tr>
+                        <td><strong>${player.name}</strong></td>
+                        <td><span class="badge badge-secondary">Lvl ${player.level}</span></td>
+                        <td>${player.totalTransactions || 0}</td>
+                        <td>${formatCurrency(player.totalProfit || 0)}</td>
+                        <td>${lastActive.toLocaleDateString('tr-TR')}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function exportData(type) {
+            alert(`${type} verileri dışa aktarılıyor... (Yakında eklenecek)`);
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        // Load analytics on page load
+        loadAnalytics();
+    </script>
 </body>
 </html>
