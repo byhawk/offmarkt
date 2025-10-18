@@ -213,4 +213,136 @@ class ApiService {
       return [];
     }
   }
+
+  // ============ SHOP EKONOMİK SİSTEM API ============
+
+  /// Dükkanın listelenen ürünlerini getir
+  Future<Map<String, dynamic>> getShopListedProducts(String shopId) async {
+    final response = await get('/shop/$shopId/products');
+    return {
+      'success': response.data['success'],
+      'products': response.data['data']['products'] ?? [],
+      'stockStats': response.data['data']['stockStats'] ?? {},
+    };
+  }
+
+  /// Dükkanda ürün listele
+  Future<Map<String, dynamic>> listProductInShop({
+    required String shopId,
+    required String productId,
+    required double listPrice,
+    int minStock = 5,
+    int maxStock = 20,
+  }) async {
+    final response = await post(
+      '/shop/$shopId/products',
+      data: {
+        'productId': productId,
+        'listPrice': listPrice,
+        'minStock': minStock,
+        'maxStock': maxStock,
+      },
+    );
+    return response.data;
+  }
+
+  /// Listelenen ürünü güncelle
+  Future<Map<String, dynamic>> updateListedProduct({
+    required String shopId,
+    required String productId,
+    double? listPrice,
+    int? minStock,
+    int? maxStock,
+    bool? autoPurchase,
+  }) async {
+    final updateData = <String, dynamic>{};
+    if (listPrice != null) updateData['listPrice'] = listPrice;
+    if (minStock != null) updateData['minStock'] = minStock;
+    if (maxStock != null) updateData['maxStock'] = maxStock;
+    if (autoPurchase != null) updateData['autoPurchase'] = autoPurchase;
+
+    final response = await put(
+      '/shop/$shopId/products/$productId',
+      data: updateData,
+    );
+    return response.data;
+  }
+
+  /// Ürünü satıştan kaldır
+  Future<Map<String, dynamic>> removeListedProduct({
+    required String shopId,
+    required String productId,
+  }) async {
+    final response = await delete('/shop/$shopId/products/$productId');
+    return response.data;
+  }
+
+  /// Dükkan stok istatistikleri
+  Future<Map<String, dynamic>> getShopStockStats(String shopId) async {
+    final response = await get('/shop/$shopId/stock-stats');
+    return response.data;
+  }
+
+  /// Otomatik stok alımı gerçekleştir
+  Future<Map<String, dynamic>> performAutoPurchase(
+    String shopId, {
+    int maxItems = 5,
+  }) async {
+    final response = await post(
+      '/shop/$shopId/auto-purchase',
+      data: {'maxItems': maxItems},
+    );
+    return response.data;
+  }
+
+  /// Otomatik alım ayarlarını getir
+  Future<Map<String, dynamic>> getAutoPurchaseSettings(String shopId) async {
+    final response = await get('/shop/$shopId/auto-settings');
+    return response.data;
+  }
+
+  /// Otomatik alım ayarlarını güncelle
+  Future<Map<String, dynamic>> updateAutoPurchaseSettings({
+    required String shopId,
+    bool? enableBalanceControl,
+    int? balanceInterval,
+    double? priceAdjustmentRate,
+    bool? smartPricing,
+  }) async {
+    final updateData = <String, dynamic>{};
+    if (enableBalanceControl != null)
+      updateData['enableBalanceControl'] = enableBalanceControl;
+    if (balanceInterval != null)
+      updateData['balanceInterval'] = balanceInterval;
+    if (priceAdjustmentRate != null)
+      updateData['priceAdjustmentRate'] = priceAdjustmentRate;
+    if (smartPricing != null) updateData['smartPricing'] = smartPricing;
+
+    final response = await put('/shop/$shopId/auto-settings', data: updateData);
+    return response.data;
+  }
+
+  // ============ ARZ/TALEP ANALİZİ API ============
+
+  /// Genel arz/talep analizini al
+  Future<Map<String, dynamic>> getSupplyDemandAnalysis({
+    String? productId,
+  }) async {
+    final response = await get(
+      '/market/supply-demand-analysis',
+      queryParameters: {if (productId != null) 'productId': productId},
+    );
+    return response.data;
+  }
+
+  /// Otomatik fiyat ayarlama çalıştır
+  Future<Map<String, dynamic>> runAutoPriceAdjustment({
+    int maxAdjustments = 10,
+  }) async {
+    final response = await post(
+      '/market/auto-price-adjustment',
+      data: {'maxAdjustments': maxAdjustments},
+    );
+    return response.data;
+  }
 }

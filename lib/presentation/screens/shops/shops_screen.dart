@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'shop_detail_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -38,11 +39,8 @@ class ShopsScreen extends ConsumerWidget {
         body: TabBarView(
           children: [
             // Müsait dükkanlar
-            _AvailableShopsTab(
-              shops: availableShops,
-              playerCash: player.cash,
-            ),
-            // Kiralanan dükkanlar
+            _AvailableShopsTab(shops: availableShops, playerCash: player.cash),
+            // Kiralanan dükkanlar - ekonomik sistemle birlikte
             _RentedShopsTab(shops: rentedShops),
           ],
         ),
@@ -55,10 +53,7 @@ class _AvailableShopsTab extends ConsumerWidget {
   final List<Shop> shops;
   final double playerCash;
 
-  const _AvailableShopsTab({
-    required this.shops,
-    required this.playerCash,
-  });
+  const _AvailableShopsTab({required this.shops, required this.playerCash});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -118,8 +113,12 @@ class _AvailableShopsTab extends ConsumerWidget {
             legalReputation: player.legalReputation,
           );
 
-          final locationMultiplier = ShopSystem.getLocationMultiplier(shop.locationType);
-          final categoryMultiplier = ShopSystem.getCategoryMultiplier(selectedCategory);
+          final locationMultiplier = ShopSystem.getLocationMultiplier(
+            shop.locationType,
+          );
+          final categoryMultiplier = ShopSystem.getCategoryMultiplier(
+            selectedCategory,
+          );
 
           return AlertDialog(
             title: Text('${shop.name} Kirala'),
@@ -128,10 +127,7 @@ class _AvailableShopsTab extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Toplam Ödeme:',
-                    style: AppTextStyles.label,
-                  ),
+                  Text('Toplam Ödeme:', style: AppTextStyles.label),
                   Text(
                     Formatters.formatCurrency(shop.deposit + shop.monthlyRent),
                     style: AppTextStyles.h3.copyWith(color: AppColors.danger),
@@ -146,10 +142,7 @@ class _AvailableShopsTab extends ConsumerWidget {
                     style: AppTextStyles.caption,
                   ),
                   const Gap(AppSpacing.md),
-                  Text(
-                    'İşletme Kategorisi Seçin:',
-                    style: AppTextStyles.label,
-                  ),
+                  Text('İşletme Kategorisi Seçin:', style: AppTextStyles.label),
                   const Gap(AppSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: selectedCategory,
@@ -180,7 +173,9 @@ class _AvailableShopsTab extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +220,9 @@ class _AvailableShopsTab extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              Formatters.formatCurrency(estimatedRevenue - shop.monthlyRent),
+                              Formatters.formatCurrency(
+                                estimatedRevenue - shop.monthlyRent,
+                              ),
                               style: AppTextStyles.label.copyWith(
                                 color: (estimatedRevenue - shop.monthlyRent) > 0
                                     ? AppColors.success
@@ -249,7 +246,9 @@ class _AvailableShopsTab extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () {
                   final player = ref.read(playerNotifierProvider);
-                  final playerNotifier = ref.read(playerNotifierProvider.notifier);
+                  final playerNotifier = ref.read(
+                    playerNotifierProvider.notifier,
+                  );
 
                   // ShopSystem ile validasyon
                   final (canRent, errorMessage) = ShopSystem.canRentShop(
@@ -274,7 +273,9 @@ class _AvailableShopsTab extends ConsumerWidget {
                   playerNotifier.removeCash(totalCost);
 
                   // Dükkanı kirala
-                  ref.read(shopsNotifierProvider.notifier).rentShop(
+                  ref
+                      .read(shopsNotifierProvider.notifier)
+                      .rentShop(
                         shop.id,
                         'player_1', // Player ID
                         selectedCategory,
@@ -340,10 +341,7 @@ class _RentedShopsTab extends ConsumerWidget {
       itemCount: shops.length,
       itemBuilder: (context, index) {
         final shop = shops[index];
-        return _RentedShopCard(
-          shop: shop,
-          playerLevel: player.level,
-        );
+        return _RentedShopCard(shop: shop, playerLevel: player.level);
       },
     );
   }
@@ -400,10 +398,7 @@ class _ShopCard extends StatelessWidget {
                   children: [
                     Text(shop.name, style: AppTextStyles.h3),
                     const Gap(AppSpacing.xs),
-                    Text(
-                      shop.location,
-                      style: AppTextStyles.caption,
-                    ),
+                    Text(shop.location, style: AppTextStyles.caption),
                   ],
                 ),
               ),
@@ -416,24 +411,12 @@ class _ShopCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.xs,
             children: [
-              _FeatureChip(
-                icon: '📏',
-                label: '${shop.squareMeters}m²',
-              ),
-              _FeatureChip(
-                icon: '🏗️',
-                label: '${shop.floor}. Kat',
-              ),
+              _FeatureChip(icon: '📏', label: '${shop.squareMeters}m²'),
+              _FeatureChip(icon: '🏗️', label: '${shop.floor}. Kat'),
               if (shop.hasWindow)
-                const _FeatureChip(
-                  icon: '🪟',
-                  label: 'Vitrinli',
-                ),
+                const _FeatureChip(icon: '🪟', label: 'Vitrinli'),
               if (shop.parkingSpaces > 0)
-                _FeatureChip(
-                  icon: '🅿️',
-                  label: '${shop.parkingSpaces} Park',
-                ),
+                _FeatureChip(icon: '🅿️', label: '${shop.parkingSpaces} Park'),
             ],
           ),
           const Gap(AppSpacing.md),
@@ -466,9 +449,7 @@ class _ShopCard extends StatelessWidget {
                     Text('Depozito', style: AppTextStyles.caption),
                     Text(
                       Formatters.formatCurrency(shop.deposit),
-                      style: AppTextStyles.h4.copyWith(
-                        color: AppColors.danger,
-                      ),
+                      style: AppTextStyles.h4.copyWith(color: AppColors.danger),
                     ),
                   ],
                 ),
@@ -500,10 +481,7 @@ class _RentedShopCard extends StatelessWidget {
   final Shop shop;
   final int playerLevel;
 
-  const _RentedShopCard({
-    required this.shop,
-    required this.playerLevel,
-  });
+  const _RentedShopCard({required this.shop, required this.playerLevel});
 
   String _getLocationIcon(String locationType) {
     switch (locationType) {
@@ -546,7 +524,8 @@ class _RentedShopCard extends StatelessWidget {
         : 0.0;
 
     // Basit bir performans skoru hesaplama (beklenen vs gerçek)
-    final expectedRevenue = shop.monthlyRevenue * 1.2; // %20 daha yüksek beklenti
+    final expectedRevenue =
+        shop.monthlyRevenue * 1.2; // %20 daha yüksek beklenti
     final expectedCustomers = shop.monthlyCustomers + 100;
 
     final performanceScore = ShopSystem.calculatePerformanceScore(
@@ -592,10 +571,7 @@ class _RentedShopCard extends StatelessWidget {
                   children: [
                     Text(shop.name, style: AppTextStyles.h3),
                     const Gap(AppSpacing.xs),
-                    Text(
-                      shop.location,
-                      style: AppTextStyles.caption,
-                    ),
+                    Text(shop.location, style: AppTextStyles.caption),
                   ],
                 ),
               ),
@@ -613,7 +589,9 @@ class _RentedShopCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: performanceColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: performanceColor.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: performanceColor.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -621,10 +599,7 @@ class _RentedShopCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Performans',
-                      style: AppTextStyles.caption,
-                    ),
+                    Text('Performans', style: AppTextStyles.caption),
                     Text(
                       performanceRating,
                       style: AppTextStyles.h4.copyWith(
@@ -637,10 +612,7 @@ class _RentedShopCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Skor',
-                      style: AppTextStyles.caption,
-                    ),
+                    Text('Skor', style: AppTextStyles.caption),
                     Text(
                       '${performanceScore.toStringAsFixed(0)}/100',
                       style: AppTextStyles.h4.copyWith(
@@ -714,7 +686,9 @@ class _RentedShopCard extends StatelessWidget {
                     Text(
                       '%${profitMargin.toStringAsFixed(1)}',
                       style: AppTextStyles.label.copyWith(
-                        color: profitMargin > 0 ? AppColors.success : AppColors.danger,
+                        color: profitMargin > 0
+                            ? AppColors.success
+                            : AppColors.danger,
                       ),
                     ),
                   ],
@@ -729,7 +703,13 @@ class _RentedShopCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // İşletme detayları
+                    // Ekonomik sistem detaylarına git
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ShopDetailScreen(shop: shop),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.analytics),
                   label: const Text('Detaylar'),
@@ -765,10 +745,7 @@ class _FeatureChip extends StatelessWidget {
   final String icon;
   final String label;
 
-  const _FeatureChip({
-    required this.icon,
-    required this.label,
-  });
+  const _FeatureChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -787,10 +764,7 @@ class _FeatureChip extends StatelessWidget {
         children: [
           Text(icon, style: const TextStyle(fontSize: 12)),
           const Gap(4),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(fontSize: 12),
-          ),
+          Text(label, style: AppTextStyles.caption.copyWith(fontSize: 12)),
         ],
       ),
     );

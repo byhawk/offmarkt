@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/models/research_development.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 import '../../widgets/common/stat_card.dart';
@@ -33,9 +34,7 @@ class BusinessScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('💼 İşletmelerim'),
-      ),
+      appBar: AppBar(title: const Text('💼 İşletmelerim')),
       body: playerShops.isEmpty
           ? _EmptyBusinessView()
           : SingleChildScrollView(
@@ -44,10 +43,7 @@ class BusinessScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Genel özet
-                  Text(
-                    'İşletme Özeti',
-                    style: AppTextStyles.h3,
-                  ),
+                  Text('İşletme Özeti', style: AppTextStyles.h3),
                   const Gap(AppSpacing.md),
 
                   Row(
@@ -100,10 +96,7 @@ class BusinessScreen extends ConsumerWidget {
                   const Gap(AppSpacing.xl),
 
                   // Dükkan detayları
-                  Text(
-                    'Dükkanlarım',
-                    style: AppTextStyles.h3,
-                  ),
+                  Text('Dükkanlarım', style: AppTextStyles.h3),
                   const Gap(AppSpacing.md),
 
                   ...playerShops.map((shop) => _BusinessCard(shop: shop)),
@@ -362,11 +355,125 @@ class _StatRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: AppTextStyles.caption),
-        Text(
-          value,
-          style: AppTextStyles.label.copyWith(color: valueColor),
+        Text(value, style: AppTextStyles.label.copyWith(color: valueColor)),
+      ],
+    );
+  }
+}
+
+class _NewProjectDialog extends StatefulWidget {
+  final Function(RdRequest) onProjectStart;
+
+  const _NewProjectDialog({required this.onProjectStart});
+
+  @override
+  State<_NewProjectDialog> createState() => _NewProjectDialogState();
+}
+
+class _NewProjectDialogState extends State<_NewProjectDialog> {
+  RdProjectType? selectedType;
+  RdProjectLevel? selectedLevel;
+  final projectNameController = TextEditingController();
+  final projectDescController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('🆕 Yeni Ar-Ge Projesi'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Proje Türü', style: AppTextStyles.label),
+            DropdownButtonFormField<RdProjectType>(
+              value: selectedType,
+              items: RdProjectType.values
+                  .map(
+                    (type) => DropdownMenuItem(
+                      value: type,
+                      child: Text(type.displayName),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => selectedType = value),
+            ),
+            const Gap(AppSpacing.md),
+
+            Text('Proje Seviyesi', style: AppTextStyles.label),
+            DropdownButtonFormField<RdProjectLevel>(
+              value: selectedLevel,
+              items: RdProjectLevel.values
+                  .map(
+                    (level) => DropdownMenuItem(
+                      value: level,
+                      child: Text(level.displayName),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => selectedLevel = value),
+            ),
+            const Gap(AppSpacing.md),
+
+            Text('Proje Adı', style: AppTextStyles.label),
+            TextFormField(
+              controller: projectNameController,
+              decoration: const InputDecoration(hintText: 'Proje adı girin...'),
+            ),
+            const Gap(AppSpacing.md),
+
+            Text('Proje Açıklaması', style: AppTextStyles.label),
+            TextFormField(
+              controller: projectDescController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Proje açıklaması...',
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('İptal'),
+        ),
+        ElevatedButton(
+          onPressed: _canStartProject() ? _startProject : null,
+          child: const Text('Başlat'),
         ),
       ],
     );
+  }
+
+  bool _canStartProject() {
+    return selectedType != null &&
+        selectedLevel != null &&
+        projectNameController.text.isNotEmpty &&
+        projectDescController.text.isNotEmpty;
+  }
+
+  void _startProject() {
+    final request = RdRequest(
+      playerId: 'player_1', // TODO: Get from provider
+      type: selectedType!,
+      level: selectedLevel!,
+      projectName: projectNameController.text,
+      projectDescription: projectDescController.text,
+    );
+
+    widget.onProjectStart(request);
+    Navigator.of(context).pop();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('"${request.projectName}" projesi başlatıldı!')),
+    );
+  }
+
+  @override
+  void dispose() {
+    projectNameController.dispose();
+    projectDescController.dispose();
+    super.dispose();
   }
 }

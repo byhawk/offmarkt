@@ -20,8 +20,9 @@
                 <a href="/shops.html" class="nav-item"><span>🏪</span> Dükkanlar</a>
                 <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
                 <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/economic-dashboard.html" class="nav-item"><span>📈</span> Ekonomi</a>
+                <a href="/analytics.html" class="nav-item active"><span>📊</span> Analitik</a>
                 <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
-                <a href="/analytics.html" class="nav-item active"><span>📈</span> Analitik</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
@@ -315,7 +316,75 @@
         }
 
         function exportData(type) {
-            alert(`${type} verileri dışa aktarılıyor... (Yakında eklenecek)`);
+            try {
+                if (type === 'products') {
+                    const tbody = document.getElementById('topProductsTable');
+                    const rows = tbody.querySelectorAll('tr');
+                    const data = [];
+
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length === 5) {
+                            data.push([
+                                cells[0].textContent.trim(),
+                                cells[1].textContent.trim(),
+                                cells[2].textContent.trim(),
+                                cells[3].textContent.trim(),
+                                cells[4].textContent.trim()
+                            ]);
+                        }
+                    });
+
+                    const csvContent = [
+                        ['Ürün', 'Kategori', 'Satış Adedi', 'Toplam Gelir', 'Trend'],
+                        ...data
+                    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                    downloadCSV(csvContent, 'top-products-report.csv');
+                } else if (type === 'players') {
+                    const tbody = document.getElementById('topPlayersTable');
+                    const rows = tbody.querySelectorAll('tr');
+                    const data = [];
+
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length === 5) {
+                            data.push([
+                                cells[0].textContent.trim(),
+                                cells[1].textContent.trim(),
+                                cells[2].textContent.trim(),
+                                cells[3].textContent.trim(),
+                                cells[4].textContent.trim()
+                            ]);
+                        }
+                    });
+
+                    const csvContent = [
+                        ['Oyuncu', 'Seviye', 'İşlem Sayısı', 'Toplam Harcama', 'Son Aktivite'],
+                        ...data
+                    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                    downloadCSV(csvContent, 'top-players-report.csv');
+                }
+                alert(`${type} verileri başarıyla dışa aktarıldı!`);
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Veri dışa aktarma başarısız oldu');
+            }
+        }
+
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function showError(message) {

@@ -673,4 +673,367 @@ router.post('/banned-words/check', protectAdmin, checkPermission('manage_setting
   });
 }));
 
+// === EKONOMİK SİSTEM YÖNETİMİ ===
+
+// @route   GET /api/admin/economic-dashboard
+// @desc    Ekonomik sistem dashboard'ı
+// @access  Private (Admin)
+router.get('/economic-dashboard', protectAdmin, checkPermission('view_analytics'), asyncHandler(async (req, res) => {
+  // Genel market istatistikleri
+  const allShops = await Shop.find({ isActive: true }).populate('listedProducts.productId');
+  const totalListedProducts = allShops.reduce((sum, shop) => sum + shop.listedProducts.length, 0);
+
+  // Aktif ekonomik sistemler
+  const shopsWithAutoPurchase = allShops.filter(shop => shop.autoPurchaseSettings.enableBalanceControl).length;
+
+  // Arz/talep analizi (son 24 saat)
+  const productIds = await Product.find({ isActive: true }).select('_id');
+  const marketAnalysis = [];
+
+  for (const product of productIds) {
+    const analysis = await require('./market').calculateSupplyDemandForProduct(product._id, allShops);
+    marketAnalysis.push({
+      productId: product._id,
+      productName: product.name,
+      supplyRatio: analysis.supplyRatio,
+      demandLevel: analysis.demandLevel,
+      totalListed: analysis.totalListed,
+      totalAvailable: analysis.totalAvailable
+    });
+  }
+
+  // Piyasa sağlığı
+  const summary = require('./market').calculateMarketSummary(marketAnalysis);
+
+  const dashboard = {
+    marketOverview: {
+      totalShops: allShops.length,
+      shopsWithAutoPurchase,
+      totalListedProducts,
+      marketHealth: summary.marketHealth
+    },
+    supplyDemandAnalysis: {
+      analyses: marketAnalysis,
+      summary
+    },
+    recentPriceAdjustments: [], // TODO: Son fiyat değişiklikleri
+    shopPerformance: allShops.map(shop => ({
+      shopId: shop._id,
+      shopName: shop.name,
+      owner: shop.rentedBy,
+      listedProductsCount: shop.listedProducts.length,
+      totalStockValue: shop.listedProducts.reduce((sum, p) => sum + (p.currentStock * p.listPrice), 0),
+      autoPurchaseEnabled: shop.autoPurchaseSettings.enableBalanceControl
+    }))
+  };
+
+  res.json({
+    success: true,
+    data: dashboard
+  });
+}));
+
+// @route   GET /api/admin/shops/detailed
+// @desc    Dükkanların ekonomik detayları
+// @access  Private (Admin)
+router.get('/shops/detailed', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const shops = await Shop.find()
+    .populate('rentedBy', 'username email')
+    .populate('listedProducts.productId', 'name category')
+    .sort({ monthlyRent: -1 });
+
+  const detailedShops = shops.map(shop => ({
+    ...shop.toObject(),
+    economicMetrics: {
+      listedProductsCount: shop.listedProducts.length,
+      totalListedValue: shop.listedProducts.reduce((sum, p) => sum + (p.currentStock * p.listPrice), 0),
+      lowStockProducts: shop.listedProducts.filter(p => p.currentStock < p.minStock).length,
+      autoPurchaseEnabled: shop.autoPurchaseSettings.enableBalanceControl,
+      lastPurchaseDate: shop.listedProducts.length > 0 ?
+        Math.max(...shop.listedProducts.map(p => p.lastPurchaseDate?.getTime() || 0)) : null
+    }
+  }));
+
+  res.json({
+    success: true,
+    data: { shops: detailedShops }
+  });
+}));
+
+// @route   GET /api/admin/shops/:shopId/listed-products
+// @desc    Dükkanın listelenen ürünleri detayı
+// @access  Private (Admin)
+router.get('/shops/:shopId/listed-products', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const shop = await Shop.findById(req.params.shopId)
+    .populate('rentedBy', 'username email')
+    .populate('listedProducts.productId', 'name category emoji');
+
+  if (!shop) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      shopInfo: {
+        id: shop._id,
+        name: shop.name,
+        location: shop.location,
+        owner: shop.rentedBy,
+        autoPurchaseSettings: shop.autoPurchaseSettings
+      },
+      listedProducts: shop.listedProducts,
+      summary: shop.getStockStatistics()
+    }
+  });
+}));
+
+// @route   POST /api/admin/shops/:shopId/reset-inventory
+// @desc    Dükkan envanterini sıfırla
+// @access  Private (Admin)
+router.post('/shops/:shopId/reset-inventory', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const shop = await Shop.findById(req.params.shopId);
+
+  if (!shop) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan bulunamadı'
+    });
+  }
+
+  // Tüm ürünleri sıfırla
+  shop.listedProducts.forEach(product => {
+    product.currentStock = 0;
+    product.totalSold = 0;
+    product.lastPurchaseDate = null;
+  });
+
+  await shop.save();
+
+  res.json({
+    success: true,
+    message: 'Dükkan envanteri sıfırlandı'
+  });
+}));
+
+// @route   POST /api/admin/market/global-price-adjustment
+// @desc    Tüm pazar için genel fiyat ayarlama çalıştır
+// @access  Private (Admin)
+router.post('/market/global-price-adjustment', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const { forceAdjustment = false, maxAdjustments = 20 } = req.body;
+
+  // Tüm aktif dükkanları getir
+  const allShops = await Shop.find({ isActive: true });
+
+  let totalAdjustments = 0;
+  const adjustmentResults = [];
+
+  for (const shop of allShops) {
+    if (!forceAdjustment && !shop.autoPurchaseSettings.smartPricing) continue;
+
+    // Bu dükkanın arz/talep analizini al
+    const allShopsPopulated = await Shop.find({ isActive: true }).populate('listedProducts.productId');
+    const shopAnalysis = await require('./market').calculateSupplyDemandForShop(shop._id, allShopsPopulated);
+
+    for (const analysis of shopAnalysis.productAnalyses) {
+      // Çok arz veya az arz durumları
+      const needsAdjustment = analysis.supplyRatio < 0.5 || analysis.supplyRatio > 2.0;
+
+      if (forceAdjustment || needsAdjustment) {
+        try {
+          await shop.adjustPriceForSupplyDemand(
+            analysis.productId,
+            analysis.supplyRatio
+          );
+
+          adjustmentResults.push({
+            shopId: shop._id,
+            productId: analysis.productId,
+            productName: analysis.productName,
+            oldSupplyRatio: analysis.supplyRatio,
+            priceAdjusted: true
+          });
+
+          totalAdjustments++;
+
+          if (totalAdjustments >= maxAdjustments) break;
+        } catch (error) {
+          adjustmentResults.push({
+            shopId: shop._id,
+            productId: analysis.productId,
+            error: error.message
+          });
+        }
+      }
+    }
+
+    if (totalAdjustments >= maxAdjustments) break;
+  }
+
+  res.json({
+    success: true,
+    message: `${totalAdjustments} fiyat ayarlama işlemi gerçekleştirildi`,
+    data: {
+      totalAdjustments,
+      adjustments: adjustmentResults
+    }
+  });
+}));
+
+// @route   GET /api/admin/market/supply-demand-analysis
+// @desc    Admin paneli için genel arz/talep analizi
+// @access  Private (Admin)
+router.get('/market/supply-demand-analysis', protectAdmin, checkPermission('view_analytics'), asyncHandler(async (req, res) => {
+  const { productId, days = 7 } = req.query;
+
+  // İstenen zaman aralığında aktif dükkanları getir
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - parseInt(days));
+
+  const allShops = await Shop.find({ isActive: true }).populate('listedProducts.productId');
+
+  if (productId) {
+    // Belirli ürün analizi
+    const analysis = await require('./market').calculateSupplyDemandForProduct(productId, allShops);
+
+    // Son fiyat değişiklikleri
+    const priceChanges = await Transaction.find({
+      type: { $in: ['shop_listing', 'shop_purchase'] },
+      'metadata.productId': productId,
+      createdAt: { $gte: startDate }
+    }).limit(20).sort({ createdAt: -1 });
+
+    analysis.priceChanges = priceChanges;
+
+    res.json({
+      success: true,
+      data: { analysis }
+    });
+  } else {
+    // Genel pazar analizi
+    const allProductIds = await Product.find({ isActive: true }).select('_id');
+    const analyses = await Promise.all(
+      allProductIds.map(async (product) => {
+        const analysis = await require('./market').calculateSupplyDemandForProduct(product._id, allShops);
+        return {
+          productId: product._id,
+          productName: (await Product.findById(product._id)).name,
+          supplyRatio: analysis.supplyRatio,
+          demandLevel: analysis.demandLevel,
+          totalListed: analysis.totalListed,
+          totalAvailable: analysis.totalAvailable,
+          shopListings: analysis.shopListings
+        };
+      })
+    );
+
+    const summary = require('./market').calculateMarketSummary(analyses);
+
+    res.json({
+      success: true,
+      data: {
+        analyses,
+        summary,
+        timeRange: {
+          days: parseInt(days),
+          startDate,
+          endDate: new Date()
+        }
+      }
+    });
+  }
+}));
+
+// @route   PUT /api/admin/shops/:shopId/auto-settings
+// @desc    Dükkan otomatik alım ayarlarını admin olarak değiştir
+// @access  Private (Admin)
+router.put('/shops/:shopId/auto-settings', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const { enableBalanceControl, balanceInterval, priceAdjustmentRate, smartPricing } = req.body;
+
+  const shop = await Shop.findById(req.params.shopId);
+
+  if (!shop) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan bulunamadı'
+    });
+  }
+
+  const settings = shop.autoPurchaseSettings;
+
+  if (enableBalanceControl !== undefined) settings.enableBalanceControl = enableBalanceControl;
+  if (balanceInterval !== undefined) settings.balanceInterval = Math.max(300000, balanceInterval);
+  if (priceAdjustmentRate !== undefined) settings.priceAdjustmentRate = Math.max(0, Math.min(0.1, priceAdjustmentRate));
+  if (smartPricing !== undefined) settings.smartPricing = smartPricing;
+
+  await shop.save();
+
+  res.json({
+    success: true,
+    message: 'Otomatik alım ayarları güncellendi',
+    data: { autoPurchaseSettings: settings }
+  });
+}));
+
+// @route   POST /api/admin/market/force-product-price
+// @desc    Belirli ürünün fiyatını tüm dükkanlarda zorla ayarla
+// @access  Private (Admin)
+router.post('/market/force-product-price', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const { productId, newPrice, reason = 'admin_override' } = req.body;
+
+  if (!productId || newPrice === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: 'Ürün ID ve yeni fiyat gerekli'
+    });
+  }
+
+  const shopsUpdated = [];
+  const shops = await Shop.find({
+    isActive: true,
+    'listedProducts.productId': productId,
+    'listedProducts.isActive': true
+  });
+
+  for (const shop of shops) {
+    const productIndex = shop.listedProducts.findIndex(
+      p => p.productId.toString() === productId && p.isActive
+    );
+
+    if (productIndex !== -1) {
+      shop.listedProducts[productIndex].priceHistory.push({
+        price: newPrice,
+        changedAt: new Date(),
+        reason: reason
+      });
+
+      shop.listedProducts[productIndex].listPrice = newPrice;
+
+      shopsUpdated.push({
+        shopId: shop._id,
+        shopName: shop.name,
+        ownerId: shop.rentedBy,
+        oldPrice: shop.listedProducts[productIndex].listPrice,
+        newPrice: newPrice
+      });
+    }
+  }
+
+  // Tüm değişiklikleri kaydet
+  await Promise.all(shops.map(shop => shop.save()));
+
+  res.json({
+    success: true,
+    message: `${shopsUpdated.length} dükkanda fiyat güncellendi`,
+    data: {
+      productId,
+      newPrice,
+      updatedShops: shopsUpdated
+    }
+  });
+}));
+
 module.exports = router;

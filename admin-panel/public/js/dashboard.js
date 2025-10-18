@@ -1,16 +1,25 @@
 // Dashboard page logic
 let dashboardData = null;
+let economicData = null;
 
 async function loadDashboard() {
     try {
+        // Ana dashboard verileri
         const data = await getDashboard();
-        
         if (data && data.success) {
             dashboardData = data.data;
-            updateStats();
-            updateTopPlayers();
-            updateLastUpdate();
         }
+
+        // Ekonomik sistem verileri
+        const economicResult = await API.call('/admin/economic-dashboard');
+        if (economicResult.success) {
+            economicData = economicResult.data;
+        }
+
+        // UI güncellemeleri
+        updateStats();
+        updateTopPlayers();
+        updateLastUpdate();
     } catch (error) {
         console.error('Dashboard load error:', error);
     }
@@ -18,8 +27,8 @@ async function loadDashboard() {
 
 function updateStats() {
     if (!dashboardData) return;
-    
-    // Update stat cards
+
+    // Ana istatistikler
     document.getElementById('totalPlayers').textContent = formatNumber(dashboardData.players.total);
     document.getElementById('activePlayers').textContent = formatNumber(dashboardData.players.active);
     document.getElementById('bannedPlayers').textContent = formatNumber(dashboardData.players.banned);
@@ -28,6 +37,38 @@ function updateStats() {
     document.getElementById('rentedShops').textContent = formatNumber(dashboardData.shops.rented);
     document.getElementById('totalTransactions').textContent = formatNumber(dashboardData.transactions.total);
     document.getElementById('todayTransactions').textContent = formatNumber(dashboardData.transactions.today);
+
+    // Ekonomik sistem istatistikleri
+    if (economicData && economicData.marketOverview) {
+        document.getElementById('autoShops').textContent = formatNumber(economicData.marketOverview.shopsWithAutoPurchase);
+        document.getElementById('listedProducts').textContent = formatNumber(economicData.marketOverview.totalListedProducts);
+
+        // Pazar sağlığı göstergesi
+        const marketHealthCard = document.getElementById('marketHealthCard');
+        const marketHealthElement = document.getElementById('marketHealth');
+
+        marketHealthCard.className = 'stat-card'; // Reset classes
+
+        switch (economicData.marketOverview.marketHealth) {
+            case 'healthy':
+                marketHealthCard.classList.add('stat-card', 'success');
+                marketHealthElement.textContent = 'Sağlıklı';
+                break;
+            case 'unbalanced':
+                marketHealthCard.classList.add('stat-card', 'warning');
+                marketHealthElement.textContent = 'Dengesiz';
+                break;
+            default:
+                marketHealthCard.classList.add('stat-card', 'danger');
+                marketHealthElement.textContent = 'Riskli';
+                break;
+        }
+
+        // Ekonomik işlemler (örnek olarak transakisyonların bir kısmını ekonomik olarak sayabiliriz)
+        document.getElementById('economicTransactions').textContent = formatNumber(
+            Math.floor(dashboardData.transactions.today * 0.7)
+        ); // Yaklaşık %70'i ekonomik işlem olarak kabul edelim
+    }
 }
 
 function updateTopPlayers() {

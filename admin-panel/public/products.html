@@ -20,8 +20,9 @@
                 <a href="/shops.html" class="nav-item"><span>🏪</span> Dükkanlar</a>
                 <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
                 <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/economic-dashboard.html" class="nav-item"><span>📈</span> Ekonomi</a>
+                <a href="/analytics.html" class="nav-item"><span>📊</span> Analitik</a>
                 <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
-                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
@@ -47,12 +48,14 @@
                                 <th>Kategori</th>
                                 <th>Taban Fiyat</th>
                                 <th>Mevcut Fiyat</th>
+                                <th>Pazar Durumu</th>
+                                <th>Dükkan Sayısı</th>
                                 <th>Volatilite</th>
                                 <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody id="productsTable">
-                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                            <tr><td colspan="8" class="loading">Yükleniyor...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -93,39 +96,104 @@
     <script src="js/api.js"></script>
     <script>
         let allProducts = [];
+        let productEconomics = {};
         let editingProductId = null;
 
         async function loadProducts() {
-            const result = await getProducts();
-            if (result && result.success) {
-                allProducts = result.data.products || result.data || [];
+            try {
+                // Ana ürün verileri
+                const result = await getProducts();
+                if (result && result.success) {
+                    allProducts = result.data.products || result.data || [];
+                }
+
+                // Ekonomik analiz verileri
+                const marketResult = await API.call('/admin/market/supply-demand-analysis');
+                if (marketResult && marketResult.success) {
+                    marketResult.data.analyses.forEach(analysis => {
+                        productEconomics[analysis.productId] = {
+                            supplyRatio: analysis.supplyRatio,
+                            demandLevel: analysis.demandLevel,
+                            totalListed: analysis.totalListed,
+                            shopCount: analysis.shopListings?.length || 0
+                        };
+                    });
+                }
+
                 displayProducts(allProducts);
+            } catch (error) {
+                console.error('Products load error:', error);
+                displayProducts(allProducts); // Hata olsa da temel ürünleri göster
             }
         }
 
         function displayProducts(products) {
             const tbody = document.getElementById('productsTable');
             if (!products || products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Ürün bulunamadı</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">Ürün bulunamadı</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = products.map(product => `
-                <tr>
-                    <td><strong>${product.name}</strong></td>
-                    <td>${product.category}</td>
-                    <td>${formatCurrency(product.basePrice)}</td>
-                    <td>${formatCurrency(product.currentPrice)}</td>
-                    <td>${(product.volatility * 100).toFixed(1)}%</td>
-                    <td>
-                        <button onclick="toggleProductActiveAction('${product._id}')" class="btn-sm ${product.isActive ? 'btn-danger' : 'btn-success'}">
-                            ${product.isActive ? '🚫 Pazardan Çıkar' : '✅ Pazara Ekle'}
-                        </button>
-                        <button onclick="editProduct('${product._id}')" class="btn-sm">Düzenle</button>
-                        <button onclick="deleteProductAction('${product._id}')" class="btn-sm btn-danger">Sil</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = products.map(product => {
+                const economy = productEconomics[product._id] || {};
+                const marketHealth = getMarketHealth(economy.supplyRatio, economy.demandLevel);
+                const shopCount = economy.shopCount || 0;
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${product.name}</strong>
+                            ${product.emoji ? product.emoji : '📦'}
+                        </td>
+                        <td><span class="badge secondary">${product.category}</span></td>
+                        <td>${formatCurrency(product.basePrice)}</td>
+                        <td>${formatCurrency(product.currentPrice)}</td>
+                        <td>
+                            <span class="badge ${getMarketStatusClass(marketHealth.status)}">
+                                ${marketHealth.label}
+                            </span>
+                        </td>
+                        <td>${shopCount}</td>
+                        <td>${(product.volatility * 100).toFixed(1)}%</td>
+                        <td>
+                            <button onclick="toggleProductActiveAction('${product._id}')" class="btn-sm ${product.isActive ? 'btn-danger' : 'btn-success'}">
+                                ${product.isActive ? '🚫 Pazardan Çıkar' : '✅ Pazara Ekle'}
+                            </button>
+                            <button onclick="editProduct('${product._id}')" class="btn-sm">Düzenle</button>
+                            <button onclick="viewProductAnalysis('${product._id}')" class="btn-sm primary">📊 Analiz</button>
+                            <button onclick="deleteProductAction('${product._id}')" class="btn-sm btn-danger">Sil</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getMarketHealth(supplyRatio, demandLevel) {
+            if (!supplyRatio) return { status: 'unknown', label: 'Belirsiz' };
+
+            if (supplyRatio < 0.5) {
+                return { status: 'danger', label: 'Çok Az Arz' };
+            } else if (supplyRatio > 2.0) {
+                return { status: 'warning', label: 'Çok Fazla Arz' };
+            } else if (demandLevel === 'very_high' || demandLevel === 'high') {
+                return { status: 'success', label: 'Yüksek Talep' };
+            } else {
+                return { status: 'primary', label: 'Dengeli' };
+            }
+        }
+
+        function getMarketStatusClass(status) {
+            switch (status) {
+                case 'success': return 'success';
+                case 'warning': return 'warning';
+                case 'danger': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        function viewProductAnalysis(productId) {
+            // Ekonomik dashboard'a yönlendir, belirli ürün için filtre uygulayarak
+            window.location.href = `/economic-dashboard.html?product=${productId}`;
         }
 
         function openCreateModal() {

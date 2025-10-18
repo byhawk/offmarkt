@@ -20,8 +20,9 @@
                 <a href="/shops.html" class="nav-item active"><span>🏪</span> Dükkanlar</a>
                 <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
                 <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
+                <a href="/economic-dashboard.html" class="nav-item"><span>📈</span> Ekonomi</a>
+                <a href="/analytics.html" class="nav-item"><span>📊</span> Analitik</a>
                 <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
-                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="admin-info" id="adminInfo"></div>
@@ -30,9 +31,42 @@
         </aside>
 
         <main class="main-content">
+            <!-- Economic Dashboard Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏪</div>
+                    <div class="stat-content">
+                        <h3 id="total-shops">0</h3>
+                        <p>Toplam Dükkan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🛒</div>
+                    <div class="stat-content">
+                        <h3 id="rented-shops">0</h3>
+                        <p>Kiralı Dükkan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-content">
+                        <h3 id="auto-enabled-shops">0</h3>
+                        <p>Otomatik Sistem Açık</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <h3 id="total-products">0</h3>
+                        <p>Listelenen Ürün</p>
+                    </div>
+                </div>
+            </div>
+
             <header class="header">
-                <h1>Dükkanlar</h1>
+                <h1>Dükkan Yönetimi</h1>
                 <div class="header-actions">
+                    <a href="/economic-dashboard.html" class="btn-primary">📈 Ekonomik Dashboard'a Git</a>
                     <button onclick="openCreateModal()" class="btn-refresh">➕ Yeni Dükkan</button>
                     <button onclick="refreshShops()" class="btn-refresh">🔄 Yenile</button>
                 </div>
@@ -51,18 +85,32 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Dükkan Adı</th>
-                                <th>Lokasyon</th>
-                                <th>Kira</th>
-                                <th>Durum</th>
-                                <th>Kiracı</th>
+                                <th>Dükkan</th>
+                                <th>Sahibi</th>
+                                <th>Ürünler</th>
+                                <th>Envanter Değeri</th>
+                                <th>Otomatik Sistem</th>
+                                <th>Stok Durumu</th>
                                 <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody id="shopsTable">
-                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                            <tr><td colspan="7" class="loading">Yükleniyor...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Shop Detail Modal -->
+            <div id="shopDetailModal" class="modal">
+                <div class="modal-content large">
+                    <h2 id="shopDetailTitle">Dükkan Detayları</h2>
+                    <div id="shopDetailContent">
+                        <!-- Dinamik içerik JavaScript ile doldurulacak -->
+                    </div>
+                    <div class="modal-actions">
+                        <button onclick="closeShopDetailModal()" class="btn-secondary">Kapat</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -98,51 +146,234 @@
         let allShops = [];
         let editingShopId = null;
 
-        async function loadShops() {
-            const result = await getShops();
-            if (result && result.success) {
-                allShops = result.data.shops || result.data || [];
-                displayShops(allShops);
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadShopsData();
+        });
+
+        async function loadShopsData() {
+            try {
+                // Ekonomik istatistikleri al
+                const dashboardResult = await API.call('/admin/economic-dashboard');
+                if (dashboardResult.success) {
+                    updateEconomicStats(dashboardResult.data.marketOverview);
+                }
+
+                // Detaylı dükkan bilgilerini al
+                const shopsResult = await API.call('/admin/shops/detailed');
+                if (shopsResult.success) {
+                    allShops = shopsResult.data.shops || [];
+                    displayShops(allShops);
+                }
+            } catch (error) {
+                console.error('Veri yükleme hatası:', error);
+                showNotification('Veriler yüklenirken hata oluştu', 'error');
             }
+        }
+
+        function updateEconomicStats(stats) {
+            document.getElementById('total-shops').textContent = stats.totalShops;
+            document.getElementById('rented-shops').textContent =
+                stats.totalShops - allShops.filter(s => s.isAvailable).length;
+            document.getElementById('auto-enabled-shops').textContent =
+                allShops.filter(s => s.economicMetrics?.autoPurchaseEnabled).length;
+            document.getElementById('total-products').textContent = stats.totalListedProducts;
         }
 
         function displayShops(shops) {
             const tbody = document.getElementById('shopsTable');
             if (!shops || shops.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Dükkan bulunamadı</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">Dükkan bulunamadı</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = shops.map(shop => `
-                <tr>
-                    <td><strong>${shop.name}</strong></td>
-                    <td>${shop.location}</td>
-                    <td>${formatCurrency(shop.rentPerDay)}/gün</td>
-                    <td>
-                        <span class="badge ${shop.isRented ? 'badge-danger' : 'badge-success'}">
-                            ${shop.isRented ? 'Kiralı' : 'Müsait'}
-                        </span>
-                    </td>
-                    <td>${shop.currentTenant || '-'}</td>
-                    <td>
-                        <button onclick="editShop('${shop._id}')" class="btn-sm">Düzenle</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = shops.map(shop => {
+                const metrics = shop.economicMetrics || {};
+                const ownerName = shop.rentedBy?.username || 'Kirada';
+                const isRented = !shop.isAvailable;
+
+                return `
+                    <tr>
+                        <td>
+                            <div>
+                                <strong>${shop.name}</strong>
+                                <br>
+                                <small class="text-muted">${shop.location}</small>
+                            </div>
+                        </td>
+                        <td>${ownerName}</td>
+                        <td>${metrics.listedProductsCount || 0}</td>
+                        <td>₺${formatCurrency(metrics.totalListedValue || 0)}</td>
+                        <td>
+                            <span class="badge ${metrics.autoPurchaseEnabled ? 'success' : 'secondary'}">
+                                ${metrics.autoPurchaseEnabled ? 'Aktif' : 'Pasif'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 4px; flex-direction: column;">
+                                ${getStockStatusIndicators(metrics)}
+                            </div>
+                        </td>
+                        <td>
+                            ${getShopActions(shop, isRented)}
+                        </td>
+                    </tr>
+                `;
+            }).join(' inclusive');
+        }
+
+        function getStockStatusIndicators(metrics) {
+            if (!metrics.listedProductsCount) return '<small class="text-muted">Ürün yok</small>';
+
+            const lowStock = metrics.lowStockProducts || 0;
+            const highStock = metrics.highStockProducts || 0;
+
+            return `
+                <small class="${lowStock > 0 ? 'text-danger' : 'text-muted'}">
+                    Düşük stok: ${lowStock}
+                </small>
+                <small class="${highStock > 0 ? 'text-warning' : 'text-muted'}">
+                    Fazla stok: ${highStock}
+                </small>
+            `;
+        }
+
+        function getShopActions(shop, isRented) {
+            let actions = `<button onclick="viewShopDetails('${shop._id}')" class="btn-sm primary">🔍 Detay</button>`;
+
+            if (isRented && shop.rentedBy) {
+                actions += `
+                    <button onclick="resetShopInventory('${shop._id}')" class="btn-sm danger">
+                        🗑️ Envanter Sıfırla
+                    </button>
+                    <button onclick="manageAutoSettings('${shop._id}')" class="btn-sm secondary">
+                        ⚙️ Otomatik
+                    </button>
+                `;
+            }
+
+            actions += `<button onclick="editShop('${shop._id}')" class="btn-sm">✏️ Düzenle</button>`;
+            return actions;
         }
 
         function filterShops() {
             const status = document.getElementById('statusFilter').value;
             let filtered = [...allShops];
-            
+
             if (status === 'available') {
-                filtered = filtered.filter(s => !s.isRented);
+                filtered = filtered.filter(s => s.isAvailable);
             } else if (status === 'rented') {
-                filtered = filtered.filter(s => s.isRented);
+                filtered = filtered.filter(s => !s.isAvailable);
             }
-            
+
             displayShops(filtered);
         }
+
+        // === SHOP MANAGEMENT FUNCTIONS ===
+
+        async function viewShopDetails(shopId) {
+            try {
+                const result = await API.call(`/admin/shops/${shopId}/listed-products`);
+                if (result.success) {
+                    showShopDetailModal(result.data);
+                }
+            } catch (error) {
+                console.error('Shop detail error:', error);
+                showNotification('Dükkan detayları alınamadı', 'error');
+            }
+        }
+
+        function showShopDetailModal(shopData) {
+            const shop = shopData.shopInfo;
+            const products = shopData.listedProducts;
+            const summary = shopData.summary;
+
+            let content = `
+                <div class="shop-detail-header">
+                    <h3>${shop.name}</h3>
+                    <p>${shop.location}</p>
+                    <p><strong>Sahibi:</strong> ${shop.owner?.username || 'Kirada'}</p>
+                    <p><strong>Otomatik Sistem:</strong>
+                        <span class="badge ${shop.autoPurchaseSettings?.enableBalanceControl ? 'success' : 'secondary'}">
+                            ${shop.autoPurchaseSettings?.enableBalanceControl ? 'Aktif' : 'Pasif'}
+                        </span>
+                    </p>
+                </div>
+
+                <div class="shop-detail-metrics">
+                    <div class="metric-item">
+                        <strong>Toplam Ürün:</strong> ${summary.totalProducts}
+                    </div>
+                    <div class="metric-item">
+                        <strong>Envanter Değeri:</strong> ₺${formatCurrency(summary.totalStockValue)}
+                    </div>
+                    <div class="metric-item">
+                        <strong>Düşük Stok Ürünleri:</strong> ${summary.lowStockProducts}
+                    </div>
+                </div>
+
+                <h4>Listelenen Ürünler</h4>
+                ${products.length > 0 ? `
+                    <table class="data-table" style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Stok</th>
+                                <th>Fiyat</th>
+                                <th>Satış</th>
+                                <th>Oto. Alım</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(product => `
+                                <tr>
+                                    <td>${product.product.name}</td>
+                                    <td>${product.currentStock}/${product.maxStock}</td>
+                                    <td>₺${formatCurrency(product.listPrice)}</td>
+                                    <td>${product.totalSold}</td>
+                                    <td>
+                                        <span class="badge ${product.autoPurchase ? 'success' : 'secondary'}">
+                                            ${product.autoPurchase ? 'Evet' : 'Hayır'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p class="no-data">Bu dükkanda henüz ürün listelenmemiş.</p>'}
+            `;
+
+            document.getElementById('shopDetailTitle').textContent = `${shop.name} - Detaylar`;
+            document.getElementById('shopDetailContent').innerHTML = content;
+            document.getElementById('shopDetailModal').style.display = 'flex';
+        }
+
+        function closeShopDetailModal() {
+            document.getElementById('shopDetailModal').style.display = 'none';
+        }
+
+        async function resetShopInventory(shopId) {
+            if (!confirm('Bu dükkanın tüm envanterini sıfırlamak istediğinize emin misiniz?')) return;
+
+            try {
+                const result = await API.call(`/admin/shops/${shopId}/reset-inventory`, 'POST');
+                if (result.success) {
+                    showNotification('Dükkan envanteri sıfırlandı', 'success');
+                    loadShopsData();
+                }
+            } catch (error) {
+                console.error('Reset inventory error:', error);
+                showNotification('Envanter sıfırlama başarısız', 'error');
+            }
+        }
+
+        async function manageAutoSettings(shopId) {
+            // For now, redirect to economic dashboard for advanced settings
+            window.location.href = `/economic-dashboard.html`;
+        }
+
+        // === STANDARD CRUD FUNCTIONS ===
 
         function openCreateModal() {
             editingShopId = null;
@@ -164,45 +395,67 @@
             document.getElementById('modalTitle').textContent = 'Dükkan Düzenle';
             document.getElementById('shopName').value = shop.name;
             document.getElementById('shopLocation').value = shop.location;
-            document.getElementById('shopRent').value = shop.rentPerDay;
+            document.getElementById('shopRent').value = shop.monthlyRent || 15000;
             document.getElementById('shopModal').style.display = 'flex';
         }
 
+        function refreshShops() {
+            loadShopsData();
+        }
+
+        // === FORM HANDLING ===
+
         document.getElementById('shopForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const data = {
-                name: document.getElementById('shopName').value,
-                location: document.getElementById('shopLocation').value,
-                rentPerDay: parseFloat(document.getElementById('shopRent').value)
+                name: document.getElementById('shopName').value.trim(),
+                location: document.getElementById('shopLocation').value.trim(),
+                monthlyRent: parseFloat(document.getElementById('shopRent').value),
+                locationType: 'street', // Default
+                monthlyRent: parseFloat(document.getElementById('shopRent').value),
+                deposit: parseFloat(document.getElementById('shopRent').value) * 2, // 2 ay depozito
+                squareMeters: 75, // Default
+                isActive: true
             };
 
-            let result;
+            if (!data.name || !data.location || isNaN(data.monthlyRent)) {
+                showNotification('Lütfen tüm alanları doldurun', 'error');
+                return;
+            }
+
             try {
+                let result;
                 if (editingShopId) {
-                    result = await updateShop(editingShopId, data);
+                    result = await API.call(`/admin/shops/${editingShopId}`, 'PUT', data);
+                    if (result.success) showNotification('Dükkan güncellendi', 'success');
                 } else {
-                    result = await createShop(data);
+                    result = await API.call('/admin/shops', 'POST', data);
+                    if (result.success) showNotification('Dükkan oluşturuldu', 'success');
                 }
 
-                if (result && result.success) {
-                    alert(editingShopId ? 'Dükkan güncellendi!' : 'Dükkan başarıyla oluşturuldu!');
+                if (result.success) {
                     closeShopModal();
-                    loadShops();
+                    loadShopsData();
                 } else {
-                    alert('Hata: ' + (result?.message || 'İşlem başarısız'));
+                    showNotification(result.message || 'İşlem başarısız', 'error');
                 }
             } catch (error) {
-                console.error('Form error:', error);
-                alert('Bir hata oluştu: ' + error.message);
+                console.error('Shop form error:', error);
+                showNotification('Bir hata oluştu', 'error');
             }
         });
 
-        function refreshShops() {
-            loadShops();
+        // === UTILITY FUNCTIONS ===
+
+        function showNotification(message, type = 'info') {
+            // Simple notification - you could enhance this
+            alert(message);
         }
 
-        loadShops();
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR').format(amount);
+        }
     </script>
 </body>
 </html>

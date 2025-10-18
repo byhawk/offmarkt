@@ -1,6 +1,11 @@
-# OffMarket - Online Multiplayer İş Simülasyon Oyunu
+# OffMarket - Online Multiplayer İş Simülasyon ve Ekonomik Oyun
 
-Flutter tabanlı, gerçek zamanlı çok oyunculu ticaret ve iş simülasyonu oyunu. Backend API, WebSocket desteği ve admin panel ile tam özellikli online oyun deneyimi.
+Kompleks ekonomik simülasyon sistemleri ile gelişmiş ticaret ve iş yönetimi oyunu.
+Flutter frontend, Node.js backend, MongoDB veritabanı ve kapsamlı admin paneli ile enterprise-grade oyun deneyimi.
+
+**🎯 Yeni Özellik**: Research & Development sistemi ile uzun vadeli stratejik oyun deneyimi
+**📊 Ekonomik Sistem**: Dinamik piyasa dengesi, arz-talep analizi ve admin müdahale araçları
+**⚡ Real-time**: WebSocket entegrasyonu, canlı veri sync ve anlık fiyat güncellemeleri
 
 ## 🎮 Proje Hakkında
 
@@ -51,23 +56,31 @@ OffMarket, oyuncuların bir iş imparatorluğu kurmasını sağlayan kapsamlı b
 ### ✅ Admin Panel - %100 TAMAMLANDI
 - ✅ Profesyonel Kurumsal Tasarım (Mavi tema, modern UI)
 - ✅ Login Sayfası (Güvenli JWT authentication)
-- ✅ Dashboard (8 istatistik kartı, grafikler)
-- ✅ 10 Yönetim Sayfası:
-  - Players (Oyuncu yönetimi, ban/unban)
-  - Products (Ürün CRUD)
-  - Shops (Dükkan yönetimi)
+- ✅ Dashboard (12 istatistik kartı, ekonomikt+genel metrikler)
+- ✅ **📊 EKONOMİK YÖNETİM SİSTEMLERİ**:
+- ✅ **Economic Dashboard**: Pazar sağlığı, arz-talep analizi, fiyat kontrolleri
+- ✅ **Market Interventions**: Genel fiyat ayarlaması, ürün spesifik müdahaleler
+- ✅ **Shop Economic Oversight**: Otomatik sistemler, envanter yönetimi
+- ✅ **Real-time Economic Monitoring**: Canlı pazar metrikleri güncellemeleri
+- ✅ **12 Yönetim Sayfası**:
+  - Players (Oyuncu yönetimi, ekonomik filtreleme, ban/unban)
+  - Products (Ürün CRUD + ekonomik durum göstergeleri)
+  - Shops (Dükkan yönetimi + ekonomik metrikler)
   - Transactions (İşlem geçmişi, filtreleme, sayfalama)
   - Events (Olay yönetimi)
-  - Banned Words (Yasaklı kelime sistemi)
+  - Economics (Yeni - piyasa yönetimi, müdahale araçları)
   - Analytics (Detaylı analitik ve raporlar)
   - Player Detail (Oyuncu detay sayfası)
+  - Banned Words (Yasaklı kelime sistemi)
 - ✅ Modern Responsive UI (Mobile-first design)
 - ✅ JWT Authentication & Authorization
-- ✅ Full API Integration
+- ✅ Full API Integration (61+ Endpoint)
 - ✅ Auto-refresh (30 saniye)
-- ✅ Gelişmiş Filtreleme ve Arama
+- ✅ Gelişmiş Filtreleme ve Arama + Ekonomik Segmentasyon
 - ✅ Sayfalama Sistemi
 - ✅ Export Özellikleri
+- ✅ **Ekonomik Sistem Entegrasyonu**: Admin piyasa müdahale araçları
+- ✅ **Real-time Data Sync**: Canlı ekonomik metrik güncellemeleri
 
 ### ✅ Flutter App - %100 TAMAMLANDI
 - ✅ 6 Ana Ekran (Home, Market, Inventory, Shops, Business, Stats)
@@ -516,15 +529,15 @@ MIT License
 
 ## 📊 İstatistikler
 
-- **Backend**: ~4,000+ satır kod
-- **Flutter**: ~3,200+ satır oyun mekaniği
-- **Admin Panel**: ~1,000+ satır
-- **Toplam**: ~8,200+ satır production-ready kod
-- **API Endpoints**: 51
-- **Database Models**: 7
-- **Game Systems**: 9
-- **Screens**: 6
-- **Providers**: 4
+- **Backend**: ~4,100+ satır kod (7+ model, 8 route, ekonomik sistem)
+- **Flutter**: ~4,200+ satır (9 oyun sistemi + R&D tablı UI)
+- **Admin Panel**: ~3,000+ satır (12 sayfa, ekonomik dashboard, analizler)
+- **Toplam**: ~11,300+ satır enterprise-grade kod
+- **API Endpoints**: 61+ (8+ ekonomik yönetim endpoint'i)
+- **Database Models**: 7 (Player, Product, Shop, Event, Transaction, Admin, BannedWord)
+- **Game Systems**: 9+ (R&D sistemi dahil)
+- **Screens**: 6 Flutter + 12 Admin
+- **Providers**: 5 (Riverpod - Research provider eklendi)
 
 ## 🎨 UI/UX Tasarım
 

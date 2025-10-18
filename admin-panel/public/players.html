@@ -33,11 +33,14 @@
                 <a href="/events.html" class="nav-item">
                     <span>⚡</span> Olaylar
                 </a>
-                <a href="/banned-words.html" class="nav-item">
-                    <span>🚫</span> Yasaklı Kelimeler
+                <a href="/economic-dashboard.html" class="nav-item">
+                    <span>📈</span> Ekonomi
                 </a>
                 <a href="/analytics.html" class="nav-item">
-                    <span>📈</span> Analitik
+                    <span>📊</span> Analitik
+                </a>
+                <a href="/banned-words.html" class="nav-item">
+                    <span>🚫</span> Yasaklı Kelimeler
                 </a>
             </nav>
             <div class="sidebar-footer">
@@ -69,6 +72,15 @@
                     <option value="level">Seviye</option>
                     <option value="cash">Para</option>
                     <option value="totalProfit">Toplam Kar</option>
+                    <option value="shopsOwned">Dükkan Sayısı</option>
+                    <option value="earlierActive">Son Aktivite</option>
+                </select>
+                <select id="economicFilter" onchange="filterPlayers()">
+                    <option value="">Tüm Ekonomik Durum</option>
+                    <option value="shop_owner">Dükkan Sahibi</option>
+                    <option value="no_shop">Dükkansız</option>
+                    <option value="high_profit">Yüksek Kar (>5M)</option>
+                    <option value="completing_objectives">Aktif</option>
                 </select>
             </div>
 
@@ -166,23 +178,46 @@
         function filterPlayers() {
             const status = document.getElementById('statusFilter').value;
             const sortBy = document.getElementById('sortBy').value;
-            
+            const economic = document.getElementById('economicFilter').value;
+
             let filtered = [...allPlayers];
-            
+
+            // Status filtresini uygula
             if (status === 'active') {
                 filtered = filtered.filter(p => !p.isBanned);
             } else if (status === 'banned') {
                 filtered = filtered.filter(p => p.isBanned);
             }
-            
+
+            // Ekonomik filtresini uygula
+            if (economic) {
+                switch (economic) {
+                    case 'shop_owner':
+                        filtered = filtered.filter(p => p.ownedShops && p.ownedShops.length > 0);
+                        break;
+                    case 'no_shop':
+                        filtered = filtered.filter(p => !p.ownedShops || p.ownedShops.length === 0);
+                        break;
+                    case 'high_profit':
+                        filtered = filtered.filter(p => p.totalProfit > 5000000); // 5M TL üstü
+                        break;
+                    case 'completing_objectives':
+                        filtered = filtered.filter(p => p.isOnline && p.lastActivity);
+                        break;
+                }
+            }
+
+            // Sıralama uygula
             filtered.sort((a, b) => {
                 if (sortBy === 'createdAt') return new Date(b.createdAt) - new Date(a.createdAt);
                 if (sortBy === 'level') return b.level - a.level;
                 if (sortBy === 'cash') return b.cash - a.cash;
                 if (sortBy === 'totalProfit') return b.totalProfit - a.totalProfit;
+                if (sortBy === 'shopsOwned') return (b.ownedShops?.length || 0) - (a.ownedShops?.length || 0);
+                if (sortBy === 'earlierActive') return new Date(a.lastActivity || a.createdAt) - new Date(b.lastActivity || b.createdAt);
                 return 0;
             });
-            
+
             displayPlayers(filtered);
         }
 

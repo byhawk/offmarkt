@@ -377,7 +377,49 @@
         }
 
         function exportTransactions() {
-            alert('İşlemler CSV formatında dışa aktarılıyor... (Yakında eklenecek)');
+            try {
+                // Get all transactions for export (not just filtered)
+                if (allTransactions.length === 0) {
+                    alert('Dışa aktaracak işlem bulunamadı');
+                    return;
+                }
+
+                const data = allTransactions.map(tx => [
+                    tx.date.toLocaleDateString('tr-TR'),
+                    tx.date.toLocaleTimeString('tr-TR'),
+                    tx.player,
+                    tx.type,
+                    tx.product,
+                    tx.quantity,
+                    tx.amount,
+                    tx.status
+                ]);
+
+                const csvContent = [
+                    ['Tarih', 'Saat', 'Oyuncu', 'İşlem Tipi', 'Ürün', 'Miktar', 'Tutar', 'Durum'],
+                    ...data
+                ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+                downloadCSV(csvContent, 'transactions-report.csv');
+                alert('İşlemler başarıyla dışa aktarıldı!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Veri dışa aktarma başarısız oldu');
+            }
+        }
+
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Load transactions on page load

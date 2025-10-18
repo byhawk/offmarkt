@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarkt - Ekonomik Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏢 OffMarkt Admin</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/index.html">📊 Dashboard</a></li>
+                <li><a href="/players.html">👥 Oyuncular</a></li>
+                <li><a href="/products.html">📦 Ürünler</a></li>
+                <li><a href="/shops.html">🏪 Dükkanlar</a></li>
+                <li><a href="/transactions.html">💰 İşlemler</a></li>
+                <li><a href="/events.html">🎯 Olaylar</a></li>
+                <li><a href="/economic-dashboard.html" class="active">📈 Ekonomi</a></li>
+                <li><a href="/analytics.html">📊 Analitik</a></li>
+                <li><a href="/banned-words.html">🚫 Yasaklı Kelimeler</a></li>
+                <li><a href="#" onclick="logout()">🚪 Çıkış</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>📈 Ekonomik Sistem Dashboard</h1>
+                <div class="header-actions">
+                    <button onclick="loadEconomicData()" class="btn-primary">📊 Yenile</button>
+                </div>
+            </header>
+
+            <!-- Market Overview Stats -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏪</div>
+                    <div class="stat-content">
+                        <h3 id="total-shops">0</h3>
+                        <p>Toplam Dükkan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-content">
+                        <h3 id="auto-purchase-shops">0</h3>
+                        <p>Otomatik Sistem Açık</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-content">
+                        <h3 id="total-listed-products">0</h3>
+                        <p>Listelenen Ürün</p>
+                    </div>
+                </div>
+                <div class="stat-card" id="market-health-card">
+                    <div class="stat-icon">❤️</div>
+                    <div class="stat-content">
+                        <h3 id="market-health">N/A</h3>
+                        <p>Pazar Sağlığı</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="content-grid">
+                <!-- Market Analysis -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>📊 Arz/Talep Analizi</h2>
+                        <button onclick="runGlobalPriceAdjustment()" class="btn-secondary">⚖️ Fiyat Dengele</button>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Arz/Oran</th>
+                                    <th>Kategori</th>
+                                    <th>Toplam Stok</th>
+                                    <th>Fiyat Tavsiyesi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supply-demand-table">
+                                <tr><td colspan="6" class="loading">Veriler yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Shop Performance -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2>🏪 Dükkan Performansı</h2>
+                        <button onclick="loadShopPerformance()" class="btn-secondary">📊 Yenile</button>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Dükkan</th>
+                                    <th>Sahibi</th>
+                                    <th>Ürün Sayısı</th>
+                                    <th>Toplam Değer</th>
+                                    <th>Otomatik Sistem</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shop-performance-table">
+                                <tr><td colspan="6" class="loading">Veriler yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Recent Price Adjustments -->
+            <section class="content-section">
+                <div class="section-header">
+                    <h2>💰 Son Fiyat Değişiklikleri</h2>
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Dükkan</th>
+                                <th>Ürün</th>
+                                <th>Eski Fiyat</th>
+                                <th>Yeni Fiyat</th>
+                                <th>Neden</th>
+                            </tr>
+                        </thead>
+                        <tbody id="price-adjustments-table">
+                            <tr><td colspan="6" class="no-data">Henüz fiyat değişikliği yok</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="loading-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <p>İşlem gerçekleştiriliyor...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadEconomicData();
+        });
+
+        async function loadEconomicData() {
+            try {
+                showLoading();
+                const response = await API.call('/admin/economic-dashboard');
+
+                if (response.success) {
+                    updateMarketOverview(response.data.marketOverview);
+                    updateSupplyDemandTable(response.data.supplyDemandAnalysis);
+                    updateShopPerformance(response.data.shopPerformance);
+                    updateRecentAdjustments(response.data.recentPriceAdjustments);
+                }
+            } catch (error) {
+                console.error('Economic data error:', error);
+                alert('Veriler yüklenirken hata oluştu');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateMarketOverview(overview) {
+            document.getElementById('total-shops').textContent = overview.totalShops;
+            document.getElementById('auto-purchase-shops').textContent = overview.shopsWithAutoPurchase;
+            document.getElementById('total-listed-products').textContent = overview.totalListedProducts;
+
+            const healthCard = document.getElementById('market-health-card');
+            const healthElement = document.getElementById('market-health');
+
+            if (overview.marketHealth === 'healthy') {
+                healthCard.className = 'stat-card success';
+                healthElement.textContent = 'Sağlıklı';
+            } else if (overview.marketHealth === 'unbalanced') {
+                healthCard.className = 'stat-card warning';
+                healthElement.textContent = 'Dengesiz';
+            } else {
+                healthCard.className = 'stat-card danger';
+                healthElement.textContent = 'Riskli';
+            }
+        }
+
+        function updateSupplyDemandTable(analysis) {
+            const tbody = document.getElementById('supply-demand-table');
+            const analyses = analysis.analyses.slice(0, 10); // İlk 10 ürünü göster
+
+            tbody.innerHTML = analyses.map(item => `
+                <tr>
+                    <td>${item.productName}</td>
+                    <td>${item.supplyRatio.toFixed(2)}</td>
+                    <td><span class="badge ${getDemandLevelClass(item.demandLevel)}">${getDemandLevelText(item.demandLevel)}</span></td>
+                    <td>${item.totalListed}</td>
+                    <td>${item.analysis?.recommendation || 'Analiz ediliyor...'}</td>
+                    <td>
+                        <button onclick="viewProductAnalysis('${item.productId}')" class="btn-small">Detay</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (analyses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Henüz ürün analizi yok</td></tr>';
+            }
+        }
+
+        function updateShopPerformance(shops) {
+            const tbody = document.getElementById('shop-performance-table');
+
+            tbody.innerHTML = shops.map(shop => `
+                <tr>
+                    <td>${shop.shopName}</td>
+                    <td>${shop.owner?.username || 'Kirada'}</td>
+                    <td>${shop.listedProductsCount}</td>
+                    <td>₺${shop.totalStockValue.toLocaleString()}</td>
+                    <td>
+                        <span class="badge ${shop.autoPurchaseEnabled ? 'success' : 'secondary'}">
+                            ${shop.autoPurchaseEnabled ? 'Aktif' : 'Pasif'}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="viewShopDetails('${shop.shopId}')" class="btn-small">Detay</button>
+                        ${shop.owner ? `<button onclick="resetShopInventory('${shop.shopId}')" class="btn-small danger">Sıfırla</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateRecentAdjustments(adjustments) {
+            const tbody = document.getElementById('price-adjustments-table');
+
+            if (!adjustments || adjustments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Henüz fiyat değişikliği yok</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = adjustments.map(adj => `
+                <tr>
+                    <td>${new Date(adj.timestamp).toLocaleDateString('tr-TR')}</td>
+                    <td>${adj.shopName}</td>
+                    <td>${adj.productName}</td>
+                    <td>₺${adj.oldPrice}</td>
+                    <td>₺${adj.newPrice}</td>
+                    <td><span class="badge secondary">${getAdjustmentReasonText(adj.reason)}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function getDemandLevelClass(level) {
+            switch (level) {
+                case 'very_high': return 'success';
+                case 'high': return 'success';
+                case 'balanced': return 'primary';
+                case 'low': return 'warning';
+                case 'very_low': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        function getDemandLevelText(level) {
+            switch (level) {
+                case 'very_high': return 'Çok Yüksek';
+                case 'high': return 'Yüksek';
+                case 'balanced': return 'Dengeli';
+                case 'low': return 'Düşük';
+                case 'very_low': return 'Çok Düşük';
+                default: return level;
+            }
+        }
+
+        function getAdjustmentReasonText(reason) {
+            switch (reason) {
+                case 'supply_demand': return 'Arz/Talep';
+                case 'manual': return 'Manuel';
+                case 'inflation': return 'Enflasyon';
+                case 'admin_override': return 'Admin';
+                default: return reason;
+            }
+        }
+
+        async function runGlobalPriceAdjustment() {
+            if (!confirm('Tüm pazar için fiyat dengeleme işlemi başlatılsın mı?')) return;
+
+            try {
+                showLoading();
+                const response = await API.call('/admin/market/global-price-adjustment', 'POST');
+
+                if (response.success) {
+                    alert(`${response.data.totalAdjustments} fiyat ayarlama işlemi gerçekleştirildi`);
+                    loadEconomicData();
+                }
+            } catch (error) {
+                console.error('Price adjustment error:', error);
+                alert('Fiyat ayarlama işlemi başarısız');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function viewShopDetails(shopId) {
+            window.location.href = `/shops.html?shop=${shopId}&tab=economic`;
+        }
+
+        async function viewProductAnalysis(productId) {
+            // Future: Open product analysis modal
+            window.location.href = `/analytics.html?product=${productId}`;
+        }
+
+        async function resetShopInventory(shopId) {
+            if (!confirm('Bu dükkanın tüm envanteri sıfırlansın mı?')) return;
+
+            try {
+                showLoading();
+                const response = await API.call(`/admin/shops/${shopId}/reset-inventory`, 'POST');
+
+                if (response.success) {
+                    alert('Dükkan envanteri sıfırlandı');
+                    loadEconomicData();
+                }
+            } catch (error) {
+                console.error('Reset inventory error:', error);
+                alert('Envanter sıfırlama başarısız');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading-modal').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

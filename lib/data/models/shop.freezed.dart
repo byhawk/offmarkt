@@ -15,6 +15,1354 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+ListedProduct _$ListedProductFromJson(Map<String, dynamic> json) {
+  return _ListedProduct.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ListedProduct {
+  String get productId => throw _privateConstructorUsedError;
+  ProductSummary get product => throw _privateConstructorUsedError;
+  int get minStock => throw _privateConstructorUsedError;
+  int get maxStock => throw _privateConstructorUsedError;
+  int get currentStock => throw _privateConstructorUsedError;
+  double get listPrice => throw _privateConstructorUsedError;
+  bool get autoPurchase => throw _privateConstructorUsedError;
+  bool get isActive => throw _privateConstructorUsedError;
+  int get totalSold => throw _privateConstructorUsedError;
+  DateTime? get lastPurchaseDate => throw _privateConstructorUsedError;
+  List<PriceHistory> get priceHistory => throw _privateConstructorUsedError;
+
+  /// Serializes this ListedProduct to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ListedProductCopyWith<ListedProduct> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ListedProductCopyWith<$Res> {
+  factory $ListedProductCopyWith(
+    ListedProduct value,
+    $Res Function(ListedProduct) then,
+  ) = _$ListedProductCopyWithImpl<$Res, ListedProduct>;
+  @useResult
+  $Res call({
+    String productId,
+    ProductSummary product,
+    int minStock,
+    int maxStock,
+    int currentStock,
+    double listPrice,
+    bool autoPurchase,
+    bool isActive,
+    int totalSold,
+    DateTime? lastPurchaseDate,
+    List<PriceHistory> priceHistory,
+  });
+
+  $ProductSummaryCopyWith<$Res> get product;
+}
+
+/// @nodoc
+class _$ListedProductCopyWithImpl<$Res, $Val extends ListedProduct>
+    implements $ListedProductCopyWith<$Res> {
+  _$ListedProductCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? productId = null,
+    Object? product = null,
+    Object? minStock = null,
+    Object? maxStock = null,
+    Object? currentStock = null,
+    Object? listPrice = null,
+    Object? autoPurchase = null,
+    Object? isActive = null,
+    Object? totalSold = null,
+    Object? lastPurchaseDate = freezed,
+    Object? priceHistory = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            productId: null == productId
+                ? _value.productId
+                : productId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            product: null == product
+                ? _value.product
+                : product // ignore: cast_nullable_to_non_nullable
+                      as ProductSummary,
+            minStock: null == minStock
+                ? _value.minStock
+                : minStock // ignore: cast_nullable_to_non_nullable
+                      as int,
+            maxStock: null == maxStock
+                ? _value.maxStock
+                : maxStock // ignore: cast_nullable_to_non_nullable
+                      as int,
+            currentStock: null == currentStock
+                ? _value.currentStock
+                : currentStock // ignore: cast_nullable_to_non_nullable
+                      as int,
+            listPrice: null == listPrice
+                ? _value.listPrice
+                : listPrice // ignore: cast_nullable_to_non_nullable
+                      as double,
+            autoPurchase: null == autoPurchase
+                ? _value.autoPurchase
+                : autoPurchase // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isActive: null == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            totalSold: null == totalSold
+                ? _value.totalSold
+                : totalSold // ignore: cast_nullable_to_non_nullable
+                      as int,
+            lastPurchaseDate: freezed == lastPurchaseDate
+                ? _value.lastPurchaseDate
+                : lastPurchaseDate // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            priceHistory: null == priceHistory
+                ? _value.priceHistory
+                : priceHistory // ignore: cast_nullable_to_non_nullable
+                      as List<PriceHistory>,
+          )
+          as $Val,
+    );
+  }
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ProductSummaryCopyWith<$Res> get product {
+    return $ProductSummaryCopyWith<$Res>(_value.product, (value) {
+      return _then(_value.copyWith(product: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$ListedProductImplCopyWith<$Res>
+    implements $ListedProductCopyWith<$Res> {
+  factory _$$ListedProductImplCopyWith(
+    _$ListedProductImpl value,
+    $Res Function(_$ListedProductImpl) then,
+  ) = __$$ListedProductImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String productId,
+    ProductSummary product,
+    int minStock,
+    int maxStock,
+    int currentStock,
+    double listPrice,
+    bool autoPurchase,
+    bool isActive,
+    int totalSold,
+    DateTime? lastPurchaseDate,
+    List<PriceHistory> priceHistory,
+  });
+
+  @override
+  $ProductSummaryCopyWith<$Res> get product;
+}
+
+/// @nodoc
+class __$$ListedProductImplCopyWithImpl<$Res>
+    extends _$ListedProductCopyWithImpl<$Res, _$ListedProductImpl>
+    implements _$$ListedProductImplCopyWith<$Res> {
+  __$$ListedProductImplCopyWithImpl(
+    _$ListedProductImpl _value,
+    $Res Function(_$ListedProductImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? productId = null,
+    Object? product = null,
+    Object? minStock = null,
+    Object? maxStock = null,
+    Object? currentStock = null,
+    Object? listPrice = null,
+    Object? autoPurchase = null,
+    Object? isActive = null,
+    Object? totalSold = null,
+    Object? lastPurchaseDate = freezed,
+    Object? priceHistory = null,
+  }) {
+    return _then(
+      _$ListedProductImpl(
+        productId: null == productId
+            ? _value.productId
+            : productId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        product: null == product
+            ? _value.product
+            : product // ignore: cast_nullable_to_non_nullable
+                  as ProductSummary,
+        minStock: null == minStock
+            ? _value.minStock
+            : minStock // ignore: cast_nullable_to_non_nullable
+                  as int,
+        maxStock: null == maxStock
+            ? _value.maxStock
+            : maxStock // ignore: cast_nullable_to_non_nullable
+                  as int,
+        currentStock: null == currentStock
+            ? _value.currentStock
+            : currentStock // ignore: cast_nullable_to_non_nullable
+                  as int,
+        listPrice: null == listPrice
+            ? _value.listPrice
+            : listPrice // ignore: cast_nullable_to_non_nullable
+                  as double,
+        autoPurchase: null == autoPurchase
+            ? _value.autoPurchase
+            : autoPurchase // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isActive: null == isActive
+            ? _value.isActive
+            : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        totalSold: null == totalSold
+            ? _value.totalSold
+            : totalSold // ignore: cast_nullable_to_non_nullable
+                  as int,
+        lastPurchaseDate: freezed == lastPurchaseDate
+            ? _value.lastPurchaseDate
+            : lastPurchaseDate // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        priceHistory: null == priceHistory
+            ? _value._priceHistory
+            : priceHistory // ignore: cast_nullable_to_non_nullable
+                  as List<PriceHistory>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ListedProductImpl implements _ListedProduct {
+  const _$ListedProductImpl({
+    required this.productId,
+    required this.product,
+    this.minStock = 5,
+    this.maxStock = 20,
+    this.currentStock = 0,
+    required this.listPrice,
+    this.autoPurchase = true,
+    this.isActive = true,
+    this.totalSold = 0,
+    this.lastPurchaseDate,
+    final List<PriceHistory> priceHistory = const [],
+  }) : _priceHistory = priceHistory;
+
+  factory _$ListedProductImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ListedProductImplFromJson(json);
+
+  @override
+  final String productId;
+  @override
+  final ProductSummary product;
+  @override
+  @JsonKey()
+  final int minStock;
+  @override
+  @JsonKey()
+  final int maxStock;
+  @override
+  @JsonKey()
+  final int currentStock;
+  @override
+  final double listPrice;
+  @override
+  @JsonKey()
+  final bool autoPurchase;
+  @override
+  @JsonKey()
+  final bool isActive;
+  @override
+  @JsonKey()
+  final int totalSold;
+  @override
+  final DateTime? lastPurchaseDate;
+  final List<PriceHistory> _priceHistory;
+  @override
+  @JsonKey()
+  List<PriceHistory> get priceHistory {
+    if (_priceHistory is EqualUnmodifiableListView) return _priceHistory;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_priceHistory);
+  }
+
+  @override
+  String toString() {
+    return 'ListedProduct(productId: $productId, product: $product, minStock: $minStock, maxStock: $maxStock, currentStock: $currentStock, listPrice: $listPrice, autoPurchase: $autoPurchase, isActive: $isActive, totalSold: $totalSold, lastPurchaseDate: $lastPurchaseDate, priceHistory: $priceHistory)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ListedProductImpl &&
+            (identical(other.productId, productId) ||
+                other.productId == productId) &&
+            (identical(other.product, product) || other.product == product) &&
+            (identical(other.minStock, minStock) ||
+                other.minStock == minStock) &&
+            (identical(other.maxStock, maxStock) ||
+                other.maxStock == maxStock) &&
+            (identical(other.currentStock, currentStock) ||
+                other.currentStock == currentStock) &&
+            (identical(other.listPrice, listPrice) ||
+                other.listPrice == listPrice) &&
+            (identical(other.autoPurchase, autoPurchase) ||
+                other.autoPurchase == autoPurchase) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive) &&
+            (identical(other.totalSold, totalSold) ||
+                other.totalSold == totalSold) &&
+            (identical(other.lastPurchaseDate, lastPurchaseDate) ||
+                other.lastPurchaseDate == lastPurchaseDate) &&
+            const DeepCollectionEquality().equals(
+              other._priceHistory,
+              _priceHistory,
+            ));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    productId,
+    product,
+    minStock,
+    maxStock,
+    currentStock,
+    listPrice,
+    autoPurchase,
+    isActive,
+    totalSold,
+    lastPurchaseDate,
+    const DeepCollectionEquality().hash(_priceHistory),
+  );
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ListedProductImplCopyWith<_$ListedProductImpl> get copyWith =>
+      __$$ListedProductImplCopyWithImpl<_$ListedProductImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ListedProductImplToJson(this);
+  }
+}
+
+abstract class _ListedProduct implements ListedProduct {
+  const factory _ListedProduct({
+    required final String productId,
+    required final ProductSummary product,
+    final int minStock,
+    final int maxStock,
+    final int currentStock,
+    required final double listPrice,
+    final bool autoPurchase,
+    final bool isActive,
+    final int totalSold,
+    final DateTime? lastPurchaseDate,
+    final List<PriceHistory> priceHistory,
+  }) = _$ListedProductImpl;
+
+  factory _ListedProduct.fromJson(Map<String, dynamic> json) =
+      _$ListedProductImpl.fromJson;
+
+  @override
+  String get productId;
+  @override
+  ProductSummary get product;
+  @override
+  int get minStock;
+  @override
+  int get maxStock;
+  @override
+  int get currentStock;
+  @override
+  double get listPrice;
+  @override
+  bool get autoPurchase;
+  @override
+  bool get isActive;
+  @override
+  int get totalSold;
+  @override
+  DateTime? get lastPurchaseDate;
+  @override
+  List<PriceHistory> get priceHistory;
+
+  /// Create a copy of ListedProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ListedProductImplCopyWith<_$ListedProductImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+PriceHistory _$PriceHistoryFromJson(Map<String, dynamic> json) {
+  return _PriceHistory.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PriceHistory {
+  double get price => throw _privateConstructorUsedError;
+  DateTime get changedAt => throw _privateConstructorUsedError;
+  String get reason => throw _privateConstructorUsedError;
+
+  /// Serializes this PriceHistory to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PriceHistoryCopyWith<PriceHistory> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PriceHistoryCopyWith<$Res> {
+  factory $PriceHistoryCopyWith(
+    PriceHistory value,
+    $Res Function(PriceHistory) then,
+  ) = _$PriceHistoryCopyWithImpl<$Res, PriceHistory>;
+  @useResult
+  $Res call({double price, DateTime changedAt, String reason});
+}
+
+/// @nodoc
+class _$PriceHistoryCopyWithImpl<$Res, $Val extends PriceHistory>
+    implements $PriceHistoryCopyWith<$Res> {
+  _$PriceHistoryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? price = null,
+    Object? changedAt = null,
+    Object? reason = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            price: null == price
+                ? _value.price
+                : price // ignore: cast_nullable_to_non_nullable
+                      as double,
+            changedAt: null == changedAt
+                ? _value.changedAt
+                : changedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            reason: null == reason
+                ? _value.reason
+                : reason // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PriceHistoryImplCopyWith<$Res>
+    implements $PriceHistoryCopyWith<$Res> {
+  factory _$$PriceHistoryImplCopyWith(
+    _$PriceHistoryImpl value,
+    $Res Function(_$PriceHistoryImpl) then,
+  ) = __$$PriceHistoryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({double price, DateTime changedAt, String reason});
+}
+
+/// @nodoc
+class __$$PriceHistoryImplCopyWithImpl<$Res>
+    extends _$PriceHistoryCopyWithImpl<$Res, _$PriceHistoryImpl>
+    implements _$$PriceHistoryImplCopyWith<$Res> {
+  __$$PriceHistoryImplCopyWithImpl(
+    _$PriceHistoryImpl _value,
+    $Res Function(_$PriceHistoryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? price = null,
+    Object? changedAt = null,
+    Object? reason = null,
+  }) {
+    return _then(
+      _$PriceHistoryImpl(
+        price: null == price
+            ? _value.price
+            : price // ignore: cast_nullable_to_non_nullable
+                  as double,
+        changedAt: null == changedAt
+            ? _value.changedAt
+            : changedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        reason: null == reason
+            ? _value.reason
+            : reason // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PriceHistoryImpl implements _PriceHistory {
+  const _$PriceHistoryImpl({
+    required this.price,
+    required this.changedAt,
+    this.reason = 'manual',
+  });
+
+  factory _$PriceHistoryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PriceHistoryImplFromJson(json);
+
+  @override
+  final double price;
+  @override
+  final DateTime changedAt;
+  @override
+  @JsonKey()
+  final String reason;
+
+  @override
+  String toString() {
+    return 'PriceHistory(price: $price, changedAt: $changedAt, reason: $reason)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PriceHistoryImpl &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.changedAt, changedAt) ||
+                other.changedAt == changedAt) &&
+            (identical(other.reason, reason) || other.reason == reason));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, price, changedAt, reason);
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PriceHistoryImplCopyWith<_$PriceHistoryImpl> get copyWith =>
+      __$$PriceHistoryImplCopyWithImpl<_$PriceHistoryImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PriceHistoryImplToJson(this);
+  }
+}
+
+abstract class _PriceHistory implements PriceHistory {
+  const factory _PriceHistory({
+    required final double price,
+    required final DateTime changedAt,
+    final String reason,
+  }) = _$PriceHistoryImpl;
+
+  factory _PriceHistory.fromJson(Map<String, dynamic> json) =
+      _$PriceHistoryImpl.fromJson;
+
+  @override
+  double get price;
+  @override
+  DateTime get changedAt;
+  @override
+  String get reason;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PriceHistoryImplCopyWith<_$PriceHistoryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ProductSummary _$ProductSummaryFromJson(Map<String, dynamic> json) {
+  return _ProductSummary.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ProductSummary {
+  String get id => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
+  String get category => throw _privateConstructorUsedError;
+
+  /// Serializes this ProductSummary to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ProductSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ProductSummaryCopyWith<ProductSummary> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ProductSummaryCopyWith<$Res> {
+  factory $ProductSummaryCopyWith(
+    ProductSummary value,
+    $Res Function(ProductSummary) then,
+  ) = _$ProductSummaryCopyWithImpl<$Res, ProductSummary>;
+  @useResult
+  $Res call({
+    String id,
+    String name,
+    String? description,
+    String? imageUrl,
+    String category,
+  });
+}
+
+/// @nodoc
+class _$ProductSummaryCopyWithImpl<$Res, $Val extends ProductSummary>
+    implements $ProductSummaryCopyWith<$Res> {
+  _$ProductSummaryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ProductSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? description = freezed,
+    Object? imageUrl = freezed,
+    Object? category = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            description: freezed == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            category: null == category
+                ? _value.category
+                : category // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ProductSummaryImplCopyWith<$Res>
+    implements $ProductSummaryCopyWith<$Res> {
+  factory _$$ProductSummaryImplCopyWith(
+    _$ProductSummaryImpl value,
+    $Res Function(_$ProductSummaryImpl) then,
+  ) = __$$ProductSummaryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String id,
+    String name,
+    String? description,
+    String? imageUrl,
+    String category,
+  });
+}
+
+/// @nodoc
+class __$$ProductSummaryImplCopyWithImpl<$Res>
+    extends _$ProductSummaryCopyWithImpl<$Res, _$ProductSummaryImpl>
+    implements _$$ProductSummaryImplCopyWith<$Res> {
+  __$$ProductSummaryImplCopyWithImpl(
+    _$ProductSummaryImpl _value,
+    $Res Function(_$ProductSummaryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ProductSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? description = freezed,
+    Object? imageUrl = freezed,
+    Object? category = null,
+  }) {
+    return _then(
+      _$ProductSummaryImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        description: freezed == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        category: null == category
+            ? _value.category
+            : category // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ProductSummaryImpl implements _ProductSummary {
+  const _$ProductSummaryImpl({
+    required this.id,
+    required this.name,
+    this.description,
+    this.imageUrl,
+    required this.category,
+  });
+
+  factory _$ProductSummaryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ProductSummaryImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String name;
+  @override
+  final String? description;
+  @override
+  final String? imageUrl;
+  @override
+  final String category;
+
+  @override
+  String toString() {
+    return 'ProductSummary(id: $id, name: $name, description: $description, imageUrl: $imageUrl, category: $category)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ProductSummaryImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.category, category) ||
+                other.category == category));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, description, imageUrl, category);
+
+  /// Create a copy of ProductSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ProductSummaryImplCopyWith<_$ProductSummaryImpl> get copyWith =>
+      __$$ProductSummaryImplCopyWithImpl<_$ProductSummaryImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ProductSummaryImplToJson(this);
+  }
+}
+
+abstract class _ProductSummary implements ProductSummary {
+  const factory _ProductSummary({
+    required final String id,
+    required final String name,
+    final String? description,
+    final String? imageUrl,
+    required final String category,
+  }) = _$ProductSummaryImpl;
+
+  factory _ProductSummary.fromJson(Map<String, dynamic> json) =
+      _$ProductSummaryImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  String get name;
+  @override
+  String? get description;
+  @override
+  String? get imageUrl;
+  @override
+  String get category;
+
+  /// Create a copy of ProductSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ProductSummaryImplCopyWith<_$ProductSummaryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+AutoPurchaseSettings _$AutoPurchaseSettingsFromJson(Map<String, dynamic> json) {
+  return _AutoPurchaseSettings.fromJson(json);
+}
+
+/// @nodoc
+mixin _$AutoPurchaseSettings {
+  bool get enableBalanceControl => throw _privateConstructorUsedError;
+  int get balanceInterval => throw _privateConstructorUsedError; // 1 saat
+  double get priceAdjustmentRate => throw _privateConstructorUsedError; // %2
+  bool get smartPricing => throw _privateConstructorUsedError;
+
+  /// Serializes this AutoPurchaseSettings to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of AutoPurchaseSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $AutoPurchaseSettingsCopyWith<AutoPurchaseSettings> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AutoPurchaseSettingsCopyWith<$Res> {
+  factory $AutoPurchaseSettingsCopyWith(
+    AutoPurchaseSettings value,
+    $Res Function(AutoPurchaseSettings) then,
+  ) = _$AutoPurchaseSettingsCopyWithImpl<$Res, AutoPurchaseSettings>;
+  @useResult
+  $Res call({
+    bool enableBalanceControl,
+    int balanceInterval,
+    double priceAdjustmentRate,
+    bool smartPricing,
+  });
+}
+
+/// @nodoc
+class _$AutoPurchaseSettingsCopyWithImpl<
+  $Res,
+  $Val extends AutoPurchaseSettings
+>
+    implements $AutoPurchaseSettingsCopyWith<$Res> {
+  _$AutoPurchaseSettingsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of AutoPurchaseSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? enableBalanceControl = null,
+    Object? balanceInterval = null,
+    Object? priceAdjustmentRate = null,
+    Object? smartPricing = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            enableBalanceControl: null == enableBalanceControl
+                ? _value.enableBalanceControl
+                : enableBalanceControl // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            balanceInterval: null == balanceInterval
+                ? _value.balanceInterval
+                : balanceInterval // ignore: cast_nullable_to_non_nullable
+                      as int,
+            priceAdjustmentRate: null == priceAdjustmentRate
+                ? _value.priceAdjustmentRate
+                : priceAdjustmentRate // ignore: cast_nullable_to_non_nullable
+                      as double,
+            smartPricing: null == smartPricing
+                ? _value.smartPricing
+                : smartPricing // ignore: cast_nullable_to_non_nullable
+                      as bool,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$AutoPurchaseSettingsImplCopyWith<$Res>
+    implements $AutoPurchaseSettingsCopyWith<$Res> {
+  factory _$$AutoPurchaseSettingsImplCopyWith(
+    _$AutoPurchaseSettingsImpl value,
+    $Res Function(_$AutoPurchaseSettingsImpl) then,
+  ) = __$$AutoPurchaseSettingsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    bool enableBalanceControl,
+    int balanceInterval,
+    double priceAdjustmentRate,
+    bool smartPricing,
+  });
+}
+
+/// @nodoc
+class __$$AutoPurchaseSettingsImplCopyWithImpl<$Res>
+    extends _$AutoPurchaseSettingsCopyWithImpl<$Res, _$AutoPurchaseSettingsImpl>
+    implements _$$AutoPurchaseSettingsImplCopyWith<$Res> {
+  __$$AutoPurchaseSettingsImplCopyWithImpl(
+    _$AutoPurchaseSettingsImpl _value,
+    $Res Function(_$AutoPurchaseSettingsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AutoPurchaseSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? enableBalanceControl = null,
+    Object? balanceInterval = null,
+    Object? priceAdjustmentRate = null,
+    Object? smartPricing = null,
+  }) {
+    return _then(
+      _$AutoPurchaseSettingsImpl(
+        enableBalanceControl: null == enableBalanceControl
+            ? _value.enableBalanceControl
+            : enableBalanceControl // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        balanceInterval: null == balanceInterval
+            ? _value.balanceInterval
+            : balanceInterval // ignore: cast_nullable_to_non_nullable
+                  as int,
+        priceAdjustmentRate: null == priceAdjustmentRate
+            ? _value.priceAdjustmentRate
+            : priceAdjustmentRate // ignore: cast_nullable_to_non_nullable
+                  as double,
+        smartPricing: null == smartPricing
+            ? _value.smartPricing
+            : smartPricing // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$AutoPurchaseSettingsImpl implements _AutoPurchaseSettings {
+  const _$AutoPurchaseSettingsImpl({
+    this.enableBalanceControl = true,
+    this.balanceInterval = 3600000,
+    this.priceAdjustmentRate = 0.02,
+    this.smartPricing = true,
+  });
+
+  factory _$AutoPurchaseSettingsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$AutoPurchaseSettingsImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final bool enableBalanceControl;
+  @override
+  @JsonKey()
+  final int balanceInterval;
+  // 1 saat
+  @override
+  @JsonKey()
+  final double priceAdjustmentRate;
+  // %2
+  @override
+  @JsonKey()
+  final bool smartPricing;
+
+  @override
+  String toString() {
+    return 'AutoPurchaseSettings(enableBalanceControl: $enableBalanceControl, balanceInterval: $balanceInterval, priceAdjustmentRate: $priceAdjustmentRate, smartPricing: $smartPricing)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AutoPurchaseSettingsImpl &&
+            (identical(other.enableBalanceControl, enableBalanceControl) ||
+                other.enableBalanceControl == enableBalanceControl) &&
+            (identical(other.balanceInterval, balanceInterval) ||
+                other.balanceInterval == balanceInterval) &&
+            (identical(other.priceAdjustmentRate, priceAdjustmentRate) ||
+                other.priceAdjustmentRate == priceAdjustmentRate) &&
+            (identical(other.smartPricing, smartPricing) ||
+                other.smartPricing == smartPricing));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    enableBalanceControl,
+    balanceInterval,
+    priceAdjustmentRate,
+    smartPricing,
+  );
+
+  /// Create a copy of AutoPurchaseSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AutoPurchaseSettingsImplCopyWith<_$AutoPurchaseSettingsImpl>
+  get copyWith =>
+      __$$AutoPurchaseSettingsImplCopyWithImpl<_$AutoPurchaseSettingsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$AutoPurchaseSettingsImplToJson(this);
+  }
+}
+
+abstract class _AutoPurchaseSettings implements AutoPurchaseSettings {
+  const factory _AutoPurchaseSettings({
+    final bool enableBalanceControl,
+    final int balanceInterval,
+    final double priceAdjustmentRate,
+    final bool smartPricing,
+  }) = _$AutoPurchaseSettingsImpl;
+
+  factory _AutoPurchaseSettings.fromJson(Map<String, dynamic> json) =
+      _$AutoPurchaseSettingsImpl.fromJson;
+
+  @override
+  bool get enableBalanceControl;
+  @override
+  int get balanceInterval; // 1 saat
+  @override
+  double get priceAdjustmentRate; // %2
+  @override
+  bool get smartPricing;
+
+  /// Create a copy of AutoPurchaseSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AutoPurchaseSettingsImplCopyWith<_$AutoPurchaseSettingsImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}
+
+StockStatistics _$StockStatisticsFromJson(Map<String, dynamic> json) {
+  return _StockStatistics.fromJson(json);
+}
+
+/// @nodoc
+mixin _$StockStatistics {
+  int get totalProducts => throw _privateConstructorUsedError;
+  double get totalStockValue => throw _privateConstructorUsedError;
+  int get lowStockProducts => throw _privateConstructorUsedError;
+  int get highStockProducts => throw _privateConstructorUsedError;
+
+  /// Serializes this StockStatistics to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of StockStatistics
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $StockStatisticsCopyWith<StockStatistics> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $StockStatisticsCopyWith<$Res> {
+  factory $StockStatisticsCopyWith(
+    StockStatistics value,
+    $Res Function(StockStatistics) then,
+  ) = _$StockStatisticsCopyWithImpl<$Res, StockStatistics>;
+  @useResult
+  $Res call({
+    int totalProducts,
+    double totalStockValue,
+    int lowStockProducts,
+    int highStockProducts,
+  });
+}
+
+/// @nodoc
+class _$StockStatisticsCopyWithImpl<$Res, $Val extends StockStatistics>
+    implements $StockStatisticsCopyWith<$Res> {
+  _$StockStatisticsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of StockStatistics
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalProducts = null,
+    Object? totalStockValue = null,
+    Object? lowStockProducts = null,
+    Object? highStockProducts = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            totalProducts: null == totalProducts
+                ? _value.totalProducts
+                : totalProducts // ignore: cast_nullable_to_non_nullable
+                      as int,
+            totalStockValue: null == totalStockValue
+                ? _value.totalStockValue
+                : totalStockValue // ignore: cast_nullable_to_non_nullable
+                      as double,
+            lowStockProducts: null == lowStockProducts
+                ? _value.lowStockProducts
+                : lowStockProducts // ignore: cast_nullable_to_non_nullable
+                      as int,
+            highStockProducts: null == highStockProducts
+                ? _value.highStockProducts
+                : highStockProducts // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$StockStatisticsImplCopyWith<$Res>
+    implements $StockStatisticsCopyWith<$Res> {
+  factory _$$StockStatisticsImplCopyWith(
+    _$StockStatisticsImpl value,
+    $Res Function(_$StockStatisticsImpl) then,
+  ) = __$$StockStatisticsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int totalProducts,
+    double totalStockValue,
+    int lowStockProducts,
+    int highStockProducts,
+  });
+}
+
+/// @nodoc
+class __$$StockStatisticsImplCopyWithImpl<$Res>
+    extends _$StockStatisticsCopyWithImpl<$Res, _$StockStatisticsImpl>
+    implements _$$StockStatisticsImplCopyWith<$Res> {
+  __$$StockStatisticsImplCopyWithImpl(
+    _$StockStatisticsImpl _value,
+    $Res Function(_$StockStatisticsImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of StockStatistics
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? totalProducts = null,
+    Object? totalStockValue = null,
+    Object? lowStockProducts = null,
+    Object? highStockProducts = null,
+  }) {
+    return _then(
+      _$StockStatisticsImpl(
+        totalProducts: null == totalProducts
+            ? _value.totalProducts
+            : totalProducts // ignore: cast_nullable_to_non_nullable
+                  as int,
+        totalStockValue: null == totalStockValue
+            ? _value.totalStockValue
+            : totalStockValue // ignore: cast_nullable_to_non_nullable
+                  as double,
+        lowStockProducts: null == lowStockProducts
+            ? _value.lowStockProducts
+            : lowStockProducts // ignore: cast_nullable_to_non_nullable
+                  as int,
+        highStockProducts: null == highStockProducts
+            ? _value.highStockProducts
+            : highStockProducts // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$StockStatisticsImpl implements _StockStatistics {
+  const _$StockStatisticsImpl({
+    this.totalProducts = 0,
+    this.totalStockValue = 0.0,
+    this.lowStockProducts = 0,
+    this.highStockProducts = 0,
+  });
+
+  factory _$StockStatisticsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$StockStatisticsImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final int totalProducts;
+  @override
+  @JsonKey()
+  final double totalStockValue;
+  @override
+  @JsonKey()
+  final int lowStockProducts;
+  @override
+  @JsonKey()
+  final int highStockProducts;
+
+  @override
+  String toString() {
+    return 'StockStatistics(totalProducts: $totalProducts, totalStockValue: $totalStockValue, lowStockProducts: $lowStockProducts, highStockProducts: $highStockProducts)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$StockStatisticsImpl &&
+            (identical(other.totalProducts, totalProducts) ||
+                other.totalProducts == totalProducts) &&
+            (identical(other.totalStockValue, totalStockValue) ||
+                other.totalStockValue == totalStockValue) &&
+            (identical(other.lowStockProducts, lowStockProducts) ||
+                other.lowStockProducts == lowStockProducts) &&
+            (identical(other.highStockProducts, highStockProducts) ||
+                other.highStockProducts == highStockProducts));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    totalProducts,
+    totalStockValue,
+    lowStockProducts,
+    highStockProducts,
+  );
+
+  /// Create a copy of StockStatistics
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$StockStatisticsImplCopyWith<_$StockStatisticsImpl> get copyWith =>
+      __$$StockStatisticsImplCopyWithImpl<_$StockStatisticsImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$StockStatisticsImplToJson(this);
+  }
+}
+
+abstract class _StockStatistics implements StockStatistics {
+  const factory _StockStatistics({
+    final int totalProducts,
+    final double totalStockValue,
+    final int lowStockProducts,
+    final int highStockProducts,
+  }) = _$StockStatisticsImpl;
+
+  factory _StockStatistics.fromJson(Map<String, dynamic> json) =
+      _$StockStatisticsImpl.fromJson;
+
+  @override
+  int get totalProducts;
+  @override
+  double get totalStockValue;
+  @override
+  int get lowStockProducts;
+  @override
+  int get highStockProducts;
+
+  /// Create a copy of StockStatistics
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$StockStatisticsImplCopyWith<_$StockStatisticsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 Shop _$ShopFromJson(Map<String, dynamic> json) {
   return _Shop.fromJson(json);
 }
@@ -37,7 +1385,11 @@ mixin _$Shop {
   String? get businessCategory => throw _privateConstructorUsedError;
   bool get isActive => throw _privateConstructorUsedError;
   double get monthlyRevenue => throw _privateConstructorUsedError;
-  int get monthlyCustomers => throw _privateConstructorUsedError;
+  int get monthlyCustomers =>
+      throw _privateConstructorUsedError; // Ekonomik sistem alanları
+  List<ListedProduct> get listedProducts => throw _privateConstructorUsedError;
+  AutoPurchaseSettings? get autoPurchaseSettings =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this Shop to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,7 +1423,11 @@ abstract class $ShopCopyWith<$Res> {
     bool isActive,
     double monthlyRevenue,
     int monthlyCustomers,
+    List<ListedProduct> listedProducts,
+    AutoPurchaseSettings? autoPurchaseSettings,
   });
+
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings;
 }
 
 /// @nodoc
@@ -106,6 +1462,8 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
     Object? isActive = null,
     Object? monthlyRevenue = null,
     Object? monthlyCustomers = null,
+    Object? listedProducts = null,
+    Object? autoPurchaseSettings = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -177,9 +1535,33 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
                 ? _value.monthlyCustomers
                 : monthlyCustomers // ignore: cast_nullable_to_non_nullable
                       as int,
+            listedProducts: null == listedProducts
+                ? _value.listedProducts
+                : listedProducts // ignore: cast_nullable_to_non_nullable
+                      as List<ListedProduct>,
+            autoPurchaseSettings: freezed == autoPurchaseSettings
+                ? _value.autoPurchaseSettings
+                : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
+                      as AutoPurchaseSettings?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of Shop
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings {
+    if (_value.autoPurchaseSettings == null) {
+      return null;
+    }
+
+    return $AutoPurchaseSettingsCopyWith<$Res>(_value.autoPurchaseSettings!, (
+      value,
+    ) {
+      return _then(_value.copyWith(autoPurchaseSettings: value) as $Val);
+    });
   }
 }
 
@@ -209,7 +1591,12 @@ abstract class _$$ShopImplCopyWith<$Res> implements $ShopCopyWith<$Res> {
     bool isActive,
     double monthlyRevenue,
     int monthlyCustomers,
+    List<ListedProduct> listedProducts,
+    AutoPurchaseSettings? autoPurchaseSettings,
   });
+
+  @override
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings;
 }
 
 /// @nodoc
@@ -241,6 +1628,8 @@ class __$$ShopImplCopyWithImpl<$Res>
     Object? isActive = null,
     Object? monthlyRevenue = null,
     Object? monthlyCustomers = null,
+    Object? listedProducts = null,
+    Object? autoPurchaseSettings = freezed,
   }) {
     return _then(
       _$ShopImpl(
@@ -312,6 +1701,14 @@ class __$$ShopImplCopyWithImpl<$Res>
             ? _value.monthlyCustomers
             : monthlyCustomers // ignore: cast_nullable_to_non_nullable
                   as int,
+        listedProducts: null == listedProducts
+            ? _value._listedProducts
+            : listedProducts // ignore: cast_nullable_to_non_nullable
+                  as List<ListedProduct>,
+        autoPurchaseSettings: freezed == autoPurchaseSettings
+            ? _value.autoPurchaseSettings
+            : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
+                  as AutoPurchaseSettings?,
       ),
     );
   }
@@ -338,7 +1735,9 @@ class _$ShopImpl implements _Shop {
     this.isActive = false,
     this.monthlyRevenue = 0.0,
     this.monthlyCustomers = 0,
-  });
+    final List<ListedProduct> listedProducts = const [],
+    this.autoPurchaseSettings,
+  }) : _listedProducts = listedProducts;
 
   factory _$ShopImpl.fromJson(Map<String, dynamic> json) =>
       _$$ShopImplFromJson(json);
@@ -386,10 +1785,23 @@ class _$ShopImpl implements _Shop {
   @override
   @JsonKey()
   final int monthlyCustomers;
+  // Ekonomik sistem alanları
+  final List<ListedProduct> _listedProducts;
+  // Ekonomik sistem alanları
+  @override
+  @JsonKey()
+  List<ListedProduct> get listedProducts {
+    if (_listedProducts is EqualUnmodifiableListView) return _listedProducts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_listedProducts);
+  }
+
+  @override
+  final AutoPurchaseSettings? autoPurchaseSettings;
 
   @override
   String toString() {
-    return 'Shop(id: $id, name: $name, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers)';
+    return 'Shop(id: $id, name: $name, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
   }
 
   @override
@@ -426,12 +1838,18 @@ class _$ShopImpl implements _Shop {
             (identical(other.monthlyRevenue, monthlyRevenue) ||
                 other.monthlyRevenue == monthlyRevenue) &&
             (identical(other.monthlyCustomers, monthlyCustomers) ||
-                other.monthlyCustomers == monthlyCustomers));
+                other.monthlyCustomers == monthlyCustomers) &&
+            const DeepCollectionEquality().equals(
+              other._listedProducts,
+              _listedProducts,
+            ) &&
+            (identical(other.autoPurchaseSettings, autoPurchaseSettings) ||
+                other.autoPurchaseSettings == autoPurchaseSettings));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     name,
@@ -450,7 +1868,9 @@ class _$ShopImpl implements _Shop {
     isActive,
     monthlyRevenue,
     monthlyCustomers,
-  );
+    const DeepCollectionEquality().hash(_listedProducts),
+    autoPurchaseSettings,
+  ]);
 
   /// Create a copy of Shop
   /// with the given fields replaced by the non-null parameter values.
@@ -485,6 +1905,8 @@ abstract class _Shop implements Shop {
     final bool isActive,
     final double monthlyRevenue,
     final int monthlyCustomers,
+    final List<ListedProduct> listedProducts,
+    final AutoPurchaseSettings? autoPurchaseSettings,
   }) = _$ShopImpl;
 
   factory _Shop.fromJson(Map<String, dynamic> json) = _$ShopImpl.fromJson;
@@ -522,7 +1944,11 @@ abstract class _Shop implements Shop {
   @override
   double get monthlyRevenue;
   @override
-  int get monthlyCustomers;
+  int get monthlyCustomers; // Ekonomik sistem alanları
+  @override
+  List<ListedProduct> get listedProducts;
+  @override
+  AutoPurchaseSettings? get autoPurchaseSettings;
 
   /// Create a copy of Shop
   /// with the given fields replaced by the non-null parameter values.

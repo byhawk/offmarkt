@@ -1,6 +1,19 @@
 # OffMarket Admin Panel
 
-Profesyonel kurumsal tasarımlı web tabanlı admin yönetim paneli.
+Tam özellikli ekonomik yönetim sistemi ile enterprise-grade admin kontrol paneli.
+
+**🎯 Yeni Özellikler**:
+- **Economic Dashboard**: Dinamik piyasa izleme ve müdahale araçları
+- **Arz/Talep Analizi**: Gerçek zamanlı piyasa durumu takibi
+- **Fiyat Kontrolleri**: Admin piyasa müdahale mekanizmaları
+- **Ekonomik Filtreleme**: Oyuncu/market segmentasyonu
+
+**📊 İleri Düzey Özellikler**:
+- Real-time veri sync (30 saniye otomatik güncelle)
+- Respansive tasarım (Mobile-first yaklaşım)
+- Gelişmiş filtreleme ve arama
+- Export özellikleri
+- Production-ready mimari
 
 ## 🎨 Tasarım
 
@@ -34,7 +47,28 @@ npm start
 
 ## ✨ Özellikler
 
-### 1. Dashboard (/)
+### 🎯 Ekonomi Sistem Yönetimi
+#### **Economic Dashboard (/economic-dashboard.html)** ⭐ YENİ
+- **Pazar Genel Görünümü**: Toplam dükkan, aktif otomatik sistemler, listelenen ürünler
+- **Arz/Talep Analizi Tablosu**: Her ürün için supply ratio, demand level, öneriler
+- **Dükkan Performans İzleme**: Stok değerleri, otomatik sistem durumu
+- **Fiyat Geçmişi Takibi**: Son piyasa müdahaleleri ve değişiklikler
+- **Global Fiyat Dengeleme**: Tüm pazar için otomatik fiyat ayarlaması
+
+#### **Market Interventions**
+- **Genel Fiyat Ayarlama**: Tüm ürünler için toplu fiyat değişikliği
+- **Tek Ürün Fiyat Kontrolü**: Spesifik ürün fiyatı manuel ayarlama
+- **Pazar Sağlığı Göstergeleri**: Renk kodlu market durumu (Sağlıklı/Dengesiz/Riskli)
+- **Real-time Pazar Takibi**: Canlı arz/talep metrikleri
+
+### Yönetici Araçları
+#### **1. Ana Dashboard (/)** (GÜNCELLENDİ)
+- **12 İstatistik Kartı** (8+ ekonomik metrikler eklendi)
+- **Ekonomik Sistem Kartları**:
+  - Otomatik Sistem Sayısı 🤖
+  - Listelenen Ürün Sayısı 📦
+  - Pazar Sağlığı Status ❤️
+  - Ekonomik İşlem Sayısı 📊
 - 8 İstatistik Kartı
   - Toplam Oyuncu
   - Aktif Oyuncular
