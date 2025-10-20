@@ -195,3 +195,15 @@ function formatCurrency(amount) {
 function formatNumber(num) {
     return new Intl.NumberFormat('tr-TR').format(num);
 }
+
+// Export API wrapper object for global access
+const API = {
+    call: apiRequest,
+    get: (endpoint) => apiRequest(endpoint),
+    post: (endpoint, body) => apiRequest(endpoint, { method: 'POST', body: JSON.stringify(body) }),
+    put: (endpoint, body) => apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+    delete: (endpoint) => apiRequest(endpoint, { method: 'DELETE' })
+};
+
+// Make API available globally for HTML files
+window.API = API;

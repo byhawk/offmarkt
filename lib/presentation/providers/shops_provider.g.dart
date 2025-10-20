@@ -6,7 +6,43 @@ part of 'shops_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$shopsNotifierHash() => r'13839ae0cacb81ea3384bf99b4a6aaba664dba65';
+String _$shopTypesNotifierHash() => r'ae23e0a274cb71cbb001033b563324dddb9ea09a';
+
+/// See also [ShopTypesNotifier].
+@ProviderFor(ShopTypesNotifier)
+final shopTypesNotifierProvider =
+    AutoDisposeNotifierProvider<ShopTypesNotifier, List<ShopType>>.internal(
+      ShopTypesNotifier.new,
+      name: r'shopTypesNotifierProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$shopTypesNotifierHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$ShopTypesNotifier = AutoDisposeNotifier<List<ShopType>>;
+String _$playerShopsNotifierHash() =>
+    r'122dc59df02621a87ceac34bc7f105396af373ce';
+
+/// See also [PlayerShopsNotifier].
+@ProviderFor(PlayerShopsNotifier)
+final playerShopsNotifierProvider =
+    AutoDisposeNotifierProvider<
+      PlayerShopsNotifier,
+      List<ShopInstance>
+    >.internal(
+      PlayerShopsNotifier.new,
+      name: r'playerShopsNotifierProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$playerShopsNotifierHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$PlayerShopsNotifier = AutoDisposeNotifier<List<ShopInstance>>;
+String _$shopsNotifierHash() => r'a4148b38b5d16ffb04d3236c51a2e31cea495c0e';
 
 /// See also [ShopsNotifier].
 @ProviderFor(ShopsNotifier)

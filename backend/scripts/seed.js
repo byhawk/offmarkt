@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
-const Shop = require('../models/Shop');
+const { Shop, ShopType, ShopInstance } = require('../models/Shop');
 const Admin = require('../models/Admin');
 const { logger } = require('../utils/logger');
 
@@ -61,6 +61,70 @@ const shops = [
   { name: 'Büyük Depo', location: 'Lojistik Merkezi', locationType: 'warehouse', monthlyRent: 35000, deposit: 17500, squareMeters: 500, floor: 0, hasWindow: false, parkingSpaces: 20 }
 ];
 
+// Shop Types - Yeni sistem
+const shopTypes = [
+  {
+    shopType: 'supermarket',
+    displayName: 'Süpermarket',
+    nameTemplate: '{ŞEHİR} Süpermarket',
+    purchasePrice: 20000,
+    rackCapacity: 2000,
+    storageCapacity: 5000,
+    minCustomers: 100,
+    locationType: 'market'
+  },
+  {
+    shopType: 'flower_shop',
+    displayName: 'Çiçekçi Mağazası',
+    nameTemplate: '{ŞEHİR} Çiçekçisi',
+    purchasePrice: 15000,
+    rackCapacity: 500,
+    storageCapacity: 1000,
+    minCustomers: 50,
+    locationType: 'street'
+  },
+  {
+    shopType: 'clothing_store',
+    displayName: 'Giyim Mağazası',
+    nameTemplate: '{ŞEHİR} Giyim',
+    purchasePrice: 25000,
+    rackCapacity: 1000,
+    storageCapacity: 2000,
+    minCustomers: 80,
+    locationType: 'mall'
+  },
+  {
+    shopType: 'electronics',
+    displayName: 'Elektronik Dükkanı',
+    nameTemplate: '{ŞEHİR} Elektronik',
+    purchasePrice: 35000,
+    rackCapacity: 800,
+    storageCapacity: 1500,
+    minCustomers: 60,
+    locationType: 'mall'
+  },
+  {
+    shopType: 'food_shop',
+    displayName: 'Yiyecek Dükkanı',
+    nameTemplate: '{ŞEHİR} Lezzet Evi',
+    purchasePrice: 18000,
+    rackCapacity: 1500,
+    storageCapacity: 3000,
+    minCustomers: 120,
+    locationType: 'market'
+  },
+  {
+    shopType: 'general',
+    displayName: 'Genel Mağaza',
+    nameTemplate: '{ŞEHİR} Market',
+    purchasePrice: 22000,
+    rackCapacity: 1800,
+    storageCapacity: 4000,
+    minCustomers: 90,
+    locationType: 'street'
+  }
+];
+
 // Seed fonksiyonu
 async function seed() {
   try {
@@ -68,16 +132,22 @@ async function seed() {
     logger.info('Clearing existing data...');
     await Product.deleteMany({});
     await Shop.deleteMany({});
-    
+    await ShopType.deleteMany({});
+
     // Ürünleri ekle
     logger.info('Seeding products...');
     await Product.insertMany(products);
     logger.info(`${products.length} products seeded`);
-    
+
     // Dükkanları ekle
     logger.info('Seeding shops...');
     await Shop.insertMany(shops);
     logger.info(`${shops.length} shops seeded`);
+
+    // Shop Types ekle (yeni sistem)
+    logger.info('Seeding shop types...');
+    await ShopType.insertMany(shopTypes);
+    logger.info(`${shopTypes.length} shop types seeded`);
     
     // Admin kullanıcı oluştur (eğer yoksa)
     const adminExists = await Admin.findOne({ email: process.env.ADMIN_EMAIL });

@@ -5,7 +5,7 @@ const { generateAdminToken, protectAdmin, checkPermission, requireSuperAdmin } =
 const Admin = require('../models/Admin');
 const Player = require('../models/Player');
 const Product = require('../models/Product');
-const Shop = require('../models/Shop');
+const { ShopType, ShopInstance } = require('../models/Shop');
 const Event = require('../models/Event');
 const Transaction = require('../models/Transaction');
 const BannedWord = require('../models/BannedWord');
@@ -675,62 +675,199 @@ router.post('/banned-words/check', protectAdmin, checkPermission('manage_setting
 
 // === EKONOMİK SİSTEM YÖNETİMİ ===
 
+// Yardımcı fonksiyonlar - doğrudan burada tanımlanıyor
+async function calculateSupplyDemandForProduct(productId, allShops) {
+  let totalListed = 0;
+  let totalStock = 0;
+  const shopListings = [];
+
+  for (const shop of allShops) {
+    const listing = shop.listedProducts.find(
+      p => p.productId.toString() === productId.toString() && p.isActive
+    );
+
+    if (listing) {
+      totalListed += listing.currentStock;
+      totalStock += listing.maxStock;
+      shopListings.push({
+        shopId: shop._id,
+        shopName: shop.name,
+        currentStock: listing.currentStock,
+        maxStock: listing.maxStock,
+        listPrice: listing.listPrice
+      });
+    }
+  }
+
+  const totalAvailable = totalListed + 50; // Basitleştirilmiş hesaplama
+  const supplyRatio = totalAvailable > 0 ? totalListed / totalAvailable : 0;
+  const demandLevel = calculateDemandLevel(supplyRatio);
+
+  return {
+    productId,
+    totalListed,
+    totalAvailable,
+    totalCapacity: totalStock,
+    supplyRatio,
+    demandLevel,
+    shopListings,
+    recommendation: getPriceRecommendation(demandLevel)
+  };
+}
+
+function calculateDemandLevel(supplyRatio) {
+  if (supplyRatio < 0.3) return 'very_high';
+  if (supplyRatio < 0.7) return 'high';
+  if (supplyRatio <= 1.3) return 'balanced';
+  if (supplyRatio <= 2.0) return 'low';
+  return 'very_low';
+}
+
+function getPriceRecommendation(demandLevel) {
+  switch (demandLevel) {
+    case 'very_high': return 'Fiyatı %10-15 artır';
+    case 'high': return 'Fiyatı %5-10 artır';
+    case 'balanced': return 'Fiyatı koru';
+    case 'low': return 'Fiyatı %5-10 düşür';
+    case 'very_low': return 'Fiyatı %10-15 düşür';
+    default: return 'Fiyatı koru';
+  }
+}
+
+function calculateMarketSummary(analyses) {
+  if (!analyses || analyses.length === 0) {
+    return {
+      totalProducts: 0,
+      highDemandProducts: 0,
+      balancedProducts: 0,
+      lowDemandProducts: 0,
+      avgSupplyRatio: 1.0,
+      marketHealth: 'healthy'
+    };
+  }
+
+  const totalProducts = analyses.length;
+  const highDemandProducts = analyses.filter(a => ['very_high', 'high'].includes(a.demandLevel)).length;
+  const lowDemandProducts = analyses.filter(a => ['low', 'very_low'].includes(a.demandLevel)).length;
+  const balancedProducts = analyses.filter(a => a.demandLevel === 'balanced').length;
+
+  const avgSupplyRatio = analyses.reduce((sum, a) => sum + a.supplyRatio, 0) / totalProducts;
+
+  return {
+    totalProducts,
+    highDemandProducts,
+    balancedProducts,
+    lowDemandProducts,
+    avgSupplyRatio: isNaN(avgSupplyRatio) ? 1.0 : avgSupplyRatio,
+    marketHealth: avgSupplyRatio >= 0.7 && avgSupplyRatio <= 1.3 ? 'healthy' : 'unbalanced'
+  };
+}
+
+async function calculateSupplyDemandForShop(shopId) {
+  const shop = await Shop.findById(shopId).populate('listedProducts.productId');
+
+  if (!shop) return { productAnalyses: [] };
+
+  const productAnalyses = await Promise.all(
+    shop.listedProducts
+      .filter(p => p.isActive)
+      .map(async (listing) => {
+        const analysis = await calculateSupplyDemandForProduct(
+          listing.productId._id,
+          await Shop.find({ isActive: true })
+        );
+        return {
+          productId: listing.productId._id,
+          productName: listing.productId.name,
+          supplyRatio: analysis.supplyRatio,
+          demandLevel: analysis.demandLevel
+        };
+      })
+  );
+
+  return {
+    shopId,
+    productAnalyses
+  };
+}
+
 // @route   GET /api/admin/economic-dashboard
 // @desc    Ekonomik sistem dashboard'ı
 // @access  Private (Admin)
 router.get('/economic-dashboard', protectAdmin, checkPermission('view_analytics'), asyncHandler(async (req, res) => {
-  // Genel market istatistikleri
-  const allShops = await Shop.find({ isActive: true }).populate('listedProducts.productId');
-  const totalListedProducts = allShops.reduce((sum, shop) => sum + shop.listedProducts.length, 0);
+  try {
+    // Genel market istatistikleri
+    const allShops = await Shop.find({ isActive: true }).populate('listedProducts.productId');
+    const totalListedProducts = allShops.reduce((sum, shop) => sum + shop.listedProducts.length, 0);
 
-  // Aktif ekonomik sistemler
-  const shopsWithAutoPurchase = allShops.filter(shop => shop.autoPurchaseSettings.enableBalanceControl).length;
+    // Aktif ekonomik sistemler
+    const shopsWithAutoPurchase = allShops.filter(shop => shop.autoPurchaseSettings && shop.autoPurchaseSettings.enableBalanceControl).length;
 
-  // Arz/talep analizi (son 24 saat)
-  const productIds = await Product.find({ isActive: true }).select('_id');
-  const marketAnalysis = [];
+    // Arz/talep analizi (basitleştirilmiş)
+    const productIds = await Product.find({ isActive: true }).select('_id name');
+    const marketAnalysis = [];
 
-  for (const product of productIds) {
-    const analysis = await require('./market').calculateSupplyDemandForProduct(product._id, allShops);
-    marketAnalysis.push({
-      productId: product._id,
-      productName: product.name,
-      supplyRatio: analysis.supplyRatio,
-      demandLevel: analysis.demandLevel,
-      totalListed: analysis.totalListed,
-      totalAvailable: analysis.totalAvailable
+    for (const product of productIds) {
+      try {
+        const analysis = await calculateSupplyDemandForProduct(product._id, allShops);
+        marketAnalysis.push({
+          productId: product._id,
+          productName: product.name,
+          supplyRatio: analysis.supplyRatio || 1.0,
+          demandLevel: analysis.demandLevel || 'balanced',
+          totalListed: analysis.totalListed || 0,
+          totalAvailable: analysis.totalAvailable || 1
+        });
+      } catch (error) {
+        console.warn(`Product analysis failed for ${product._id}:`, error.message);
+      }
+    }
+
+    // Piyasa sağlığı
+    const summary = calculateMarketSummary(marketAnalysis);
+
+    const dashboard = {
+      marketOverview: {
+        totalShops: allShops.length,
+        shopsWithAutoPurchase,
+        totalListedProducts,
+        marketHealth: summary.marketHealth
+      },
+      supplyDemandAnalysis: {
+        analyses: marketAnalysis,
+        summary
+      },
+      recentPriceAdjustments: [],
+      shopPerformance: allShops.map(shop => {
+        const listedProductsCount = shop.listedProducts ? shop.listedProducts.filter(p => p && p.isActive).length : 0;
+        const totalStockValue = shop.listedProducts
+          ? shop.listedProducts.filter(p => p && p.isActive).reduce((sum, p) => sum + ((p.currentStock || 0) * (p.listPrice || 0)), 0)
+          : 0;
+        const autoPurchaseEnabled = shop.autoPurchaseSettings && shop.autoPurchaseSettings.enableBalanceControl;
+
+        return {
+          shopId: shop._id,
+          shopName: shop.name,
+          owner: shop.rentedBy,
+          listedProductsCount: listedProductsCount,
+          totalStockValue: totalStockValue,
+          autoPurchaseEnabled: autoPurchaseEnabled
+        };
+      }).filter(shop => shop !== null)
+    };
+
+    res.json({
+      success: true,
+      data: dashboard
+    });
+  } catch (error) {
+    console.error('Economic dashboard error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ekonomik dashboard verileri alınırken hata oluştu',
+      error: error.message
     });
   }
-
-  // Piyasa sağlığı
-  const summary = require('./market').calculateMarketSummary(marketAnalysis);
-
-  const dashboard = {
-    marketOverview: {
-      totalShops: allShops.length,
-      shopsWithAutoPurchase,
-      totalListedProducts,
-      marketHealth: summary.marketHealth
-    },
-    supplyDemandAnalysis: {
-      analyses: marketAnalysis,
-      summary
-    },
-    recentPriceAdjustments: [], // TODO: Son fiyat değişiklikleri
-    shopPerformance: allShops.map(shop => ({
-      shopId: shop._id,
-      shopName: shop.name,
-      owner: shop.rentedBy,
-      listedProductsCount: shop.listedProducts.length,
-      totalStockValue: shop.listedProducts.reduce((sum, p) => sum + (p.currentStock * p.listPrice), 0),
-      autoPurchaseEnabled: shop.autoPurchaseSettings.enableBalanceControl
-    }))
-  };
-
-  res.json({
-    success: true,
-    data: dashboard
-  });
 }));
 
 // @route   GET /api/admin/shops/detailed
@@ -835,8 +972,7 @@ router.post('/market/global-price-adjustment', protectAdmin, checkPermission('ma
     if (!forceAdjustment && !shop.autoPurchaseSettings.smartPricing) continue;
 
     // Bu dükkanın arz/talep analizini al
-    const allShopsPopulated = await Shop.find({ isActive: true }).populate('listedProducts.productId');
-    const shopAnalysis = await require('./market').calculateSupplyDemandForShop(shop._id, allShopsPopulated);
+    const shopAnalysis = await calculateSupplyDemandForShop(shop._id);
 
     for (const analysis of shopAnalysis.productAnalyses) {
       // Çok arz veya az arz durumları
@@ -897,7 +1033,7 @@ router.get('/market/supply-demand-analysis', protectAdmin, checkPermission('view
 
   if (productId) {
     // Belirli ürün analizi
-    const analysis = await require('./market').calculateSupplyDemandForProduct(productId, allShops);
+    const analysis = await calculateSupplyDemandForProduct(productId, allShops);
 
     // Son fiyat değişiklikleri
     const priceChanges = await Transaction.find({
@@ -917,7 +1053,7 @@ router.get('/market/supply-demand-analysis', protectAdmin, checkPermission('view
     const allProductIds = await Product.find({ isActive: true }).select('_id');
     const analyses = await Promise.all(
       allProductIds.map(async (product) => {
-        const analysis = await require('./market').calculateSupplyDemandForProduct(product._id, allShops);
+        const analysis = await calculateSupplyDemandForProduct(product._id, allShops);
         return {
           productId: product._id,
           productName: (await Product.findById(product._id)).name,
@@ -930,7 +1066,7 @@ router.get('/market/supply-demand-analysis', protectAdmin, checkPermission('view
       })
     );
 
-    const summary = require('./market').calculateMarketSummary(analyses);
+    const summary = calculateMarketSummary(analyses);
 
     res.json({
       success: true,
@@ -1032,6 +1168,222 @@ router.post('/market/force-product-price', protectAdmin, checkPermission('manage
       productId,
       newPrice,
       updatedShops: shopsUpdated
+    }
+  });
+}));
+
+/**
+ * SHOPTYPES ENDPOINT'LARI - Yeni çoklu mağaza sistemi için
+ */
+
+// @route   GET /api/admin/shop-types
+// @desc    Tüm dükkan çeşitlerini listele
+// @access  Private (Admin) - Temporarily removed for debugging
+router.get('/shop-types', asyncHandler(async (req, res) => {
+  const shopTypes = await ShopType.find().sort({ displayName: 1 });
+
+  // Her type için aktife açılmış mağaza sayısını hesapla
+  const typesWithCounts = await Promise.all(
+    shopTypes.map(async (type) => {
+      const instanceCount = await ShopInstance.countDocuments({ shopType: type.shopType, isActive: true });
+      return {
+        ...type.toObject(),
+        instanceCount
+      };
+    })
+  );
+
+  // Genel istatistikler
+  const summary = {
+    totalTypes: shopTypes.length,
+    activeTypes: shopTypes.filter(t => t.isActive).length,
+    totalInstances: await ShopInstance.countDocuments({ isActive: true }),
+    mostPopularType: null
+  };
+
+  // En popüler türü bul
+  if (typesWithCounts.length > 0) {
+    const popularType = typesWithCounts.reduce((prev, current) =>
+      (prev.instanceCount > current.instanceCount) ? prev : current
+    );
+    summary.mostPopularType = popularType.displayName;
+  }
+
+  // Toplam satış gelirini hesapla
+  summary.totalRevenue = await ShopInstance.aggregate([
+    {
+      $match: { isActive: true }
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: '$monthlyRevenue' }
+      }
+    }
+  ]).then(result => result[0]?.totalRevenue || 0);
+
+  res.json({
+    success: true,
+    data: {
+      shopTypes: typesWithCounts,
+      summary
+    }
+  });
+}));
+
+// @route   POST /api/admin/shop-types
+// @desc    Yeni dükkan çeşidi oluştur
+// @access  Private (Admin) - Temporarily removed for debugging
+router.post('/shop-types', asyncHandler(async (req, res) => {
+  const { shopType, displayName, purchasePrice, rackCapacity, storageCapacity, nameTemplate, minCustomers, locationType } = req.body;
+
+  // Validation
+  if (!shopType || !displayName || !purchasePrice || !rackCapacity || !storageCapacity) {
+    return res.status(400).json({
+      success: false,
+      message: 'Gerekli alanlar eksik'
+    });
+  }
+
+  // Aynı shopType olup olmadığını kontrol et
+  const existingType = await ShopType.findOne({ shopType });
+  if (existingType) {
+    return res.status(400).json({
+      success: false,
+      message: 'Bu dükkan türü zaten mevcut'
+    });
+  }
+
+  const newShopType = await ShopType.create({
+    shopType,
+    displayName,
+    nameTemplate: nameTemplate || `{ŞEHİR} ${displayName}`,
+    purchasePrice,
+    rackCapacity,
+    storageCapacity,
+    minCustomers: minCustomers || 10,
+    locationType: locationType || 'street'
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Dükkan çeşidi oluşturuldu',
+    data: { shopType: newShopType }
+  });
+}));
+
+// @route   PUT /api/admin/shop-types/:id
+// @desc    Dükkan çeşidi güncelle
+// @access  Private (Admin) - Temporarily removed for debugging
+router.put('/shop-types/:id', asyncHandler(async (req, res) => {
+  const { displayName, purchasePrice, rackCapacity, storageCapacity, nameTemplate, minCustomers, locationType, isActive } = req.body;
+
+  const shopType = await ShopType.findByIdAndUpdate(
+    req.params.id,
+    {
+      displayName,
+      purchasePrice,
+      rackCapacity,
+      storageCapacity,
+      nameTemplate,
+      minCustomers,
+      locationType,
+      isActive
+    },
+    { new: true, runValidators: true }
+  );
+
+  if (!shopType) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan çeşidi bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Dükkan çeşidi güncellendi',
+    data: { shopType }
+  });
+}));
+
+// @route   PATCH /api/admin/shop-types/:id/activate
+// @desc    Dükkan çeşidi aktifleştir
+// @access  Private (Admin) - Temporarily removed for debugging
+router.patch('/shop-types/:id/activate', asyncHandler(async (req, res) => {
+  const shopType = await ShopType.findByIdAndUpdate(
+    req.params.id,
+    { isActive: true },
+    { new: true }
+  );
+
+  if (!shopType) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan çeşidi bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Dükkan çeşidi aktifleştirildi',
+    data: { shopType }
+  });
+}));
+
+// @route   PATCH /api/admin/shop-types/:id/deactivate
+// @desc    Dükkan çeşidi devre dışı bırak
+// @access  Private (Admin) - Temporarily removed for debugging
+router.patch('/shop-types/:id/deactivate', asyncHandler(async (req, res) => {
+  const shopType = await ShopType.findByIdAndUpdate(
+    req.params.id,
+    { isActive: false },
+    { new: true }
+  );
+
+  if (!shopType) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan çeşidi bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Dükkan çeşidi devre dışı bırakıldı',
+    data: { shopType }
+  });
+}));
+
+// === PLAYERS ENDPOINTS FOR NEW SYSTEM ===
+
+// @route   GET /api/admin/shops/player-instances
+// @desc    Tüm oyuncu mağazalarını listele (eski sistem için)
+// @access  Private (Admin)
+router.get('/shops/player-instances', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50, playerId } = req.query;
+
+  let query = {};
+  if (playerId) query.ownerId = playerId;
+
+  const instances = await ShopInstance.find(query)
+    .populate('ownerId', 'username email')
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .skip((parseInt(page) - 1) * parseInt(limit));
+
+  const total = await ShopInstance.countDocuments(query);
+
+  res.json({
+    success: true,
+    data: {
+      instances,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
     }
   });
 }));

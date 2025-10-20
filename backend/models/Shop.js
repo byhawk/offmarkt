@@ -1,5 +1,7 @@
+// Import mongoose at the top
 const mongoose = require('mongoose');
 
+// === EXISTING SHOP MODEL ===
 const shopSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,24 +17,21 @@ const shopSchema = new mongoose.Schema({
     required: true,
     enum: ['street', 'mall', 'market', 'office', 'warehouse']
   },
-  monthlyRent: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  deposit: {
-    type: Number,
-    required: true,
-    min: 0
-  },
   squareMeters: {
     type: Number,
-    required: true,
-    min: 10
+    required: true
   },
   floor: {
     type: Number,
-    default: 0
+    required: true
+  },
+  monthlyRent: {
+    type: Number,
+    required: true
+  },
+  deposit: {
+    type: Number,
+    required: true
   },
   hasWindow: {
     type: Boolean,
@@ -42,25 +41,136 @@ const shopSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  
-  // Kiralama bilgileri
   isAvailable: {
     type: Boolean,
     default: true
   },
   rentedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Player',
-    default: null
+    ref: 'Player'
   },
-  rentedAt: {
-    type: Date,
-    default: null
+  businessCategory: String,
+  isActive: {
+    type: Boolean,
+    default: true
   },
-  businessCategory: {
+  monthlyRevenue: {
+    type: Number,
+    default: 0
+  },
+  monthlyCustomers: {
+    type: Number,
+    default: 0
+  },
+  listedProducts: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    },
+    minStock: Number,
+    maxStock: Number,
+    currentStock: { type: Number, default: 0 },
+    listPrice: Number,
+    autoPurchase: { type: Boolean, default: true },
+    isActive: { type: Boolean, default: true }
+  }],
+  autoPurchaseSettings: {
+    enableBalanceControl: { type: Boolean, default: true },
+    balanceInterval: { type: Number, default: 3600000 },
+    priceAdjustmentRate: { type: Number, default: 0.02 },
+    smartPricing: { type: Boolean, default: true }
+  }
+}, { timestamps: true });
+
+// ShopType Schema - Admin tarafından oluşturulan template'lar
+const shopTypeSchema = new mongoose.Schema({
+  shopType: {
     type: String,
-    enum: ['electronics', 'clothing', 'food', 'jewelry', 'general', null],
-    default: null
+    required: true,
+    unique: true,
+    enum: ['supermarket', 'flower_shop', 'clothing_store', 'jewelry_store', 'food_shop', 'electronics', 'general'],
+  },
+  displayName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  nameTemplate: {
+    type: String,
+    default: '{ŞEHİR} {TÜR}',
+    trim: true
+  },
+  // Satın alma fiyatı (kira yok, satın alma var)
+  purchasePrice: {
+    type: Number,
+    required: true,
+    min: 1000
+  },
+  // Kapasiteler
+  rackCapacity: {
+    type: Number,
+    required: true,
+    min: 100
+  },
+  storageCapacity: {
+    type: Number,
+    required: true,
+    min: 100
+  },
+  // İstatistikler
+  minCustomers: {
+    type: Number,
+    default: 10,
+    min: 0
+  },
+  locationType: {
+    type: String,
+    required: true,
+    enum: ['street', 'mall', 'market', 'office', 'warehouse']
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  }
+}, {
+  timestamps: true
+});
+
+// ShopInstance Schema - Oyuncuların satın aldığı mağazalar
+const shopInstanceSchema = new mongoose.Schema({
+  // Bağlı olduğu type
+  shopType: {
+    type: String,
+    required: true,
+    enum: ['supermarket', 'flower_shop', 'clothing_store', 'jewelry_store', 'food_shop', 'electronics', 'general'],
+  },
+  // Oyuncu bilgileri
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Player',
+    required: true
+  },
+  // Konum
+  country: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  city: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  // Özel isim
+  customName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  // Satın alma tarihi
+  purchasedAt: {
+    type: Date,
+    default: Date.now
   },
   
   // İşletme istatistikleri
@@ -394,12 +504,192 @@ shopSchema.methods.getStockStatistics = function() {
   };
 };
 
-// Indexes
-shopSchema.index({ isAvailable: 1, isActive: 1 });
-shopSchema.index({ rentedBy: 1 });
-shopSchema.index({ locationType: 1, isAvailable: 1 });
-shopSchema.index({ monthlyRent: 1 });
-shopSchema.index({ 'listedProducts.productId': 1 });
-shopSchema.index({ 'listedProducts.isActive': 1 });
+// ShopType model methods
+shopTypeSchema.methods.getPurchasePrice = function() {
+  return this.purchasePrice;
+};
 
-module.exports = mongoose.model('Shop', shopSchema);
+// ShopInstance model methods - eski methods'ları taşıyoruz
+shopInstanceSchema.methods.updateRevenue = function(revenue, customers) {
+  this.monthlyRevenue += revenue;
+  this.monthlyCustomers += customers;
+
+  // Geçmişe ekle (son 12 ay)
+  const currentMonth = new Date().getMonth();
+  this.revenueHistory.push({
+    month: currentMonth,
+    revenue,
+    customers,
+    timestamp: new Date()
+  });
+
+  if (this.revenueHistory.length > 12) {
+    this.revenueHistory.shift();
+  }
+
+  return this.save();
+};
+
+// ShopInstance statics
+shopInstanceSchema.statics.getPlayerInstances = function(playerId) {
+  return this.find({ ownerId: playerId, isActive: true });
+};
+
+shopInstanceSchema.statics.getByCity = function(country, city) {
+  return this.find({ country, city, isActive: true });
+};
+
+// Ürün listeleme metodları - mevcut code
+shopInstanceSchema.methods.addListedProduct = function(productId, listPrice, minStock = 5, maxStock = 20) {
+  const existingProduct = this.listedProducts.find(
+    p => p.productId.toString() === productId.toString() && p.isActive
+  );
+
+  if (existingProduct) {
+    throw new Error('Bu ürün zaten dükkanınızda listelenmiş durumda');
+  }
+
+  this.listedProducts.push({
+    productId,
+    listPrice,
+    minStock,
+    maxStock,
+    currentStock: 0,
+    isActive: true,
+    priceHistory: [{
+      price: listPrice,
+      changedAt: new Date(),
+      reason: 'manual'
+    }]
+  });
+
+  return this.save();
+};
+
+shopInstanceSchema.methods.updateListedProduct = function(productId, updates) {
+  const product = this.listedProducts.find(
+    p => p.productId.toString() === productId.toString() && p.isActive
+  );
+
+  if (!product) {
+    throw new Error('Ürün bulunamadı');
+  }
+
+  if (updates.listPrice && updates.listPrice !== product.listPrice) {
+    product.priceHistory.push({
+      price: updates.listPrice,
+      changedAt: new Date(),
+      reason: updates.priceChangeReason || 'manual'
+    });
+  }
+
+  Object.assign(product, updates);
+  return this.save();
+};
+
+shopInstanceSchema.methods.removeListedProduct = function(productId) {
+  const productIndex = this.listedProducts.findIndex(
+    p => p.productId.toString() === productId.toString() && p.isActive
+  );
+
+  if (productIndex === -1) {
+    throw new Error('Ürün bulunamadı');
+  }
+
+  this.listedProducts[productIndex].isActive = false;
+  return this.save();
+};
+
+shopInstanceSchema.methods.updateProductStock = function(productId, quantityChange, isSale = false) {
+  const product = this.listedProducts.find(
+    p => p.productId.toString() === productId.toString() && p.isActive
+  );
+
+  if (!product) {
+    throw new Error('Ürün bulunamadı');
+  }
+
+  product.currentStock += quantityChange;
+
+  if (isSale) {
+    product.totalSold += Math.abs(quantityChange);
+    product.lastPurchaseDate = new Date();
+  }
+
+  if (product.currentStock < 0) {
+    product.currentStock = 0;
+  }
+
+  return this.save();
+};
+
+shopInstanceSchema.methods.adjustPriceForSupplyDemand = function(productId, globalSupplyRatio) {
+  const product = this.listedProducts.find(
+    p => p.productId.toString() === productId.toString() && p.isActive
+  );
+
+  if (!product || !this.autoPurchaseSettings.smartPricing) {
+    return null;
+  }
+
+  const adjustmentRate = this.autoPurchaseSettings.priceAdjustmentRate;
+  let newPrice = product.listPrice;
+
+  if (globalSupplyRatio > 1.5) {
+    newPrice *= (1 - adjustmentRate);
+  }
+  else if (globalSupplyRatio < 0.5) {
+    newPrice *= (1 + adjustmentRate);
+  }
+
+  const maxChange = product.listPrice * 0.5;
+  newPrice = Math.max(product.listPrice - maxChange, Math.min(product.listPrice + maxChange, newPrice));
+
+  if (newPrice !== product.listPrice) {
+    product.priceHistory.push({
+      price: newPrice,
+      changedAt: new Date(),
+      reason: 'supply_demand'
+    });
+    product.listPrice = newPrice;
+    return this.save();
+  }
+
+  return null;
+};
+
+shopInstanceSchema.methods.getActiveListedProducts = function() {
+  return this.listedProducts.filter(p => p.isActive);
+};
+
+shopInstanceSchema.methods.getStockStatistics = function() {
+  const activeProducts = this.getActiveListedProducts();
+  const totalValue = activeProducts.reduce((sum, p) => sum + (p.currentStock * p.listPrice), 0);
+
+  return {
+    totalProducts: activeProducts.length,
+    totalStockValue: totalValue,
+    lowStockProducts: activeProducts.filter(p => p.currentStock < p.minStock).length,
+    highStockProducts: activeProducts.filter(p => p.currentStock > p.maxStock).length
+  };
+};
+
+// Indexes
+shopTypeSchema.index({ shopType: 1, isActive: 1 });
+shopInstanceSchema.index({ ownerId: 1, isActive: 1 });
+shopInstanceSchema.index({ shopType: 1 });
+shopInstanceSchema.index({ country: 1, city: 1 });
+shopInstanceSchema.index({ 'listedProducts.productId': 1 });
+shopInstanceSchema.index({ 'listedProducts.isActive': 1 });
+
+const Shop = mongoose.model('Shop', shopSchema);
+
+// Export all models
+const ShopType = mongoose.model('ShopType', shopTypeSchema);
+const ShopInstance = mongoose.model('ShopInstance', shopInstanceSchema);
+
+module.exports = {
+  Shop,
+  ShopType,
+  ShopInstance
+};

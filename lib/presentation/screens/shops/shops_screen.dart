@@ -91,6 +91,18 @@ class _AvailableShopsTab extends ConsumerWidget {
 
   void _showRentDialog(BuildContext context, WidgetRef ref, Shop shop) {
     String selectedCategory = 'electronics';
+    String? selectedCountry;
+    String? selectedCity;
+
+    // Ülke ve şehir listesi
+    final countriesCities = {
+      'Türkiye': ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya'],
+      'Almanya': ['Berlin', 'Münih', 'Hamburg'],
+      'Fransa': ['Paris', 'Marsilya', 'Lyon'],
+      'İngiltere': ['Londra', 'Birmingham', 'Leeds'],
+      'ABD': ['New York', 'Los Angeles', 'Chicago'],
+    };
+
     final categories = {
       'electronics': '📱 Elektronik',
       'clothing': '👕 Giyim',
@@ -127,21 +139,79 @@ class _AvailableShopsTab extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Toplam Ödeme:', style: AppTextStyles.label),
-                  Text(
-                    Formatters.formatCurrency(shop.deposit + shop.monthlyRent),
-                    style: AppTextStyles.h3.copyWith(color: AppColors.danger),
-                  ),
-                  const Gap(AppSpacing.sm),
-                  Text(
-                    '• Depozito: ${Formatters.formatCurrency(shop.deposit)}',
-                    style: AppTextStyles.caption,
-                  ),
-                  Text(
-                    '• İlk Ay Kirası: ${Formatters.formatCurrency(shop.monthlyRent)}',
-                    style: AppTextStyles.caption,
+                  // Dükkan bilgisi gösterimi
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('🏪 ${shop.name}', style: AppTextStyles.h4),
+                        const Gap(AppSpacing.xs),
+                        Text(
+                          '${shop.squareMeters} adet Depo • ₺${Formatters.formatCurrency(shop.monthlyRent)}/ay',
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                    ),
                   ),
                   const Gap(AppSpacing.md),
+
+                  // Ülke seçimi
+                  Text('Ülkeninizi Seçin:', style: AppTextStyles.label),
+                  const Gap(AppSpacing.sm),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.sm,
+                      ),
+                      hintText: 'Öncelikle ülkenizi seçin',
+                    ),
+                    items: countriesCities.keys.map((country) {
+                      return DropdownMenuItem(
+                        value: country,
+                        child: Text(country),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCountry = value;
+                        selectedCity = null; // Ülke değiştiğinde şehri sıfırla
+                      });
+                    },
+                  ),
+                  const Gap(AppSpacing.md),
+
+                  // Şehir seçimi
+                  if (selectedCountry != null) ...[
+                    Text('Şehrinizi Seçin:', style: AppTextStyles.label),
+                    const Gap(AppSpacing.sm),
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.sm,
+                        ),
+                        hintText: 'Şehrinizi seçin',
+                      ),
+                      items: (countriesCities[selectedCountry!] ?? []).map((
+                        city,
+                      ) {
+                        return DropdownMenuItem(value: city, child: Text(city));
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() => selectedCity = value);
+                      },
+                    ),
+                    const Gap(AppSpacing.md),
+                  ],
+
                   Text('İşletme Kategorisi Seçin:', style: AppTextStyles.label),
                   const Gap(AppSpacing.sm),
                   DropdownButtonFormField<String>(
@@ -398,6 +468,11 @@ class _ShopCard extends StatelessWidget {
                   children: [
                     Text(shop.name, style: AppTextStyles.h3),
                     const Gap(AppSpacing.xs),
+                    Text(
+                      '${shop.country ?? 'Bilinmiyor'}/${shop.city ?? 'Bilinmiyor'}',
+                      style: AppTextStyles.caption,
+                    ),
+                    const Gap(AppSpacing.xs),
                     Text(shop.location, style: AppTextStyles.caption),
                   ],
                 ),
@@ -411,7 +486,11 @@ class _ShopCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.xs,
             children: [
-              _FeatureChip(icon: '📏', label: '${shop.squareMeters}m²'),
+              _FeatureChip(icon: '📦', label: '${shop.squareMeters} adet Depo'),
+              _FeatureChip(
+                icon: '💰',
+                label: '${Formatters.formatCurrency(shop.monthlyRent)}/ay',
+              ),
               _FeatureChip(icon: '🏗️', label: '${shop.floor}. Kat'),
               if (shop.hasWindow)
                 const _FeatureChip(icon: '🪟', label: 'Vitrinli'),
@@ -570,6 +649,11 @@ class _RentedShopCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(shop.name, style: AppTextStyles.h3),
+                    const Gap(AppSpacing.xs),
+                    Text(
+                      '${shop.country ?? 'Bilinmiyor'}/${shop.city ?? 'Bilinmiyor'}',
+                      style: AppTextStyles.caption,
+                    ),
                     const Gap(AppSpacing.xs),
                     Text(shop.location, style: AppTextStyles.caption),
                   ],

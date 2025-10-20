@@ -8,23 +8,8 @@
 </head>
 <body>
     <div class="admin-container">
-        <aside class="sidebar">
-            <div class="logo"><h2>OffMarket Admin</h2><p>Yönetim Paneli</p></div>
-            <nav class="nav-menu">
-                <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
-                <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
-                <a href="/products.html" class="nav-item"><span>📦</span> Ürünler</a>
-                <a href="/shops.html" class="nav-item"><span>🏪</span> Dükkanlar</a>
-                <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
-                <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
-                <a href="/banned-words.html" class="nav-item active"><span>🚫</span> Yasaklı Kelimeler</a>
-                <a href="/analytics.html" class="nav-item"><span>📈</span> Analitik</a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="admin-info" id="adminInfo"></div>
-                <button onclick="logout()" class="btn-logout">Çıkış Yap</button>
-            </div>
-        </aside>
+        <!-- Sidebar will be loaded by sidebar.js -->
+
         <main class="main-content">
             <header class="header">
                 <h1>Yasaklı Kelimeler</h1>
@@ -47,12 +32,124 @@
         </main>
     </div>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/api.js"></script>
     <script>
+        checkAuth();
+
         async function loadWords() {
-            const tbody = document.getElementById('wordsTable');
-            tbody.innerHTML = '<tr><td colspan="4" class="no-data">Kelime filtreleme sistemi yakında eklenecek</td></tr>';
+            try {
+                const result = await api.get('/admin/banned-words');
+                if (result.success) {
+                    displayWords(result.data.words);
+                } else {
+                    showNotification('Yasaklı kelimeler yüklenirken hata oluştu', 'error');
+                }
+            } catch (error) {
+                console.error('Load words error:', error);
+                showNotification('Sunucu hatası', 'error');
+            }
         }
+
+        function displayWords(words) {
+            const tbody = document.getElementById('wordsTable');
+
+            if (!words || words.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">Henüz yasaklı kelime bulunmuyor</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = words.map(word => `
+                <tr>
+                    <td><strong>${word.word}</strong></td>
+                    <td><span class="badge badge-${getCategoryColor(word.category)}">${word.category || 'other'}</span></td>
+                    <td class="badge badge-${getSeverityColor(word.severity)}">${word.severity || 'medium'}</span></td>
+                    <td>${new Date(word.createdAt).toLocaleDateString('tr-TR')}</td>
+                    <td>
+                        <button onclick="testWord('${word.word}')" class="btn-sm info">🧪 Test</button>
+                        <button onclick="editWord('${word._id}', '${word.word}', '${word.category}', '${word.severity}')" class="btn-sm secondary">✏️ Düzenle</button>
+                        <button onclick="deleteWord('${word._id}')" class="btn-sm danger">🗑️ Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'spam': 'danger',
+                'insult': 'danger',
+                'politics': 'warning',
+                'violence': 'danger',
+                'other': 'secondary'
+            };
+            return colors[category] || 'secondary';
+        }
+
+        function getSeverityColor(severity) {
+            const colors = {
+                'high': 'danger',
+                'medium': 'warning',
+                'low': 'info'
+            };
+            return colors[severity] || 'secondary';
+        }
+
+        async function testWord(word) {
+            try {
+                const result = await api.post('/admin/banned-words/check', { text: word });
+                if (result.success) {
+                    const msg = result.data.isClean
+                        ? `"${word}" kelimesi temiz`
+                        : `"${word}" kelimesi yasaklanmış! Bulunan: ${result.data.foundWords.join(', ')}`;
+                    alert(msg);
+                }
+            } catch (error) {
+                console.error('Test word error:', error);
+                alert('Test işlemi başarısız');
+            }
+        }
+
+        function editWord(id, word, category, severity) {
+            // Simple edit implementation
+            const newWord = prompt('Yeni kelime:', word);
+            if (newWord && newWord !== word) {
+                updateWord(id, { word: newWord, category, severity });
+            }
+        }
+
+        async function updateWord(id, updates) {
+            try {
+                const result = await api.put('/admin/banned-words/' + id, updates);
+                if (result.success) {
+                    showNotification('Kelime güncellendi', 'success');
+                    loadWords();
+                }
+            } catch (error) {
+                console.error('Update word error:', error);
+                showNotification('Güncelleme başarısız', 'error');
+            }
+        }
+
+        async function deleteWord(id) {
+            if (!confirm('Bu kelimeyi silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const result = await api.delete('/admin/banned-words/' + id);
+                if (result.success) {
+                    showNotification('Kelime silindi', 'success');
+                    loadWords();
+                }
+            } catch (error) {
+                console.error('Delete word error:', error);
+                showNotification('Silme başarısız', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            alert(message);
+        }
+
+        // Load words on page load
         loadWords();
     </script>
 </body>

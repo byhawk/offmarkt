@@ -8,27 +8,7 @@
 </head>
 <body>
     <div class="admin-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>OffMarket Admin</h2>
-                <p>Yönetim Paneli</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="/" class="nav-item"><span>📊</span> Dashboard</a>
-                <a href="/players.html" class="nav-item"><span>👥</span> Oyuncular</a>
-                <a href="/products.html" class="nav-item"><span>📦</span> Ürünler</a>
-                <a href="/shops.html" class="nav-item active"><span>🏪</span> Dükkanlar</a>
-                <a href="/transactions.html" class="nav-item"><span>💰</span> İşlemler</a>
-                <a href="/events.html" class="nav-item"><span>⚡</span> Olaylar</a>
-                <a href="/economic-dashboard.html" class="nav-item"><span>📈</span> Ekonomi</a>
-                <a href="/analytics.html" class="nav-item"><span>📊</span> Analitik</a>
-                <a href="/banned-words.html" class="nav-item"><span>🚫</span> Yasaklı Kelimeler</a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="admin-info" id="adminInfo"></div>
-                <button onclick="logout()" class="btn-logout">Çıkış Yap</button>
-            </div>
-        </aside>
+        <!-- Sidebar will be loaded by sidebar.js -->
 
         <main class="main-content">
             <!-- Economic Dashboard Stats -->
@@ -86,6 +66,7 @@
                         <thead>
                             <tr>
                                 <th>Dükkan</th>
+                                <th>Konum</th>
                                 <th>Sahibi</th>
                                 <th>Ürünler</th>
                                 <th>Envanter Değeri</th>
@@ -121,16 +102,45 @@
             <h2 id="modalTitle">Yeni Dükkan</h2>
             <form id="shopForm">
                 <div class="form-group">
-                    <label>Dükkan Adı</label>
-                    <input type="text" id="shopName" required>
+                    <label>Dükkan Türü</label>
+                    <select id="shopType" required>
+                        <option value="supermarket">🏪 Süpermarket</option>
+                        <option value="flower_shop">🌸 Çiçekçi</option>
+                        <option value="clothing_store">👕 Kıyafetci</option>
+                        <option value="jewelry_store">💎 Mücevherci</option>
+                        <option value="food_shop">🍔 Yemekçi</option>
+                        <option value="electronics">📱 Elektronikçi</option>
+                        <option value="general">🏠 Genel</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Lokasyon</label>
-                    <input type="text" id="shopLocation" required>
+                    <label>Dükkan Adı Şablonu</label>
+                    <input type="text" id="shopName" placeholder="örn: {ŞEHİR} {TÜR}" required>
                 </div>
-                <div class="form-group">
-                    <label>Kira (Günlük)</label>
-                    <input type="number" id="shopRent" min="1" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Raf Kapasitesi</label>
+                        <input type="number" id="shopRack" placeholder="örn: 2000" min="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Aylık Kira Ücreti (₺)</label>
+                        <input type="number" id="shopRent" placeholder="örn: 15000" min="100" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ülke</label>
+                        <select id="shopCountry" required onchange="updateCities()">
+                            <option value="">Ülke Seçin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Şehir</label>
+                        <select id="shopCity" required>
+                            <option value="">Önce Ülke Seçin</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" onclick="closeShopModal()" class="btn-secondary">İptal</button>
@@ -141,16 +151,110 @@
     </div>
 
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/api.js"></script>
     <script>
         let allShops = [];
         let editingShopId = null;
 
+        // Ülke ve şehir veritabanı
+        const countriesCities = {
+            'Türkiye': [
+                'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Konya', 'Adana', 'Gaziantep', 'Şanlıurfa', 'Kayseri',
+                'Mersin', 'Eskişehir', 'Diyarbakır', 'Samsun', 'Denizli', 'Kahramanmaraş', 'Malatya', 'Erzurum', 'Tekirdağ', 'Trabzon'
+            ],
+            'Almanya': [
+                'Berlin', 'Münih', 'Hamburg', 'Köln', 'Frankfurt', 'Stuttgart', 'Düsseldorf', 'Leipzig', 'Dortmund', 'Essen'
+            ],
+            'Fransa': [
+                'Paris', 'Marsilya', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Strazburg', 'Montpellier', 'Bordeaux', 'Lille'
+            ],
+            'İngiltere': [
+                'Londra', 'Birimingham', 'Leeds', 'Glasgow', 'Sheffield', 'Bradford', 'Liverpool', 'Edinburgh', 'Manchester', 'Bristol'
+            ],
+            'ABD': [
+                'New York', 'Los Angeles', 'Chicago', 'Houston', 'Philadelphia', 'Phoenix', 'San Antonio', 'San Diego', 'Dallas', 'San Jose'
+            ],
+            'Kanada': [
+                'Toronto', 'Montreal', 'Vancouver', 'Calgary', 'Edmonton', 'Ottawa', 'Winnipeg', 'Quebec', 'Hamilton', 'Kitchener'
+            ],
+            'İtalya': [
+                'Roma', 'Milano', 'Napoli', 'Torino', 'Palermo', 'Cenova', 'Bologna', 'Floransa', 'Venedik', 'Verona'
+            ],
+            'İspanya': [
+                'Madrid', 'Barselona', 'Valencia', 'Sevilla', 'Zaragoza', 'Malaga', 'Murcia', 'Palma', 'Las Palmas', 'Bilbao'
+            ],
+            'Japonya': [
+                'Tokyo', 'Yokohama', 'Osaka', 'Nagoya', 'Sapporo', 'Kobe', 'Kawasaki', 'Fukuoka', 'Saitama', 'Hiroshima'
+            ],
+            'Güney Kore': [
+                'Seul', 'Busan', 'Incheon', 'Daegu', 'Daejeon', 'Gwangju', 'Suwon', 'Ulsan', 'Changwon', 'Goyang'
+            ],
+            'Çin': [
+                'Şanghay', 'Pekin', 'Şenzhen', 'Guangzhou', 'Dongguan', 'Tianjin', 'Suzhou', 'Foshan', 'Zhejiang', 'Hangzhou'
+            ],
+            'Brezilya': [
+                'São Paulo', 'Rio de Janeiro', 'Brasilia', 'Salvador', 'Fortaleza', 'Belo Horizonte', 'Manaus', 'Curitiba', 'Recife', 'Goiânia'
+            ],
+            'Meksika': [
+                'Mexico City', 'Guadalajara', 'Monterrey', 'Leon', 'Puebla', 'Tijuana', 'Juarez', 'Cancun', 'Mérida', 'Querétaro'
+            ],
+            'Avustralya': [
+                'Sidney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast', 'Cairns', 'Newcastle', 'Darwin', 'Townsville'
+            ],
+            'Hindistan': [
+                'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur'
+            ]
+        };
+
         // Sayfa yüklendiğinde
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
+            initializeCountrySelect();
             loadShopsData();
         });
+
+        // Ülkeler dropdown'ını başlat
+        function initializeCountrySelect() {
+            const countrySelect = document.getElementById('shopCountry');
+            Object.keys(countriesCities).forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                countrySelect.appendChild(option);
+            });
+        }
+
+        // Şehir dropdown'ını güncelle
+        function updateCities() {
+            const country = document.getElementById('shopCountry').value;
+            const citySelect = document.getElementById('shopCity');
+
+            // Mevcut şehirleri temizle
+            citySelect.innerHTML = '';
+
+            if (country && countriesCities[country]) {
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Şehir Seçin';
+                citySelect.appendChild(defaultOption);
+
+                countriesCities[country].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+
+                citySelect.disabled = false;
+            } else {
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Önce Ülke Seçin';
+                citySelect.appendChild(defaultOption);
+                citySelect.disabled = true;
+            }
+        }
 
         async function loadShopsData() {
             try {
@@ -184,7 +288,7 @@
         function displayShops(shops) {
             const tbody = document.getElementById('shopsTable');
             if (!shops || shops.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">Dükkan bulunamadı</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">Dükkan bulunamadı</td></tr>';
                 return;
             }
 
@@ -192,6 +296,7 @@
                 const metrics = shop.economicMetrics || {};
                 const ownerName = shop.rentedBy?.username || 'Kirada';
                 const isRented = !shop.isAvailable;
+                const locationDisplay = `${shop.country || 'Bilinmiyor'}/${shop.city || 'Bilinmiyor'}`;
 
                 return `
                     <tr>
@@ -200,6 +305,11 @@
                                 <strong>${shop.name}</strong>
                                 <br>
                                 <small class="text-muted">${shop.location}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span class="badge badge-info">${locationDisplay}</span>
                             </div>
                         </td>
                         <td>${ownerName}</td>
@@ -220,7 +330,7 @@
                         </td>
                     </tr>
                 `;
-            }).join(' inclusive');
+            }).join('');
         }
 
         function getStockStatusIndicators(metrics) {
@@ -393,7 +503,10 @@
 
             editingShopId = id;
             document.getElementById('modalTitle').textContent = 'Dükkan Düzenle';
+            document.getElementById('shopCountry').value = shop.country || '';
+            document.getElementById('shopCity').value = shop.city || '';
             document.getElementById('shopName').value = shop.name;
+            document.getElementById('shopStorage').value = shop.squareMeters || 75;
             document.getElementById('shopLocation').value = shop.location;
             document.getElementById('shopRent').value = shop.monthlyRent || 15000;
             document.getElementById('shopModal').style.display = 'flex';
@@ -409,17 +522,18 @@
             e.preventDefault();
 
             const data = {
+                country: document.getElementById('shopCountry').value.trim(),
+                city: document.getElementById('shopCity').value.trim(),
                 name: document.getElementById('shopName').value.trim(),
-                location: document.getElementById('shopLocation').value.trim(),
-                monthlyRent: parseFloat(document.getElementById('shopRent').value),
-                locationType: 'street', // Default
+                location: document.getElementById('shopStorage').value.trim() + 'm² Depo',
                 monthlyRent: parseFloat(document.getElementById('shopRent').value),
                 deposit: parseFloat(document.getElementById('shopRent').value) * 2, // 2 ay depozito
-                squareMeters: 75, // Default
+                squareMeters: parseInt(document.getElementById('shopStorage').value),
+                locationType: 'street', // Default
                 isActive: true
             };
 
-            if (!data.name || !data.location || isNaN(data.monthlyRent)) {
+            if (!data.country || !data.city || !data.name || !data.squareMeters || isNaN(data.monthlyRent)) {
                 showNotification('Lütfen tüm alanları doldurun', 'error');
                 return;
             }

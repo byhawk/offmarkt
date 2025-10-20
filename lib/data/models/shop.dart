@@ -85,6 +85,10 @@ class Shop with _$Shop {
   const factory Shop({
     required String id,
     required String name,
+    // Ülke/şehir bilgileri
+    String? country,
+    String? city,
+    // Eski locationalan tutmak için
     required String location,
     @Default('street') String locationType,
     @Default(50) int squareMeters,
@@ -106,4 +110,53 @@ class Shop with _$Shop {
   }) = _Shop;
 
   factory Shop.fromJson(Map<String, dynamic> json) => _$ShopFromJson(json);
+}
+
+// ===== YENİ ÇOKLU MAĞAZA SİSTEMİ MODELLERİ =====
+
+// Shop Type Model - Admin tarafından oluşturulan template'lar
+@freezed
+class ShopType with _$ShopType {
+  const factory ShopType({
+    required String id,
+    required String shopType, // kodu: 'flower_shop', 'supermarket' vs
+    required String displayName, // görünüm adı: 'Çiçekçi Mağazası'
+    required String nameTemplate, // '{ŞEHİR} {TÜR}'
+    required double purchasePrice, // satın alma ücreti
+    required int rackCapacity, // raf kapasitesi
+    required int storageCapacity, // depo kapasitesi (adet)
+    required int minCustomers, // minimum müşteri
+    required String locationType, // 'street', 'mall' vs
+    @Default(true) bool isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) = _ShopType;
+
+  factory ShopType.fromJson(Map<String, dynamic> json) =>
+      _$ShopTypeFromJson(json);
+}
+
+// Shop Instance Model - Oyuncuların satın aldığı mağazalar
+@freezed
+class ShopInstance with _$ShopInstance {
+  const factory ShopInstance({
+    required String id,
+    required String shopType, // bağlı olduğu type kodu
+    ShopType? shopTypeData, // populate edildiğinde gelir
+    required String ownerId,
+    required String country,
+    required String city,
+    required String customName, // mağaza adı
+    required DateTime purchasedAt,
+    // İşletme istatistikleri
+    @Default(0.0) double monthlyRevenue,
+    @Default(0) int monthlyCustomers,
+    @Default(true) bool isActive,
+    // Ürün sistemi (eski sistemden)
+    @Default([]) List<ListedProduct> listedProducts,
+    AutoPurchaseSettings? autoPurchaseSettings,
+  }) = _ShopInstance;
+
+  factory ShopInstance.fromJson(Map<String, dynamic> json) =>
+      _$ShopInstanceFromJson(json);
 }

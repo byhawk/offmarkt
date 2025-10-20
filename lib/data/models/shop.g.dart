@@ -115,6 +115,8 @@ Map<String, dynamic> _$$StockStatisticsImplToJson(
 _$ShopImpl _$$ShopImplFromJson(Map<String, dynamic> json) => _$ShopImpl(
   id: json['id'] as String,
   name: json['name'] as String,
+  country: json['country'] as String?,
+  city: json['city'] as String?,
   location: json['location'] as String,
   locationType: json['locationType'] as String? ?? 'street',
   squareMeters: (json['squareMeters'] as num?)?.toInt() ?? 50,
@@ -148,6 +150,8 @@ Map<String, dynamic> _$$ShopImplToJson(_$ShopImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'country': instance.country,
+      'city': instance.city,
       'location': instance.location,
       'locationType': instance.locationType,
       'squareMeters': instance.squareMeters,
@@ -163,6 +167,86 @@ Map<String, dynamic> _$$ShopImplToJson(_$ShopImpl instance) =>
       'isActive': instance.isActive,
       'monthlyRevenue': instance.monthlyRevenue,
       'monthlyCustomers': instance.monthlyCustomers,
+      'listedProducts': instance.listedProducts,
+      'autoPurchaseSettings': instance.autoPurchaseSettings,
+    };
+
+_$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
+    _$ShopTypeImpl(
+      id: json['id'] as String,
+      shopType: json['shopType'] as String,
+      displayName: json['displayName'] as String,
+      nameTemplate: json['nameTemplate'] as String,
+      purchasePrice: (json['purchasePrice'] as num).toDouble(),
+      rackCapacity: (json['rackCapacity'] as num).toInt(),
+      storageCapacity: (json['storageCapacity'] as num).toInt(),
+      minCustomers: (json['minCustomers'] as num).toInt(),
+      locationType: json['locationType'] as String,
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+    );
+
+Map<String, dynamic> _$$ShopTypeImplToJson(_$ShopTypeImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'shopType': instance.shopType,
+      'displayName': instance.displayName,
+      'nameTemplate': instance.nameTemplate,
+      'purchasePrice': instance.purchasePrice,
+      'rackCapacity': instance.rackCapacity,
+      'storageCapacity': instance.storageCapacity,
+      'minCustomers': instance.minCustomers,
+      'locationType': instance.locationType,
+      'isActive': instance.isActive,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
+    };
+
+_$ShopInstanceImpl _$$ShopInstanceImplFromJson(Map<String, dynamic> json) =>
+    _$ShopInstanceImpl(
+      id: json['id'] as String,
+      shopType: json['shopType'] as String,
+      shopTypeData: json['shopTypeData'] == null
+          ? null
+          : ShopType.fromJson(json['shopTypeData'] as Map<String, dynamic>),
+      ownerId: json['ownerId'] as String,
+      country: json['country'] as String,
+      city: json['city'] as String,
+      customName: json['customName'] as String,
+      purchasedAt: DateTime.parse(json['purchasedAt'] as String),
+      monthlyRevenue: (json['monthlyRevenue'] as num?)?.toDouble() ?? 0.0,
+      monthlyCustomers: (json['monthlyCustomers'] as num?)?.toInt() ?? 0,
+      isActive: json['isActive'] as bool? ?? true,
+      listedProducts:
+          (json['listedProducts'] as List<dynamic>?)
+              ?.map((e) => ListedProduct.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      autoPurchaseSettings: json['autoPurchaseSettings'] == null
+          ? null
+          : AutoPurchaseSettings.fromJson(
+              json['autoPurchaseSettings'] as Map<String, dynamic>,
+            ),
+    );
+
+Map<String, dynamic> _$$ShopInstanceImplToJson(_$ShopInstanceImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'shopType': instance.shopType,
+      'shopTypeData': instance.shopTypeData,
+      'ownerId': instance.ownerId,
+      'country': instance.country,
+      'city': instance.city,
+      'customName': instance.customName,
+      'purchasedAt': instance.purchasedAt.toIso8601String(),
+      'monthlyRevenue': instance.monthlyRevenue,
+      'monthlyCustomers': instance.monthlyCustomers,
+      'isActive': instance.isActive,
       'listedProducts': instance.listedProducts,
       'autoPurchaseSettings': instance.autoPurchaseSettings,
     };

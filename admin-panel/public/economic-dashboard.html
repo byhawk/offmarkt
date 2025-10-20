@@ -3,31 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OffMarkt - Ekonomik Dashboard</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
+    <title>OffMarket Admin - Ekonomik Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h2>🏢 OffMarkt Admin</h2>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="/index.html">📊 Dashboard</a></li>
-                <li><a href="/players.html">👥 Oyuncular</a></li>
-                <li><a href="/products.html">📦 Ürünler</a></li>
-                <li><a href="/shops.html">🏪 Dükkanlar</a></li>
-                <li><a href="/transactions.html">💰 İşlemler</a></li>
-                <li><a href="/events.html">🎯 Olaylar</a></li>
-                <li><a href="/economic-dashboard.html" class="active">📈 Ekonomi</a></li>
-                <li><a href="/analytics.html">📊 Analitik</a></li>
-                <li><a href="/banned-words.html">🚫 Yasaklı Kelimeler</a></li>
-                <li><a href="#" onclick="logout()">🚪 Çıkış</a></li>
-            </ul>
-        </nav>
+    <div class="admin-container">
+        <!-- Sidebar will be loaded by sidebar.js -->
 
         <!-- Main Content -->
         <main class="main-content">
@@ -156,9 +137,11 @@
         </div>
     </div>
 
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
             loadEconomicData();
         });
 

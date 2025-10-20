@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Dükkan Çeşitleri</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar will be loaded by sidebar.js -->
+
+        <main class="main-content">
+            <!-- Shop Types Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🛍️</div>
+                    <div class="stat-content">
+                        <h3 id="total-shop-types">0</h3>
+                        <p>Dükkan Çeşidi</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="total-revenue">₺0</h3>
+                        <p>Toplam Satış</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏪</div>
+                    <div class="stat-content">
+                        <h3 id="active-instances">0</h3>
+                        <p>Aktif Mağaza</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="popular-type">-</h3>
+                        <p>Popüler Tür</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>Dükkan Çeşitleri Yönetimi</h1>
+                <div class="header-actions">
+                    <button onclick="openCreateModal()" class="btn-refresh">➕ Dükkan Çeşidi Ekle</button>
+                    <button onclick="refreshShopTypes()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Çeşit</th>
+                                <th>Görünüm Adı</th>
+                                <th>Satın Alma Ücreti</th>
+                                <th>Raf Kapasitesi</th>
+                                <th>Depo Kapasitesi</th>
+                                <th>Açılan Mağaza</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopTypesTable">
+                            <tr><td colspan="8" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="shopTypeModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Dükkan Çeşidi Ekle</h2>
+            <form id="shopTypeForm">
+                <div class="form-group">
+                    <label>Çeşit Kodu</label>
+                    <select id="shopTypeCode" required>
+                        <option value="supermarket">supermarket</option>
+                        <option value="flower_shop">flower_shop</option>
+                        <option value="clothing_store">clothing_store</option>
+                        <option value="jewelry_store">jewelry_store</option>
+                        <option value="food_shop">food_shop</option>
+                        <option value="electronics">electronics</option>
+                        <option value="general">general</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Görünüm Adı</label>
+                    <input type="text" id="displayName" placeholder="örn: Süpermarket" required>
+                </div>
+                <div class="form-group">
+                    <label>İsim Şablonu</label>
+                    <input type="text" id="nameTemplate" placeholder="örn: {ŞEHİR} Süpermarket" value="{ŞEHİR} {TÜR}" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Raf Kapasitesi</label>
+                        <input type="number" id="rackCapacity" placeholder="örn: 2000" min="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Depo Kapasitesi (adet)</label>
+                        <input type="number" id="storageCapacity" placeholder="örn: 5000" min="100" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Satın Alma Ücreti (₺)</label>
+                        <input type="number" id="purchasePrice" placeholder="örn: 25000" min="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Müşteri</label>
+                        <input type="number" id="minCustomers" placeholder="örn: 100" min="0" value="10" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Lokasyon Türü</label>
+                        <select id="locationType" required>
+                            <option value="street">Sokak</option>
+                            <option value="mall">AVM</option>
+                            <option value="market">Pazar</option>
+                            <option value="office">Ofis</option>
+                            <option value="warehouse">Depo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Durum</label>
+                        <select id="isActive" required>
+                            <option value="true" selected>Aktif</option>
+                            <option value="false">Pasif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allShopTypes = [];
+        let editingTypeId = null;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadShopTypes();
+        });
+
+        async function loadShopTypes() {
+            try {
+                const result = await API.call('/shop-types');
+                if (result.success) {
+                    allShopTypes = result.data.shopTypes || [];
+                    const summary = result.data.summary || {};
+                    updateStats(summary);
+                    displayShopTypes(allShopTypes);
+                } else {
+                    showNotification('Shop types yüklenemedi: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Shop types load error:', error);
+                showNotification('Shop types yükleme hatası', 'error');
+            }
+        }
+
+        function updateStats(summary) {
+            document.getElementById('total-shop-types').textContent = summary.totalTypes || 0;
+            document.getElementById('total-revenue').textContent = '₺' + formatCurrency(summary.totalRevenue || 0);
+            document.getElementById('active-instances').textContent = summary.totalInstances || 0;
+            document.getElementById('popular-type').textContent = summary.mostPopularType || '-';
+        }
+
+        function displayShopTypes(types) {
+            const tbody = document.getElementById('shopTypesTable');
+            if (!types || types.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">Dükkan çeşidi bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = types.map(type => {
+                const isActive = type.isActive;
+                const emoji = getShopTypeEmoji(type.shopType);
+
+                return `
+                    <tr>
+                        <td>
+                            <div>
+                                <strong>${emoji} ${type.displayName}</strong>
+                                <br>
+                                <small class="text-muted">${type.shopType}</small>
+                            </div>
+                        </td>
+                        <td>${type.displayName}</td>
+                        <td>₺${formatCurrency(type.purchasePrice)}</td>
+                        <td>${type.rackCapacity.toLocaleString()}</td>
+                        <td>${type.storageCapacity.toLocaleString()}</td>
+                        <td>${type.instanceCount || 0}</td>
+                        <td>
+                            <span class="badge ${isActive ? 'success' : 'secondary'}">
+                                ${isActive ? 'Aktif' : 'Pasif'}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="editShopType('${type._id}')" class="btn-sm">✏️ Düzenle</button>
+                            ${isActive ?
+                                `<button onclick="deactivateShopType('${type._id}')" class="btn-sm danger">🚫 Devre Dışı</button>` :
+                                `<button onclick="activateShopType('${type._id}')" class="btn-sm success">✅ Aktifleştir</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getShopTypeEmoji(type) {
+            const emojis = {
+                supermarket: '🏪',
+                flower_shop: '🌸',
+                clothing_store: '👕',
+                jewelry_store: '💎',
+                food_shop: '🍔',
+                electronics: '📱',
+                general: '🏠'
+            };
+            return emojis[type] || '🏪';
+        }
+
+        function openCreateModal() {
+            editingTypeId = null;
+            document.getElementById('modalTitle').textContent = 'Dükkan Çeşidi Ekle';
+            document.getElementById('shopTypeForm').reset();
+            document.getElementById('shopTypeModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('shopTypeModal').style.display = 'none';
+            editingTypeId = null;
+        }
+
+        async function editShopType(id) {
+            const type = allShopTypes.find(t => t._id === id);
+            if (!type) return;
+
+            editingTypeId = id;
+            document.getElementById('modalTitle').textContent = 'Dükkan Çeşidi Düzenle';
+
+            // Form'u doldur
+            document.getElementById('shopTypeCode').value = type.shopType;
+            document.getElementById('displayName').value = type.displayName;
+            document.getElementById('nameTemplate').value = type.nameTemplate;
+            document.getElementById('purchasePrice').value = type.purchasePrice;
+            document.getElementById('rackCapacity').value = type.rackCapacity;
+            document.getElementById('storageCapacity').value = type.storageCapacity;
+            document.getElementById('minCustomers').value = type.minCustomers;
+            document.getElementById('locationType').value = type.locationType;
+            document.getElementById('isActive').value = type.isActive.toString();
+
+            document.getElementById('shopTypeModal').style.display = 'flex';
+        }
+
+        async function deactivateShopType(id) {
+            if (!confirm('Bu dükkan çeşidini devre dışı bırakmak istediğinize emin misiniz?')) return;
+
+            try {
+                const result = await API.call(`/shop-types/${id}/deactivate`, 'PATCH');
+                if (result.success) {
+                    showNotification('Dükkan çeşidi devre dışı bırakıldı', 'success');
+                    loadShopTypes();
+                } else {
+                    showNotification('Hata: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Deactivate error:', error);
+                showNotification('Deaktifle etme hatası', 'error');
+            }
+        }
+
+        async function activateShopType(id) {
+            try {
+                const result = await API.call(`/shop-types/${id}/activate`, 'PATCH');
+                if (result.success) {
+                    showNotification('Dükkan çeşidi aktifleştirildi', 'success');
+                    loadShopTypes();
+                } else {
+                    showNotification('Hata: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Activate error:', error);
+                showNotification('Aktifle etme hatası', 'error');
+            }
+        }
+
+        function refreshShopTypes() {
+            loadShopTypes();
+        }
+
+        // Form submission
+        document.getElementById('shopTypeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                shopType: document.getElementById('shopTypeCode').value.trim(),
+                displayName: document.getElementById('displayName').value.trim(),
+                nameTemplate: document.getElementById('nameTemplate').value.trim(),
+                purchasePrice: parseInt(document.getElementById('purchasePrice').value),
+                rackCapacity: parseInt(document.getElementById('rackCapacity').value),
+                storageCapacity: parseInt(document.getElementById('storageCapacity').value),
+                minCustomers: parseInt(document.getElementById('minCustomers').value),
+                locationType: document.getElementById('locationType').value,
+                isActive: document.getElementById('isActive').value === 'true'
+            };
+
+            // Validation
+            if (!data.shopType || !data.displayName || isNaN(data.purchasePrice) || data.purchasePrice < 1000) {
+                showNotification('Lütfen tüm alanları doğru doldurun', 'error');
+                return;
+            }
+
+            try {
+                let result;
+                if (editingTypeId) {
+                    result = await API.call(`/shop-types/${editingTypeId}`, 'PUT', data);
+                    if (result.success) showNotification('Dükkan çeşidi güncellendi', 'success');
+                } else {
+                    result = await API.call('/shop-types', 'POST', data);
+                    if (result.success) showNotification('Dükkan çeşidi eklendi', 'success');
+                }
+
+                if (result.success) {
+                    closeModal();
+                    loadShopTypes();
+                } else {
+                    showNotification('Hata: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Form error:', error);
+                showNotification('Bir hata oluştu', 'error');
+            }
+        });
+
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            alert(message);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+    </script>
+</body>
+</html>

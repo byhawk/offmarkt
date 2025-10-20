@@ -47,12 +47,15 @@ redisClient.on('error', (err) => logger.error('Redis Error:', err));
 redisClient.on('connect', () => logger.info('Redis connected'));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/offmarket', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
-.then(() => logger.info('MongoDB connected'))
-.catch((err) => logger.error('MongoDB connection error:', err));
+}).then(() => {
+  logger.info('MongoDB connected');
+}).catch((err) => {
+  logger.error('MongoDB connection error:', err);
+  process.exit(1); // Exit if can't connect to DB
+});
 
 // Middleware
 app.use(helmet());
@@ -82,6 +85,26 @@ app.get('/health', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     redis: redisClient.isOpen ? 'connected' : 'disconnected'
   });
+});
+
+// Test endpoint - temporary for debugging shop-types
+app.get('/test/shop-types', async (req, res) => {
+  try {
+    const { ShopType } = require('./models/Shop');
+    const types = await ShopType.find().limit(5);
+    res.json({
+      success: true,
+      count: types.length,
+      data: types,
+      message: 'Shop-types test endpoint working'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error accessing shop types',
+      error: error.message
+    });
+  }
 });
 
 // API Routes

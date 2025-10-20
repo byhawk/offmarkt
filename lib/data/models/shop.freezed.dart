@@ -1370,7 +1370,10 @@ Shop _$ShopFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Shop {
   String get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError; // Ülke/şehir bilgileri
+  String? get country => throw _privateConstructorUsedError;
+  String? get city =>
+      throw _privateConstructorUsedError; // Eski locationalan tutmak için
   String get location => throw _privateConstructorUsedError;
   String get locationType => throw _privateConstructorUsedError;
   int get squareMeters => throw _privateConstructorUsedError;
@@ -1408,6 +1411,8 @@ abstract class $ShopCopyWith<$Res> {
   $Res call({
     String id,
     String name,
+    String? country,
+    String? city,
     String location,
     String locationType,
     int squareMeters,
@@ -1447,6 +1452,8 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? country = freezed,
+    Object? city = freezed,
     Object? location = null,
     Object? locationType = null,
     Object? squareMeters = null,
@@ -1475,6 +1482,14 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            country: freezed == country
+                ? _value.country
+                : country // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            city: freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                      as String?,
             location: null == location
                 ? _value.location
                 : location // ignore: cast_nullable_to_non_nullable
@@ -1576,6 +1591,8 @@ abstract class _$$ShopImplCopyWith<$Res> implements $ShopCopyWith<$Res> {
   $Res call({
     String id,
     String name,
+    String? country,
+    String? city,
     String location,
     String locationType,
     int squareMeters,
@@ -1613,6 +1630,8 @@ class __$$ShopImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? country = freezed,
+    Object? city = freezed,
     Object? location = null,
     Object? locationType = null,
     Object? squareMeters = null,
@@ -1641,6 +1660,14 @@ class __$$ShopImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        country: freezed == country
+            ? _value.country
+            : country // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        city: freezed == city
+            ? _value.city
+            : city // ignore: cast_nullable_to_non_nullable
+                  as String?,
         location: null == location
             ? _value.location
             : location // ignore: cast_nullable_to_non_nullable
@@ -1720,6 +1747,8 @@ class _$ShopImpl implements _Shop {
   const _$ShopImpl({
     required this.id,
     required this.name,
+    this.country,
+    this.city,
     required this.location,
     this.locationType = 'street',
     this.squareMeters = 50,
@@ -1746,6 +1775,12 @@ class _$ShopImpl implements _Shop {
   final String id;
   @override
   final String name;
+  // Ülke/şehir bilgileri
+  @override
+  final String? country;
+  @override
+  final String? city;
+  // Eski locationalan tutmak için
   @override
   final String location;
   @override
@@ -1801,7 +1836,7 @@ class _$ShopImpl implements _Shop {
 
   @override
   String toString() {
-    return 'Shop(id: $id, name: $name, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
+    return 'Shop(id: $id, name: $name, country: $country, city: $city, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
   }
 
   @override
@@ -1811,6 +1846,8 @@ class _$ShopImpl implements _Shop {
             other is _$ShopImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.city, city) || other.city == city) &&
             (identical(other.location, location) ||
                 other.location == location) &&
             (identical(other.locationType, locationType) ||
@@ -1853,6 +1890,8 @@ class _$ShopImpl implements _Shop {
     runtimeType,
     id,
     name,
+    country,
+    city,
     location,
     locationType,
     squareMeters,
@@ -1890,6 +1929,8 @@ abstract class _Shop implements Shop {
   const factory _Shop({
     required final String id,
     required final String name,
+    final String? country,
+    final String? city,
     required final String location,
     final String locationType,
     final int squareMeters,
@@ -1914,7 +1955,11 @@ abstract class _Shop implements Shop {
   @override
   String get id;
   @override
-  String get name;
+  String get name; // Ülke/şehir bilgileri
+  @override
+  String? get country;
+  @override
+  String? get city; // Eski locationalan tutmak için
   @override
   String get location;
   @override
@@ -1955,5 +2000,914 @@ abstract class _Shop implements Shop {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ShopImplCopyWith<_$ShopImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ShopType _$ShopTypeFromJson(Map<String, dynamic> json) {
+  return _ShopType.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ShopType {
+  String get id => throw _privateConstructorUsedError;
+  String get shopType =>
+      throw _privateConstructorUsedError; // kodu: 'flower_shop', 'supermarket' vs
+  String get displayName =>
+      throw _privateConstructorUsedError; // görünüm adı: 'Çiçekçi Mağazası'
+  String get nameTemplate =>
+      throw _privateConstructorUsedError; // '{ŞEHİR} {TÜR}'
+  double get purchasePrice =>
+      throw _privateConstructorUsedError; // satın alma ücreti
+  int get rackCapacity => throw _privateConstructorUsedError; // raf kapasitesi
+  int get storageCapacity =>
+      throw _privateConstructorUsedError; // depo kapasitesi (adet)
+  int get minCustomers => throw _privateConstructorUsedError; // minimum müşteri
+  String get locationType =>
+      throw _privateConstructorUsedError; // 'street', 'mall' vs
+  bool get isActive => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+
+  /// Serializes this ShopType to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ShopType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ShopTypeCopyWith<ShopType> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ShopTypeCopyWith<$Res> {
+  factory $ShopTypeCopyWith(ShopType value, $Res Function(ShopType) then) =
+      _$ShopTypeCopyWithImpl<$Res, ShopType>;
+  @useResult
+  $Res call({
+    String id,
+    String shopType,
+    String displayName,
+    String nameTemplate,
+    double purchasePrice,
+    int rackCapacity,
+    int storageCapacity,
+    int minCustomers,
+    String locationType,
+    bool isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  });
+}
+
+/// @nodoc
+class _$ShopTypeCopyWithImpl<$Res, $Val extends ShopType>
+    implements $ShopTypeCopyWith<$Res> {
+  _$ShopTypeCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ShopType
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? shopType = null,
+    Object? displayName = null,
+    Object? nameTemplate = null,
+    Object? purchasePrice = null,
+    Object? rackCapacity = null,
+    Object? storageCapacity = null,
+    Object? minCustomers = null,
+    Object? locationType = null,
+    Object? isActive = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            shopType: null == shopType
+                ? _value.shopType
+                : shopType // ignore: cast_nullable_to_non_nullable
+                      as String,
+            displayName: null == displayName
+                ? _value.displayName
+                : displayName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            nameTemplate: null == nameTemplate
+                ? _value.nameTemplate
+                : nameTemplate // ignore: cast_nullable_to_non_nullable
+                      as String,
+            purchasePrice: null == purchasePrice
+                ? _value.purchasePrice
+                : purchasePrice // ignore: cast_nullable_to_non_nullable
+                      as double,
+            rackCapacity: null == rackCapacity
+                ? _value.rackCapacity
+                : rackCapacity // ignore: cast_nullable_to_non_nullable
+                      as int,
+            storageCapacity: null == storageCapacity
+                ? _value.storageCapacity
+                : storageCapacity // ignore: cast_nullable_to_non_nullable
+                      as int,
+            minCustomers: null == minCustomers
+                ? _value.minCustomers
+                : minCustomers // ignore: cast_nullable_to_non_nullable
+                      as int,
+            locationType: null == locationType
+                ? _value.locationType
+                : locationType // ignore: cast_nullable_to_non_nullable
+                      as String,
+            isActive: null == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            createdAt: freezed == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            updatedAt: freezed == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ShopTypeImplCopyWith<$Res>
+    implements $ShopTypeCopyWith<$Res> {
+  factory _$$ShopTypeImplCopyWith(
+    _$ShopTypeImpl value,
+    $Res Function(_$ShopTypeImpl) then,
+  ) = __$$ShopTypeImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String id,
+    String shopType,
+    String displayName,
+    String nameTemplate,
+    double purchasePrice,
+    int rackCapacity,
+    int storageCapacity,
+    int minCustomers,
+    String locationType,
+    bool isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  });
+}
+
+/// @nodoc
+class __$$ShopTypeImplCopyWithImpl<$Res>
+    extends _$ShopTypeCopyWithImpl<$Res, _$ShopTypeImpl>
+    implements _$$ShopTypeImplCopyWith<$Res> {
+  __$$ShopTypeImplCopyWithImpl(
+    _$ShopTypeImpl _value,
+    $Res Function(_$ShopTypeImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ShopType
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? shopType = null,
+    Object? displayName = null,
+    Object? nameTemplate = null,
+    Object? purchasePrice = null,
+    Object? rackCapacity = null,
+    Object? storageCapacity = null,
+    Object? minCustomers = null,
+    Object? locationType = null,
+    Object? isActive = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(
+      _$ShopTypeImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        shopType: null == shopType
+            ? _value.shopType
+            : shopType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        displayName: null == displayName
+            ? _value.displayName
+            : displayName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        nameTemplate: null == nameTemplate
+            ? _value.nameTemplate
+            : nameTemplate // ignore: cast_nullable_to_non_nullable
+                  as String,
+        purchasePrice: null == purchasePrice
+            ? _value.purchasePrice
+            : purchasePrice // ignore: cast_nullable_to_non_nullable
+                  as double,
+        rackCapacity: null == rackCapacity
+            ? _value.rackCapacity
+            : rackCapacity // ignore: cast_nullable_to_non_nullable
+                  as int,
+        storageCapacity: null == storageCapacity
+            ? _value.storageCapacity
+            : storageCapacity // ignore: cast_nullable_to_non_nullable
+                  as int,
+        minCustomers: null == minCustomers
+            ? _value.minCustomers
+            : minCustomers // ignore: cast_nullable_to_non_nullable
+                  as int,
+        locationType: null == locationType
+            ? _value.locationType
+            : locationType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        isActive: null == isActive
+            ? _value.isActive
+            : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        createdAt: freezed == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        updatedAt: freezed == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ShopTypeImpl implements _ShopType {
+  const _$ShopTypeImpl({
+    required this.id,
+    required this.shopType,
+    required this.displayName,
+    required this.nameTemplate,
+    required this.purchasePrice,
+    required this.rackCapacity,
+    required this.storageCapacity,
+    required this.minCustomers,
+    required this.locationType,
+    this.isActive = true,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory _$ShopTypeImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ShopTypeImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String shopType;
+  // kodu: 'flower_shop', 'supermarket' vs
+  @override
+  final String displayName;
+  // görünüm adı: 'Çiçekçi Mağazası'
+  @override
+  final String nameTemplate;
+  // '{ŞEHİR} {TÜR}'
+  @override
+  final double purchasePrice;
+  // satın alma ücreti
+  @override
+  final int rackCapacity;
+  // raf kapasitesi
+  @override
+  final int storageCapacity;
+  // depo kapasitesi (adet)
+  @override
+  final int minCustomers;
+  // minimum müşteri
+  @override
+  final String locationType;
+  // 'street', 'mall' vs
+  @override
+  @JsonKey()
+  final bool isActive;
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? updatedAt;
+
+  @override
+  String toString() {
+    return 'ShopType(id: $id, shopType: $shopType, displayName: $displayName, nameTemplate: $nameTemplate, purchasePrice: $purchasePrice, rackCapacity: $rackCapacity, storageCapacity: $storageCapacity, minCustomers: $minCustomers, locationType: $locationType, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ShopTypeImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.shopType, shopType) ||
+                other.shopType == shopType) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName) &&
+            (identical(other.nameTemplate, nameTemplate) ||
+                other.nameTemplate == nameTemplate) &&
+            (identical(other.purchasePrice, purchasePrice) ||
+                other.purchasePrice == purchasePrice) &&
+            (identical(other.rackCapacity, rackCapacity) ||
+                other.rackCapacity == rackCapacity) &&
+            (identical(other.storageCapacity, storageCapacity) ||
+                other.storageCapacity == storageCapacity) &&
+            (identical(other.minCustomers, minCustomers) ||
+                other.minCustomers == minCustomers) &&
+            (identical(other.locationType, locationType) ||
+                other.locationType == locationType) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    shopType,
+    displayName,
+    nameTemplate,
+    purchasePrice,
+    rackCapacity,
+    storageCapacity,
+    minCustomers,
+    locationType,
+    isActive,
+    createdAt,
+    updatedAt,
+  );
+
+  /// Create a copy of ShopType
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ShopTypeImplCopyWith<_$ShopTypeImpl> get copyWith =>
+      __$$ShopTypeImplCopyWithImpl<_$ShopTypeImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ShopTypeImplToJson(this);
+  }
+}
+
+abstract class _ShopType implements ShopType {
+  const factory _ShopType({
+    required final String id,
+    required final String shopType,
+    required final String displayName,
+    required final String nameTemplate,
+    required final double purchasePrice,
+    required final int rackCapacity,
+    required final int storageCapacity,
+    required final int minCustomers,
+    required final String locationType,
+    final bool isActive,
+    final DateTime? createdAt,
+    final DateTime? updatedAt,
+  }) = _$ShopTypeImpl;
+
+  factory _ShopType.fromJson(Map<String, dynamic> json) =
+      _$ShopTypeImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  String get shopType; // kodu: 'flower_shop', 'supermarket' vs
+  @override
+  String get displayName; // görünüm adı: 'Çiçekçi Mağazası'
+  @override
+  String get nameTemplate; // '{ŞEHİR} {TÜR}'
+  @override
+  double get purchasePrice; // satın alma ücreti
+  @override
+  int get rackCapacity; // raf kapasitesi
+  @override
+  int get storageCapacity; // depo kapasitesi (adet)
+  @override
+  int get minCustomers; // minimum müşteri
+  @override
+  String get locationType; // 'street', 'mall' vs
+  @override
+  bool get isActive;
+  @override
+  DateTime? get createdAt;
+  @override
+  DateTime? get updatedAt;
+
+  /// Create a copy of ShopType
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ShopTypeImplCopyWith<_$ShopTypeImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ShopInstance _$ShopInstanceFromJson(Map<String, dynamic> json) {
+  return _ShopInstance.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ShopInstance {
+  String get id => throw _privateConstructorUsedError;
+  String get shopType =>
+      throw _privateConstructorUsedError; // bağlı olduğu type kodu
+  ShopType? get shopTypeData =>
+      throw _privateConstructorUsedError; // populate edildiğinde gelir
+  String get ownerId => throw _privateConstructorUsedError;
+  String get country => throw _privateConstructorUsedError;
+  String get city => throw _privateConstructorUsedError;
+  String get customName => throw _privateConstructorUsedError; // mağaza adı
+  DateTime get purchasedAt =>
+      throw _privateConstructorUsedError; // İşletme istatistikleri
+  double get monthlyRevenue => throw _privateConstructorUsedError;
+  int get monthlyCustomers => throw _privateConstructorUsedError;
+  bool get isActive =>
+      throw _privateConstructorUsedError; // Ürün sistemi (eski sistemden)
+  List<ListedProduct> get listedProducts => throw _privateConstructorUsedError;
+  AutoPurchaseSettings? get autoPurchaseSettings =>
+      throw _privateConstructorUsedError;
+
+  /// Serializes this ShopInstance to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ShopInstanceCopyWith<ShopInstance> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ShopInstanceCopyWith<$Res> {
+  factory $ShopInstanceCopyWith(
+    ShopInstance value,
+    $Res Function(ShopInstance) then,
+  ) = _$ShopInstanceCopyWithImpl<$Res, ShopInstance>;
+  @useResult
+  $Res call({
+    String id,
+    String shopType,
+    ShopType? shopTypeData,
+    String ownerId,
+    String country,
+    String city,
+    String customName,
+    DateTime purchasedAt,
+    double monthlyRevenue,
+    int monthlyCustomers,
+    bool isActive,
+    List<ListedProduct> listedProducts,
+    AutoPurchaseSettings? autoPurchaseSettings,
+  });
+
+  $ShopTypeCopyWith<$Res>? get shopTypeData;
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings;
+}
+
+/// @nodoc
+class _$ShopInstanceCopyWithImpl<$Res, $Val extends ShopInstance>
+    implements $ShopInstanceCopyWith<$Res> {
+  _$ShopInstanceCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? shopType = null,
+    Object? shopTypeData = freezed,
+    Object? ownerId = null,
+    Object? country = null,
+    Object? city = null,
+    Object? customName = null,
+    Object? purchasedAt = null,
+    Object? monthlyRevenue = null,
+    Object? monthlyCustomers = null,
+    Object? isActive = null,
+    Object? listedProducts = null,
+    Object? autoPurchaseSettings = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            shopType: null == shopType
+                ? _value.shopType
+                : shopType // ignore: cast_nullable_to_non_nullable
+                      as String,
+            shopTypeData: freezed == shopTypeData
+                ? _value.shopTypeData
+                : shopTypeData // ignore: cast_nullable_to_non_nullable
+                      as ShopType?,
+            ownerId: null == ownerId
+                ? _value.ownerId
+                : ownerId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            country: null == country
+                ? _value.country
+                : country // ignore: cast_nullable_to_non_nullable
+                      as String,
+            city: null == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                      as String,
+            customName: null == customName
+                ? _value.customName
+                : customName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            purchasedAt: null == purchasedAt
+                ? _value.purchasedAt
+                : purchasedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            monthlyRevenue: null == monthlyRevenue
+                ? _value.monthlyRevenue
+                : monthlyRevenue // ignore: cast_nullable_to_non_nullable
+                      as double,
+            monthlyCustomers: null == monthlyCustomers
+                ? _value.monthlyCustomers
+                : monthlyCustomers // ignore: cast_nullable_to_non_nullable
+                      as int,
+            isActive: null == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            listedProducts: null == listedProducts
+                ? _value.listedProducts
+                : listedProducts // ignore: cast_nullable_to_non_nullable
+                      as List<ListedProduct>,
+            autoPurchaseSettings: freezed == autoPurchaseSettings
+                ? _value.autoPurchaseSettings
+                : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
+                      as AutoPurchaseSettings?,
+          )
+          as $Val,
+    );
+  }
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ShopTypeCopyWith<$Res>? get shopTypeData {
+    if (_value.shopTypeData == null) {
+      return null;
+    }
+
+    return $ShopTypeCopyWith<$Res>(_value.shopTypeData!, (value) {
+      return _then(_value.copyWith(shopTypeData: value) as $Val);
+    });
+  }
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings {
+    if (_value.autoPurchaseSettings == null) {
+      return null;
+    }
+
+    return $AutoPurchaseSettingsCopyWith<$Res>(_value.autoPurchaseSettings!, (
+      value,
+    ) {
+      return _then(_value.copyWith(autoPurchaseSettings: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$ShopInstanceImplCopyWith<$Res>
+    implements $ShopInstanceCopyWith<$Res> {
+  factory _$$ShopInstanceImplCopyWith(
+    _$ShopInstanceImpl value,
+    $Res Function(_$ShopInstanceImpl) then,
+  ) = __$$ShopInstanceImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    String id,
+    String shopType,
+    ShopType? shopTypeData,
+    String ownerId,
+    String country,
+    String city,
+    String customName,
+    DateTime purchasedAt,
+    double monthlyRevenue,
+    int monthlyCustomers,
+    bool isActive,
+    List<ListedProduct> listedProducts,
+    AutoPurchaseSettings? autoPurchaseSettings,
+  });
+
+  @override
+  $ShopTypeCopyWith<$Res>? get shopTypeData;
+  @override
+  $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings;
+}
+
+/// @nodoc
+class __$$ShopInstanceImplCopyWithImpl<$Res>
+    extends _$ShopInstanceCopyWithImpl<$Res, _$ShopInstanceImpl>
+    implements _$$ShopInstanceImplCopyWith<$Res> {
+  __$$ShopInstanceImplCopyWithImpl(
+    _$ShopInstanceImpl _value,
+    $Res Function(_$ShopInstanceImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? shopType = null,
+    Object? shopTypeData = freezed,
+    Object? ownerId = null,
+    Object? country = null,
+    Object? city = null,
+    Object? customName = null,
+    Object? purchasedAt = null,
+    Object? monthlyRevenue = null,
+    Object? monthlyCustomers = null,
+    Object? isActive = null,
+    Object? listedProducts = null,
+    Object? autoPurchaseSettings = freezed,
+  }) {
+    return _then(
+      _$ShopInstanceImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        shopType: null == shopType
+            ? _value.shopType
+            : shopType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        shopTypeData: freezed == shopTypeData
+            ? _value.shopTypeData
+            : shopTypeData // ignore: cast_nullable_to_non_nullable
+                  as ShopType?,
+        ownerId: null == ownerId
+            ? _value.ownerId
+            : ownerId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        country: null == country
+            ? _value.country
+            : country // ignore: cast_nullable_to_non_nullable
+                  as String,
+        city: null == city
+            ? _value.city
+            : city // ignore: cast_nullable_to_non_nullable
+                  as String,
+        customName: null == customName
+            ? _value.customName
+            : customName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        purchasedAt: null == purchasedAt
+            ? _value.purchasedAt
+            : purchasedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        monthlyRevenue: null == monthlyRevenue
+            ? _value.monthlyRevenue
+            : monthlyRevenue // ignore: cast_nullable_to_non_nullable
+                  as double,
+        monthlyCustomers: null == monthlyCustomers
+            ? _value.monthlyCustomers
+            : monthlyCustomers // ignore: cast_nullable_to_non_nullable
+                  as int,
+        isActive: null == isActive
+            ? _value.isActive
+            : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        listedProducts: null == listedProducts
+            ? _value._listedProducts
+            : listedProducts // ignore: cast_nullable_to_non_nullable
+                  as List<ListedProduct>,
+        autoPurchaseSettings: freezed == autoPurchaseSettings
+            ? _value.autoPurchaseSettings
+            : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
+                  as AutoPurchaseSettings?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ShopInstanceImpl implements _ShopInstance {
+  const _$ShopInstanceImpl({
+    required this.id,
+    required this.shopType,
+    this.shopTypeData,
+    required this.ownerId,
+    required this.country,
+    required this.city,
+    required this.customName,
+    required this.purchasedAt,
+    this.monthlyRevenue = 0.0,
+    this.monthlyCustomers = 0,
+    this.isActive = true,
+    final List<ListedProduct> listedProducts = const [],
+    this.autoPurchaseSettings,
+  }) : _listedProducts = listedProducts;
+
+  factory _$ShopInstanceImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ShopInstanceImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String shopType;
+  // bağlı olduğu type kodu
+  @override
+  final ShopType? shopTypeData;
+  // populate edildiğinde gelir
+  @override
+  final String ownerId;
+  @override
+  final String country;
+  @override
+  final String city;
+  @override
+  final String customName;
+  // mağaza adı
+  @override
+  final DateTime purchasedAt;
+  // İşletme istatistikleri
+  @override
+  @JsonKey()
+  final double monthlyRevenue;
+  @override
+  @JsonKey()
+  final int monthlyCustomers;
+  @override
+  @JsonKey()
+  final bool isActive;
+  // Ürün sistemi (eski sistemden)
+  final List<ListedProduct> _listedProducts;
+  // Ürün sistemi (eski sistemden)
+  @override
+  @JsonKey()
+  List<ListedProduct> get listedProducts {
+    if (_listedProducts is EqualUnmodifiableListView) return _listedProducts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_listedProducts);
+  }
+
+  @override
+  final AutoPurchaseSettings? autoPurchaseSettings;
+
+  @override
+  String toString() {
+    return 'ShopInstance(id: $id, shopType: $shopType, shopTypeData: $shopTypeData, ownerId: $ownerId, country: $country, city: $city, customName: $customName, purchasedAt: $purchasedAt, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, isActive: $isActive, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ShopInstanceImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.shopType, shopType) ||
+                other.shopType == shopType) &&
+            (identical(other.shopTypeData, shopTypeData) ||
+                other.shopTypeData == shopTypeData) &&
+            (identical(other.ownerId, ownerId) || other.ownerId == ownerId) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.customName, customName) ||
+                other.customName == customName) &&
+            (identical(other.purchasedAt, purchasedAt) ||
+                other.purchasedAt == purchasedAt) &&
+            (identical(other.monthlyRevenue, monthlyRevenue) ||
+                other.monthlyRevenue == monthlyRevenue) &&
+            (identical(other.monthlyCustomers, monthlyCustomers) ||
+                other.monthlyCustomers == monthlyCustomers) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive) &&
+            const DeepCollectionEquality().equals(
+              other._listedProducts,
+              _listedProducts,
+            ) &&
+            (identical(other.autoPurchaseSettings, autoPurchaseSettings) ||
+                other.autoPurchaseSettings == autoPurchaseSettings));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    shopType,
+    shopTypeData,
+    ownerId,
+    country,
+    city,
+    customName,
+    purchasedAt,
+    monthlyRevenue,
+    monthlyCustomers,
+    isActive,
+    const DeepCollectionEquality().hash(_listedProducts),
+    autoPurchaseSettings,
+  );
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ShopInstanceImplCopyWith<_$ShopInstanceImpl> get copyWith =>
+      __$$ShopInstanceImplCopyWithImpl<_$ShopInstanceImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ShopInstanceImplToJson(this);
+  }
+}
+
+abstract class _ShopInstance implements ShopInstance {
+  const factory _ShopInstance({
+    required final String id,
+    required final String shopType,
+    final ShopType? shopTypeData,
+    required final String ownerId,
+    required final String country,
+    required final String city,
+    required final String customName,
+    required final DateTime purchasedAt,
+    final double monthlyRevenue,
+    final int monthlyCustomers,
+    final bool isActive,
+    final List<ListedProduct> listedProducts,
+    final AutoPurchaseSettings? autoPurchaseSettings,
+  }) = _$ShopInstanceImpl;
+
+  factory _ShopInstance.fromJson(Map<String, dynamic> json) =
+      _$ShopInstanceImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  String get shopType; // bağlı olduğu type kodu
+  @override
+  ShopType? get shopTypeData; // populate edildiğinde gelir
+  @override
+  String get ownerId;
+  @override
+  String get country;
+  @override
+  String get city;
+  @override
+  String get customName; // mağaza adı
+  @override
+  DateTime get purchasedAt; // İşletme istatistikleri
+  @override
+  double get monthlyRevenue;
+  @override
+  int get monthlyCustomers;
+  @override
+  bool get isActive; // Ürün sistemi (eski sistemden)
+  @override
+  List<ListedProduct> get listedProducts;
+  @override
+  AutoPurchaseSettings? get autoPurchaseSettings;
+
+  /// Create a copy of ShopInstance
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ShopInstanceImplCopyWith<_$ShopInstanceImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
