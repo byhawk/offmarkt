@@ -24,6 +24,9 @@ const adminRoutes = require('./routes/admin');
 const { errorHandler } = require('./middleware/errorHandler');
 const { logger } = require('./utils/logger');
 
+// Import workers
+const TickEngine = require('./workers/TickEngine');
+
 // Initialize Express
 const app = express();
 const server = http.createServer(app);
@@ -46,12 +49,20 @@ const redisClient = redis.createClient({
 redisClient.on('error', (err) => logger.error('Redis Error:', err));
 redisClient.on('connect', () => logger.info('Redis connected'));
 
+// Initialize TickEngine (will be started after MongoDB connects)
+let tickEngine = null;
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/offmarket', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
   logger.info('MongoDB connected');
+
+  // Start TickEngine after MongoDB is connected
+  tickEngine = new TickEngine(io);
+  tickEngine.start();
+  logger.info('TickEngine started with 5s interval');
 }).catch((err) => {
   logger.error('MongoDB connection error:', err);
   process.exit(1); // Exit if can't connect to DB
@@ -83,7 +94,8 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    redis: redisClient.isOpen ? 'connected' : 'disconnected'
+    redis: redisClient.isOpen ? 'connected' : 'disconnected',
+    tickEngine: tickEngine ? tickEngine.getStats() : null
   });
 });
 
@@ -198,6 +210,13 @@ server.listen(PORT, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM signal received: closing HTTP server');
+
+  // Stop TickEngine
+  if (tickEngine) {
+    tickEngine.stop();
+    logger.info('TickEngine stopped');
+  }
+
   server.close(() => {
     logger.info('HTTP server closed');
     mongoose.connection.close(false, () => {
