@@ -13,11 +13,25 @@ import '../../providers/player_provider.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 
-class ShopsScreen extends ConsumerWidget {
+class ShopsScreen extends ConsumerStatefulWidget {
   const ShopsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShopsScreen> createState() => _ShopsScreenState();
+}
+
+class _ShopsScreenState extends ConsumerState<ShopsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load shops when screen opens
+    Future.microtask(() {
+      ref.read(shopsNotifierProvider.notifier).loadAvailableShops();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final shops = ref.watch(shopsNotifierProvider);
     final player = ref.watch(playerNotifierProvider);
 

@@ -118,6 +118,20 @@ class ShopsNotifier extends _$ShopsNotifier {
   @override
   List<Shop> build() => []; // Boş bırakacak artık kullanılmıyor
 
+  // Load available shops from backend
+  Future<void> loadAvailableShops() async {
+    try {
+      final response = await apiService.get('/shop/available');
+      if (response.data['success']) {
+        state = (response.data['data']['shops'] as List)
+            .map((json) => Shop.fromJson(json))
+            .toList();
+      }
+    } catch (error) {
+      print('Error loading available shops: $error');
+    }
+  }
+
   // Compatibility methods for old screens
   Future<bool> rentShop(String shopId, String businessCategory) async {
     try {
@@ -128,7 +142,12 @@ class ShopsNotifier extends _$ShopsNotifier {
           'businessCategory': businessCategory,
         },
       );
-      return response.data['success'] ?? false;
+      if (response.data['success'] ?? false) {
+        // Reload shops after renting
+        await loadAvailableShops();
+        return true;
+      }
+      return false;
     } catch (error) {
       print('Error renting shop: $error');
       return false;
@@ -136,6 +155,6 @@ class ShopsNotifier extends _$ShopsNotifier {
   }
 
   List<Shop> getPlayerShops(String playerId) {
-    return state; // Return current state
+    return state.where((s) => !s.isAvailable).toList(); // Return rented shops
   }
 }
