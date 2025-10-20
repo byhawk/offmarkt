@@ -3,7 +3,10 @@ const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { protect } = require('../middleware/auth');
 const Shop = require('../models/Shop');
+const { ShopInstance } = require('../models/Shop');
 const Transaction = require('../models/Transaction');
+const Product = require('../models/Product');
+const PendingAction = require('../models/PendingAction');
 
 // @route   GET /api/shop/available
 // @desc    Müsait dükkanları getir
@@ -345,6 +348,288 @@ router.get('/:shopId/auto-settings', protect, asyncHandler(async (req, res) => {
   res.json({
     success: true,
     data: { autoPurchaseSettings: shop.autoPurchaseSettings }
+  });
+}));
+
+// ============================================
+// TİCK-BASED SHOP SİSTEMİ
+// ============================================
+
+// @route   POST /api/shop/:shopId/inventory/add
+// @desc    Oyuncu envanterinden dükkana ürün ekle (tick-based)
+// @access  Private
+router.post('/:shopId/inventory/add', protect, asyncHandler(async (req, res) => {
+  const { productId, quantity, sellPrice } = req.body;
+  const shop = await ShopInstance.findById(req.params.shopId);
+  const product = await Product.findById(productId);
+
+  // Validasyon
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ürün bulunamadı'
+    });
+  }
+
+  if (!quantity || quantity <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Geçersiz miktar'
+    });
+  }
+
+  if (!sellPrice || sellPrice <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Geçersiz fiyat'
+    });
+  }
+
+  // Oyuncu envanterinden ürünü kontrol et
+  const playerInventory = req.user.inventory.find(
+    item => item.productId.toString() === productId.toString()
+  );
+
+  if (!playerInventory || playerInventory.quantity < quantity) {
+    return res.status(400).json({
+      success: false,
+      message: 'Envanterinizde yeterli ürün yok'
+    });
+  }
+
+  // PendingAction oluştur (TickEngine tarafından işlenecek)
+  const action = await PendingAction.createListProductAction({
+    playerId: req.user._id,
+    shopId: shop._id,
+    productId: product._id,
+    quantity,
+    sellPrice,
+    purchasePrice: playerInventory.purchasePrice || product.currentPrice
+  });
+
+  // Oyuncu envanterinden çıkar
+  playerInventory.quantity -= quantity;
+  if (playerInventory.quantity <= 0) {
+    req.user.inventory = req.user.inventory.filter(
+      item => item.productId.toString() !== productId.toString()
+    );
+  }
+  await req.user.save();
+
+  res.json({
+    success: true,
+    message: `${quantity}x ${product.name} dükkana ekleniyor...`,
+    data: {
+      action,
+      remainingInventory: req.user.inventory
+    }
+  });
+}));
+
+// @route   PUT /api/shop/:shopId/inventory/:productId/price
+// @desc    Dükkan envanterindeki ürün fiyatını güncelle
+// @access  Private
+router.put('/:shopId/inventory/:productId/price', protect, asyncHandler(async (req, res) => {
+  const { sellPrice } = req.body;
+  const shop = await ShopInstance.findById(req.params.shopId);
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  if (!sellPrice || sellPrice <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Geçersiz fiyat'
+    });
+  }
+
+  const inventoryItem = shop.inventory.find(
+    item => item.productId.toString() === req.params.productId.toString()
+  );
+
+  if (!inventoryItem) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ürün dükkan envanterinde bulunamadı'
+    });
+  }
+
+  const oldPrice = inventoryItem.sellPrice;
+  inventoryItem.sellPrice = sellPrice;
+  await shop.save();
+
+  res.json({
+    success: true,
+    message: 'Fiyat güncellendi',
+    data: {
+      productId: req.params.productId,
+      oldPrice,
+      newPrice: sellPrice,
+      inventory: shop.inventory
+    }
+  });
+}));
+
+// @route   GET /api/shop/:shopId/inventory
+// @desc    Dükkan envanterini getir
+// @access  Private
+router.get('/:shopId/inventory', protect, asyncHandler(async (req, res) => {
+  const shop = await ShopInstance.findById(req.params.shopId)
+    .populate('inventory.productId', 'name emoji category currentPrice baseDemand');
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      inventory: shop.inventory,
+      salesStats: shop.salesStats
+    }
+  });
+}));
+
+// @route   DELETE /api/shop/:shopId/inventory/:productId
+// @desc    Dükkan envanterinden ürünü geri oyuncuya transfer et
+// @access  Private
+router.delete('/:shopId/inventory/:productId', protect, asyncHandler(async (req, res) => {
+  const shop = await ShopInstance.findById(req.params.shopId);
+  const product = await Product.findById(req.params.productId);
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  const inventoryItem = shop.inventory.find(
+    item => item.productId.toString() === req.params.productId.toString()
+  );
+
+  if (!inventoryItem || inventoryItem.quantity <= 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ürün dükkan envanterinde bulunamadı'
+    });
+  }
+
+  // Oyuncu envanterine geri ekle
+  const playerInventory = req.user.inventory.find(
+    item => item.productId.toString() === req.params.productId.toString()
+  );
+
+  if (playerInventory) {
+    playerInventory.quantity += inventoryItem.quantity;
+  } else {
+    req.user.inventory.push({
+      productId: req.params.productId,
+      quantity: inventoryItem.quantity,
+      purchasePrice: inventoryItem.purchasePrice
+    });
+  }
+
+  const removedQuantity = inventoryItem.quantity;
+
+  // Dükkan envanterinden çıkar
+  shop.inventory = shop.inventory.filter(
+    item => item.productId.toString() !== req.params.productId.toString()
+  );
+
+  await shop.save();
+  await req.user.save();
+
+  res.json({
+    success: true,
+    message: `${removedQuantity}x ${product.name} envanterinize geri eklendi`,
+    data: {
+      removedQuantity,
+      playerInventory: req.user.inventory
+    }
+  });
+}));
+
+// @route   PUT /api/shop/:shopId/settings
+// @desc    Dükkan ayarlarını güncelle (auto-sell)
+// @access  Private
+router.put('/:shopId/settings', protect, asyncHandler(async (req, res) => {
+  const { autoSellEnabled, minProfitMargin, maxStockPerProduct } = req.body;
+  const shop = await ShopInstance.findById(req.params.shopId);
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  if (autoSellEnabled !== undefined) {
+    shop.settings.autoSellEnabled = autoSellEnabled;
+
+    // Auto-sell açıldıysa PendingAction oluştur
+    if (autoSellEnabled) {
+      await PendingAction.createAutoSellAction(shop._id, req.user._id);
+    }
+  }
+
+  if (minProfitMargin !== undefined) {
+    shop.settings.minProfitMargin = Math.max(0, minProfitMargin);
+  }
+
+  if (maxStockPerProduct !== undefined) {
+    shop.settings.maxStockPerProduct = Math.max(10, maxStockPerProduct);
+  }
+
+  await shop.save();
+
+  res.json({
+    success: true,
+    message: 'Ayarlar güncellendi',
+    data: {
+      settings: shop.settings
+    }
+  });
+}));
+
+// @route   GET /api/shop/:shopId/sales-stats
+// @desc    Dükkan satış istatistiklerini getir
+// @access  Private
+router.get('/:shopId/sales-stats', protect, asyncHandler(async (req, res) => {
+  const shop = await ShopInstance.findById(req.params.shopId);
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: {
+      salesStats: shop.salesStats,
+      inventory: shop.inventory.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        totalSold: item.totalSold,
+        lastSoldAt: item.lastSoldAt
+      }))
+    }
   });
 }));
 
