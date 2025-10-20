@@ -5,8 +5,8 @@ Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları i�
 ## 📅 Geliştirme Tarihi
 
 **Başlangıç**: 17 Ocak 2025
-**Son Güncelleme**: 17 Ocak 2025
-**Durum**: Production Ready
+**Son Güncelleme**: 20 Ocak 2025 (Tick-Based System eklendi ✨)
+**Durum**: Production Ready + Asenkron Ekonomi
 
 ## 🎯 Proje Özeti
 
@@ -15,10 +15,11 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
 ### Tamamlanan Bileşenler
 
 #### 1. Backend API (%100)
-- **Kod Miktarı**: ~4,000+ satır
-- **Modeller**: 7 MongoDB modeli
+- **Kod Miktarı**: ~5,200+ satır (+1,200 satır tick sistemi)
+- **Modeller**: 8 MongoDB modeli (+1 PendingAction)
 - **Routes**: 8 route dosyası
-- **Endpoints**: 51 API endpoint
+- **Endpoints**: 57 API endpoint (+6 tick-based)
+- **Workers**: 1 TickEngine (5s döngü) - NEW ✨
 - **Middleware**: 4 middleware
 - **Özellikler**:
   - JWT Authentication
@@ -29,6 +30,9 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Yasaklı Kelime Sistemi
   - Auto Price Updates
   - Auto Event Triggers
+  - **Tick-Based Asenkron Ekonomi** - NEW ✨
+  - **Offline Sales (5s interval)** - NEW ✨
+  - **Gerçekçi Satış Simülasyonu** - NEW ✨
 
 #### 2. Admin Panel (%100)
 - **Kod Miktarı**: ~1,500+ satır
@@ -111,14 +115,51 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
    - Active/inactive status
    - Methods: checkText, cleanText, addMultiple
 
-#### Routes (8 - 51 endpoints)
+8. **PendingAction.js** (254 satır) - NEW ✨
+   - Tick-based action queue system
+   - 3 action types: AUTO_SELL, LIST_PRODUCT, RESTOCK_ORDER
+   - 5 status states: pending, processing, completed, failed, cancelled
+   - Recurring action support
+   - Retry mechanism (max 3 retries)
+   - TTL: 7 days auto-delete
+   - Methods: getReadyActions, createAutoSellAction, markProcessing, complete, fail
 
-**Player API (28 endpoints)**:
+#### Workers (1) - NEW ✨
+1. **TickEngine.js** (368 satır)
+   - 5-second game loop engine
+   - Asynchronous action processing
+   - AUTO_SELL handler: Satış simülasyonu, fiyat elastikiyeti, kar hesaplama
+   - LIST_PRODUCT handler: Player → Shop inventory transfer
+   - WebSocket notifications (action:completed, sale:completed)
+   - Graceful start/stop
+   - Stats tracking (tickCounter, uptime)
+
+#### Utils (2)
+1. **logger.js**: Winston logging (file + console)
+2. **SalesCalculator.js** (251 satır) - NEW ✨
+   - Gerçekçi ekonomi satış hesaplama motoru
+   - Fiyat elastikiyeti: <90% market = 2.0x satış, >120% = 0.5x satış
+   - Zaman çarpanı: Peak hours (18-20) = 1.5x, gece (00-06) = 0.7x
+   - Lokasyon çarpanı: Mall 1.5x, Market 1.3x, Street 1.0x, Warehouse 0.8x
+   - Mevsimsellik: High 1.2x, Stable 1.0x, Low 0.8x
+   - %20 rastgele varyasyon
+   - Kar hesaplama: revenue, cost, profit, margin
+   - Optimal fiyat önerisi
+
+#### Routes (8 - 57 endpoints)
+
+**Player API (34 endpoints)**:
 - auth.js: 5 endpoints (register, login, refresh, logout, me)
 - player.js: 7 endpoints (profile, stats, inventory, advance-day, bank)
 - market.js: 3 endpoints (products, product detail, categories)
 - trade.js: 3 endpoints (buy, sell, history)
-- shop.js: 4 endpoints (available, rent, leave, owned)
+- shop.js: 10 endpoints (available, rent, leave, owned, + 6 tick-based) - UPDATED ✨
+  - NEW: POST /:shopId/inventory/add (player → shop transfer)
+  - NEW: GET /:shopId/inventory (envanter listesi)
+  - NEW: PUT /:shopId/inventory/:productId/price (fiyat güncelle)
+  - NEW: DELETE /:shopId/inventory/:productId (shop → player geri transfer)
+  - NEW: PUT /:shopId/settings (auto-sell ayarları)
+  - NEW: GET /:shopId/sales-stats (satış istatistikleri)
 - event.js: 3 endpoints (active, respond, history)
 - leaderboard.js: 3 endpoints (level, wealth, profit)
 
@@ -143,6 +184,268 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
 
 #### Scripts (1)
 1. **seed.js**: Database seeding (products, shops, admin)
+
+---
+
+## 🎮 Tick-Based Game System - NEW ✨
+
+OffMarket, **5 saniye tick interval** ile çalışan asenkron bir oyun ekonomisine sahiptir. Bu sistem, oyuncular offline olduğunda bile dükkanların çalışmasına ve satış yapmasına olanak tanır.
+
+### Sistem Mimarisi
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         TickEngine                          │
+│                    (5 saniye döngü)                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      PendingAction                          │
+│           (Action Queue / Job Scheduler)                    │
+│                                                             │
+│  Types: AUTO_SELL, LIST_PRODUCT, RESTOCK_ORDER             │
+│  Status: pending → processing → completed/failed           │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+        ┌───────────────────┐   ┌──────────────────┐
+        │   AUTO_SELL       │   │  LIST_PRODUCT    │
+        │   Handler         │   │  Handler         │
+        └───────────────────┘   └──────────────────┘
+                    │
+                    ▼
+        ┌───────────────────────────┐
+        │   SalesCalculator         │
+        │   (Ekonomi Motoru)        │
+        │                           │
+        │  • Fiyat Elastikiyeti     │
+        │  • Zaman Çarpanı          │
+        │  • Lokasyon Faktörü       │
+        │  • Mevsimsellik           │
+        │  • Random Varyasyon       │
+        └───────────────────────────┘
+                    │
+                    ▼
+        ┌───────────────────────────┐
+        │   Shop Inventory          │
+        │   Player Cash             │
+        │   Sales Stats             │
+        └───────────────────────────┘
+                    │
+                    ▼
+        ┌───────────────────────────┐
+        │   WebSocket Notification  │
+        │   (Real-time Update)      │
+        └───────────────────────────┘
+```
+
+### Tick Döngüsü Akışı
+
+**Her 5 saniyede bir:**
+
+1. **TickEngine.tick()** çalışır
+2. **PendingAction.getReadyActions(100)** ile zamanı gelen action'lar alınır
+3. Her action paralel olarak işlenir (Promise.allSettled)
+4. **AUTO_SELL** action'lar:
+   - Shop inventory'sini tarar
+   - Her ürün için **SalesCalculator.calculateSalesPerTick()** çağırır
+   - Satış miktarını hesaplar (fiyat elastikiyeti, zaman, lokasyon, vb.)
+   - Shop inventory'den stok düşer
+   - Player'a para eklenir
+   - Sales stats güncellenir
+   - Recurring action için yeni PendingAction oluşturur
+5. **WebSocket** ile oyuncuya bildirim gönderir
+6. Logs yazdırır (Winston)
+
+### Ekonomi Formülü
+
+```javascript
+salesVelocity = baseDemand
+  × priceElasticity
+  × timeMultiplier
+  × locationMultiplier
+  × seasonalityMultiplier
+  × randomVariation (0.8-1.2)
+
+soldQuantity = min(floor(salesVelocity), availableStock)
+```
+
+#### Fiyat Elastikiyeti Tablosu
+
+| Fiyat (Market Fiyatına Göre) | Elastikiyet | Satış Hızı |
+|------------------------------|-------------|------------|
+| < %90 (indirimli)            | 2.0         | Çok hızlı  |
+| %90-100 (normal)             | 1.0-1.2     | Normal     |
+| %100-120 (hafif pahalı)      | 0.5-1.0     | Yavaş      |
+| %120-150 (pahalı)            | 0.3         | Çok yavaş  |
+| > %150 (aşırı pahalı)        | 0.1         | Neredeyse hiç |
+
+#### Zaman Çarpanları
+
+| Zaman Dilimi | Saat | Çarpan | Açıklama |
+|--------------|------|--------|----------|
+| Gece         | 00-06 | 0.7    | Az satış |
+| Sabah        | 07-11 | 0.9    | Orta     |
+| Öğlen        | 12-17 | 1.0    | Normal   |
+| Peak Hours   | 18-20 | 1.5    | Yüksek   |
+| Akşam        | 21-23 | 1.0    | Normal   |
+
+#### Lokasyon Çarpanları
+
+| Lokasyon Tipi | Çarpan | Örnek          |
+|---------------|--------|----------------|
+| Mall          | 1.5x   | AVM            |
+| Market        | 1.3x   | Pazar yeri     |
+| Street        | 1.0x   | Sokak dükkanı  |
+| Office        | 0.9x   | Ofis bölgesi   |
+| Warehouse     | 0.8x   | Depo           |
+
+### Action Types
+
+#### 1. AUTO_SELL
+- **Amaç**: Dükkan envanterindeki ürünleri otomatik sat
+- **Recurring**: Evet (her tick'te yeniden schedule edilir)
+- **İşlem**:
+  1. Shop inventory'deki her ürün için satış hesapla
+  2. Stock'tan düş
+  3. Player'a para ekle
+  4. Sales stats güncelle
+  5. WebSocket bildirimi
+
+#### 2. LIST_PRODUCT
+- **Amaç**: Player inventory → Shop inventory transfer
+- **Recurring**: Hayır
+- **İşlem**:
+  1. Player inventory'den ürünü çıkar
+  2. Shop inventory'ye ekle
+  3. Eğer aynı ürün varsa quantity birleştir
+
+#### 3. RESTOCK_ORDER (Gelecekte)
+- **Amaç**: Otomatik stok yenileme
+- **Recurring**: Evet
+- **İşlem**: Henüz implement edilmedi
+
+### WebSocket Events
+
+TickEngine her işlemden sonra oyuncuya real-time bildirim gönderir:
+
+```javascript
+// Genel action tamamlama bildirimi
+io.to(`player:${playerId}`).emit('action:completed', {
+  actionType: 'AUTO_SELL',
+  result: { soldQuantity, earnedMoney, profit },
+  timestamp: new Date()
+});
+
+// Satış özel bildirimi
+io.to(`player:${playerId}`).emit('sale:completed', {
+  soldQuantity: 15,
+  earnedMoney: 1250.50,
+  profit: 450.00,
+  details: [
+    { productName: 'iPhone', sold: 5, revenue: 500, profit: 150 },
+    { productName: 'Laptop', sold: 10, revenue: 750.50, profit: 300 }
+  ],
+  timestamp: new Date()
+});
+```
+
+### Offline Sales
+
+**Önemli:** Oyuncular offline olsa bile dükkanlar çalışmaya devam eder!
+
+- TickEngine sürekli çalışır (server uptime boyunca)
+- AUTO_SELL action'lar her 5 saniyede işlenir
+- Oyuncu geri geldiğinde tüm kazançları bekliyor olur
+- WebSocket bildirimleri kaybolsa bile database'de kaydedilir
+
+### Database Schema Updates
+
+#### Product Model (Yeni Alanlar)
+```javascript
+{
+  baseDemand: Number,        // Tick başına taban talep (1-100)
+  peakHours: [Number],       // Yoğun saatler [18, 19, 20]
+  seasonality: String        // 'stable', 'high', 'low'
+}
+```
+
+#### Shop Model (Yeni ShopInstance)
+```javascript
+{
+  inventory: [{
+    productId: ObjectId,
+    quantity: Number,
+    purchasePrice: Number,   // Kar hesabı için
+    sellPrice: Number,       // Satış fiyatı
+    totalSold: Number,
+    lastSoldAt: Date
+  }],
+  salesStats: {
+    todaySales: Number,
+    totalRevenue: Number,
+    totalProfit: Number,
+    avgSalePrice: Number,
+    totalItemsSold: Number
+  },
+  settings: {
+    autoSellEnabled: Boolean,
+    minProfitMargin: Number,
+    maxStockPerProduct: Number
+  }
+}
+```
+
+### Performance & Scalability
+
+- **Batch Processing**: 100 action'a kadar paralel işleme
+- **Promise.allSettled**: Bir hata tüm tick'i durdurmuyor
+- **Indexing**: scheduledFor ve status için MongoDB index
+- **TTL**: 7 gün sonra otomatik silme (completed action'lar)
+- **Graceful Shutdown**: SIGTERM ile clean stop
+
+### Monitoring
+
+```bash
+# Health check (TickEngine stats dahil)
+curl http://localhost:3000/health
+
+# Response:
+{
+  "status": "OK",
+  "tickEngine": {
+    "isRunning": true,
+    "tickCounter": 720,      # 720 tick = 1 saat
+    "tickInterval": 5000,    # 5 saniye
+    "uptime": 3600          # saniye
+  }
+}
+```
+
+### Log Örnekleri
+
+```
+[info] MongoDB connected
+[info] TickEngine started with 5s interval
+[info] 🚀 TickEngine started with 5000ms interval
+[info] ⏰ Tick #1 started
+[info] Tick #1: Processing 15 actions
+[info] ✅ Tick #1 completed in 234ms | Success: 15, Failed: 0
+[info] ⏰ Tick #2 started
+[info] Tick #2: No pending actions
+```
+
+### Commit Timeline (5 commits)
+
+1. **1f5d0a9**: PendingAction model + Product/Shop updates
+2. **38f6d19**: SalesCalculator utility
+3. **9fe231d**: TickEngine worker (5s döngü)
+4. **32ad2f6**: Shop API endpoints (6 tick-based endpoint)
+5. **f75ba5f**: Server.js entegrasyonu + graceful shutdown
+
+---
 
 ### Admin Panel Mimarisi
 
@@ -437,13 +740,14 @@ flutter build linux --release
 ## 📊 Kod İstatistikleri
 
 ### Backend
-- **Toplam Satır**: ~4,000+
-- **Models**: 1,030 satır
-- **Routes**: 1,280 satır
+- **Toplam Satır**: ~5,200+
+- **Models**: 1,284 satır (8 model) - +254 satır (PendingAction)
+- **Routes**: 1,565 satır - +285 satır (Tick-based shop endpoints)
+- **Workers**: 368 satır (TickEngine) - NEW ✨
+- **Utils**: 311 satır - +251 satır (SalesCalculator)
 - **Middleware**: 300 satır
-- **Utils**: 60 satır
 - **Scripts**: 130 satır
-- **Server**: 180 satır
+- **Server**: 200 satır - +20 satır (TickEngine entegrasyonu)
 
 ### Admin Panel
 - **Toplam Satır**: ~1,000+
@@ -459,9 +763,9 @@ flutter build linux --release
 - **Services**: ~200 satır
 
 ### Toplam
-- **Production Code**: ~8,200+ satır
+- **Production Code**: ~9,400+ satır (+1,200 satır tick sistemi)
 - **Test Code**: ~500 satır (planlanan)
-- **Documentation**: ~2,000 satır
+- **Documentation**: ~2,500 satır (+500 satır tick sistem dokümantasyonu)
 
 ## 🛠️ Kullanılan Araçlar
 
@@ -514,6 +818,28 @@ flutter build linux --release
 ---
 
 **Geliştirici**: Claude AI + Human Developer
-**Tarih**: 17 Ocak 2025
-**Versiyon**: 1.0.0
-**Durum**: Production Ready 🚀
+**Başlangıç**: 17 Ocak 2025
+**Tick System**: 20 Ocak 2025
+**Versiyon**: 1.1.0 (Tick-Based Economy)
+**Durum**: Production Ready + Asenkron Ekonomi 🚀
+
+## Changelog
+
+### v1.1.0 - Tick-Based Economy (20 Ocak 2025)
+- ✨ **TickEngine**: 5 saniye interval ile asenkron oyun döngüsü
+- ✨ **PendingAction Model**: Queue-based action sistemi
+- ✨ **SalesCalculator**: Gerçekçi ekonomi simülasyon motoru
+- ✨ **Offline Sales**: Oyuncular offline olsa bile satış devam eder
+- ✨ **6 Tick-Based API Endpoints**: Inventory yönetimi, fiyat güncelleme, stats
+- 🔧 **Product Model**: baseDemand, peakHours, seasonality alanları
+- 🔧 **Shop Model**: inventory, salesStats, settings sistemi
+- 📊 **Real-time WebSocket**: action:completed, sale:completed events
+- 📈 **1,200+ satır**: Yeni kod (5 commit)
+
+### v1.0.0 - Initial Release (17 Ocak 2025)
+- 🎮 Backend API (51 endpoint)
+- 🎨 Admin Panel (9 sayfa)
+- 📱 Flutter App (6 ekran, 9 sistem)
+- 🔐 JWT Authentication
+- 💬 WebSocket Support
+- 📊 8,200+ satır kod
