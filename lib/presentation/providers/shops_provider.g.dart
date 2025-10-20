@@ -42,7 +42,7 @@ final playerShopsNotifierProvider =
     );
 
 typedef _$PlayerShopsNotifier = AutoDisposeNotifier<List<ShopInstance>>;
-String _$shopsNotifierHash() => r'a4148b38b5d16ffb04d3236c51a2e31cea495c0e';
+String _$shopsNotifierHash() => r'7e223d6c2c45fb7c8f1a1f57f5e78bacce2615b3';
 
 /// See also [ShopsNotifier].
 @ProviderFor(ShopsNotifier)

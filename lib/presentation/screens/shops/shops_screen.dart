@@ -347,7 +347,6 @@ class _AvailableShopsTab extends ConsumerWidget {
                       .read(shopsNotifierProvider.notifier)
                       .rentShop(
                         shop.id,
-                        'player_1', // Player ID
                         selectedCategory,
                       );
 

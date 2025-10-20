@@ -117,4 +117,25 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
 class ShopsNotifier extends _$ShopsNotifier {
   @override
   List<Shop> build() => []; // Boş bırakacak artık kullanılmıyor
+
+  // Compatibility methods for old screens
+  Future<bool> rentShop(String shopId, String businessCategory) async {
+    try {
+      final response = await apiService.post(
+        '/shop/rent',
+        data: {
+          'shopId': shopId,
+          'businessCategory': businessCategory,
+        },
+      );
+      return response.data['success'] ?? false;
+    } catch (error) {
+      print('Error renting shop: $error');
+      return false;
+    }
+  }
+
+  List<Shop> getPlayerShops(String playerId) {
+    return state; // Return current state
+  }
 }
