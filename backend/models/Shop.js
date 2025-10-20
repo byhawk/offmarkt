@@ -187,7 +187,91 @@ const shopInstanceSchema = new mongoose.Schema({
     default: true
   },
   
-  // Ürün listeleme sistemi
+  // TICK-BASED INVENTORY SYSTEM
+  inventory: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    purchasePrice: {
+      type: Number, // Alış fiyatı (kar hesabı için)
+      required: true
+    },
+    sellPrice: {
+      type: Number, // Satış fiyatı
+      required: true
+    },
+    listedAt: {
+      type: Date,
+      default: Date.now
+    },
+    totalSold: {
+      type: Number, // Bu batch'ten satılan
+      default: 0
+    },
+    lastSoldAt: {
+      type: Date
+    }
+  }],
+
+  // SALES STATISTICS
+  salesStats: {
+    todaySales: {
+      type: Number,
+      default: 0
+    },
+    totalRevenue: {
+      type: Number,
+      default: 0
+    },
+    totalProfit: {
+      type: Number,
+      default: 0
+    },
+    avgSalePrice: {
+      type: Number,
+      default: 0
+    },
+    totalItemsSold: {
+      type: Number,
+      default: 0
+    },
+    lastResetAt: {
+      type: Date,
+      default: Date.now
+    }
+  },
+
+  // AUTO-SELL SETTINGS
+  settings: {
+    autoSellEnabled: {
+      type: Boolean,
+      default: true
+    },
+    minProfitMargin: {
+      type: Number, // Minimum kar marjı %
+      default: 10,
+      min: 0,
+      max: 100
+    },
+    maxStockPerProduct: {
+      type: Number,
+      default: 100,
+      min: 1
+    },
+    enablePriceOptimization: {
+      type: Boolean,
+      default: true
+    }
+  },
+
+  // Ürün listeleme sistemi (ESKI SISTEM - Backward compatibility)
   listedProducts: [{
     productId: {
       type: mongoose.Schema.Types.ObjectId,

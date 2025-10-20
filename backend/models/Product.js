@@ -37,6 +37,30 @@ const productSchema = new mongoose.Schema({
     min: 0,
     max: 1
   },
+
+  // Tick-based sales economy
+  baseDemand: {
+    type: Number,
+    default: 10, // Units per tick (5s) at market price
+    min: 1,
+    max: 100
+  },
+  peakHours: {
+    type: [Number],
+    default: [18, 19, 20], // Hours when demand is highest (6PM-8PM)
+    validate: {
+      validator: function(arr) {
+        return arr.every(h => h >= 0 && h <= 23);
+      },
+      message: 'Peak hours must be between 0-23'
+    }
+  },
+  seasonality: {
+    type: String,
+    enum: ['stable', 'high', 'low'],
+    default: 'stable'
+  },
+
   trending: {
     type: Boolean,
     default: false
