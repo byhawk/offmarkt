@@ -2,7 +2,7 @@ const PendingAction = require('../models/PendingAction');
 const { ShopInstance } = require('../models/Shop');
 const Product = require('../models/Product');
 const Player = require('../models/Player');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 const SalesCalculator = require('../utils/SalesCalculator');
 
 /**
