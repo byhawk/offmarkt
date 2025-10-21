@@ -2,28 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { protect } = require('../middleware/auth');
-const Shop = require('../models/Shop');
-const { ShopInstance } = require('../models/Shop');
+const { Shop, ShopType, ShopInstance } = require('../models/Shop');
 const Transaction = require('../models/Transaction');
 const Product = require('../models/Product');
 const PendingAction = require('../models/PendingAction');
 
-// @route   GET /api/shop/available
-// @desc    Müsait dükkanları getir
+// @route   GET /api/shop/types
+// @desc    Satın alınabilir dükkan tiplerini getir (YENİ SİSTEM)
 // @access  Private
-router.get('/available', protect, asyncHandler(async (req, res) => {
-  const { locationType } = req.query;
-  
-  let shops;
-  if (locationType) {
-    shops = await Shop.getByLocationType(locationType);
-  } else {
-    shops = await Shop.getAvailable();
-  }
-  
+router.get('/types', protect, asyncHandler(async (req, res) => {
+  const shopTypes = await ShopType.find({ isActive: true });
+
   res.json({
     success: true,
-    data: { shops }
+    data: { shopTypes }
+  });
+}));
+
+// @route   GET /api/shop/available
+// @desc    Müsait dükkanları getir (ESKİ SİSTEM - backward compatibility)
+// @access  Private
+router.get('/available', protect, asyncHandler(async (req, res) => {
+  // Yeni sistem: ShopType'ları döndür
+  const shopTypes = await ShopType.find({ isActive: true });
+
+  res.json({
+    success: true,
+    data: {
+      shops: shopTypes // Backward compatibility için 'shops' key'i kullan
+    }
   });
 }));
 
@@ -74,6 +81,84 @@ router.post('/rent', protect, asyncHandler(async (req, res) => {
     data: {
       shop,
       cash: req.user.cash
+    }
+  });
+}));
+
+// @route   POST /api/shop/purchase
+// @desc    Dükkan satın al (YENİ SİSTEM)
+// @access  Private
+router.post('/purchase', protect, asyncHandler(async (req, res) => {
+  const { shopTypeId, city, country, customName } = req.body;
+
+  // ShopType'ı bul
+  const shopType = await ShopType.findById(shopTypeId);
+
+  if (!shopType || !shopType.isActive) {
+    return res.status(400).json({
+      success: false,
+      message: 'Bu dükkan tipi mevcut değil'
+    });
+  }
+
+  const purchasePrice = shopType.purchasePrice;
+
+  // Oyuncunun parası yeterli mi?
+  if (req.user.cash < purchasePrice) {
+    return res.status(400).json({
+      success: false,
+      message: 'Yetersiz nakit',
+      data: {
+        required: purchasePrice,
+        available: req.user.cash,
+        missing: purchasePrice - req.user.cash
+      }
+    });
+  }
+
+  // ShopInstance oluştur
+  const shopInstance = await ShopInstance.create({
+    shopType: shopType.shopType,
+    ownerId: req.user._id,
+    country: country || 'Türkiye',
+    city: city || 'İstanbul',
+    customName: customName || `${city || 'İstanbul'} ${shopType.displayName}`,
+    isActive: true,
+    settings: {
+      autoSellEnabled: true,
+      minProfitMargin: 10,
+      maxStockPerProduct: 100,
+      enablePriceOptimization: true
+    }
+  });
+
+  // Oyuncudan parayı düş
+  req.user.cash -= purchasePrice;
+  req.user.ownedShops.push(shopInstance._id);
+  await req.user.save();
+
+  // İşlem kaydı oluştur
+  await Transaction.createTransaction({
+    playerId: req.user._id,
+    type: 'purchase_shop',
+    amount: purchasePrice,
+    shopId: shopInstance._id,
+    description: `${shopInstance.customName} satın alındı`
+  });
+
+  // AUTO_SELL PendingAction oluştur (tick-based satış için)
+  await PendingAction.createAutoSellAction(
+    req.user._id,
+    shopInstance._id
+  );
+
+  res.json({
+    success: true,
+    message: 'Dükkan başarıyla satın alındı',
+    data: {
+      shop: shopInstance,
+      cash: req.user.cash,
+      shopType: shopType
     }
   });
 }));

@@ -13,6 +13,7 @@ const transactionSchema = new mongoose.Schema({
       'buy',
       'sell',
       'rent_shop',
+      'purchase_shop',
       'leave_shop',
       'deposit',
       'withdraw',
