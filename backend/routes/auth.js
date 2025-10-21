@@ -224,7 +224,9 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
         totalTransactions: req.user.totalTransactions,
         totalProfit: req.user.totalProfit,
         isPremium: req.user.isPremium,
-        premiumExpires: req.user.premiumExpires
+        premiumExpires: req.user.premiumExpires,
+        inventory: req.user.inventory || [],
+        ownedShops: req.user.ownedShops || []
       }
     }
   });
