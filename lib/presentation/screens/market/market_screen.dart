@@ -19,6 +19,7 @@ class MarketScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerNotifierProvider);
     final products = ref.watch(marketNotifierProvider);
+    final inventory = ref.watch(inventoryNotifierProvider);
     final inventoryNotifier = ref.watch(inventoryNotifierProvider.notifier);
 
     return Scaffold(

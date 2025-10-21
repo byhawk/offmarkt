@@ -61,10 +61,12 @@ class PlayerNotifier extends _$PlayerNotifier {
 
       if (response.data['success'] == true) {
         final playerData = response.data['data']['player'];
+        print('🔄 Refreshing player data: cash=${playerData['cash']}');
         await loadPlayerFromBackend(playerData);
+        print('✅ Player refreshed: cash=${state.cash}');
       }
     } catch (e) {
-      print('Error refreshing player data: $e');
+      print('❌ Error refreshing player data: $e');
     }
   }
 
