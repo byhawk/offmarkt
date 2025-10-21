@@ -60,7 +60,7 @@ class PlayerNotifier extends _$PlayerNotifier {
       final response = await apiService.get('/auth/me');
 
       if (response.data['success'] == true) {
-        final playerData = response.data['data'];
+        final playerData = response.data['data']['player'];
         await loadPlayerFromBackend(playerData);
       }
     } catch (e) {
