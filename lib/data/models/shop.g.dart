@@ -173,7 +173,7 @@ Map<String, dynamic> _$$ShopImplToJson(_$ShopImpl instance) =>
 
 _$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
     _$ShopTypeImpl(
-      id: json['id'] as String,
+      id: json['_id'] as String,
       shopType: json['shopType'] as String,
       displayName: json['displayName'] as String,
       nameTemplate: json['nameTemplate'] as String,
@@ -193,7 +193,7 @@ _$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$ShopTypeImplToJson(_$ShopTypeImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'shopType': instance.shopType,
       'displayName': instance.displayName,
       'nameTemplate': instance.nameTemplate,

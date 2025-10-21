@@ -7,6 +7,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/product.dart';
 import '../../../game/systems/trading_system.dart';
+import '../../../services/api_service.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/common/gradient_card.dart';
@@ -109,14 +110,13 @@ class MarketScreen extends ConsumerWidget {
     );
   }
 
-  void _buyProduct(
+  Future<void> _buyProduct(
     BuildContext context,
     WidgetRef ref,
     Product product,
     int quantity,
-  ) {
+  ) async {
     final playerNotifier = ref.read(playerNotifierProvider.notifier);
-    final inventoryNotifier = ref.read(inventoryNotifierProvider.notifier);
     final player = ref.read(playerNotifierProvider);
 
     // TradingSystem ile validasyon
@@ -127,144 +127,125 @@ class MarketScreen extends ConsumerWidget {
     );
 
     if (!canPurchase) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ $errorMessage'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ $errorMessage'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
-    // Toplu alım indirimi
-    final discount = TradingSystem.calculateBulkDiscount(quantity);
-    final totalCost = product.currentPrice * quantity * (1 - discount);
+    try {
+      // Backend'e istek gönder
+      final apiService = ApiService();
+      final response = await apiService.post('/trade/buy', data: {
+        'productId': product.id,
+        'quantity': quantity,
+      });
 
-    // Trend bonusu hesapla (exp için)
-    final trendBonus = TradingSystem.calculateTrendBonus(
-      isTrending: product.isTrending,
-      demand: product.demand,
-    );
+      if (response.data['success'] == true) {
+        // Backend'den güncel player verisini yükle
+        await playerNotifier.refreshPlayerData();
 
-    // Para düş
-    playerNotifier.removeCash(totalCost);
+        // Başarı mesajı
+        final discount = TradingSystem.calculateBulkDiscount(quantity);
+        String message = '✅ $quantity ${product.name} satın alındı!';
+        if (discount > 0) {
+          message += ' (%${(discount * 100).toStringAsFixed(0)} indirim!)';
+        }
 
-    // Envantere ekle
-    inventoryNotifier.addItem(
-      InventoryItem(
-        productId: product.id,
-        quantity: quantity,
-        purchasePrice: product.currentPrice,
-        source: 'legal',
-        purchaseDate: DateTime.now(),
-      ),
-    );
-
-    // Deneyim hesapla ve ekle
-    final expGained = TradingSystem.calculateExperienceGain(
-      transactionValue: totalCost,
-      isPurchase: true,
-      productCategory: product.category,
-    );
-    final bonusExp = (expGained * trendBonus).round();
-    playerNotifier.addExperience(bonusExp);
-
-    // İşlem kaydet
-    playerNotifier.addTransaction(0);
-
-    // Başarı mesajı
-    String message = '✅ $quantity ${product.name} satın alındı!';
-    if (discount > 0) {
-      message += ' (%${(discount * 100).toStringAsFixed(0)} indirim!)';
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ ${response.data['message'] ?? 'Bilinmeyen hata'}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Hata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
-    );
   }
 
-  void _sellProduct(
+  Future<void> _sellProduct(
     BuildContext context,
     WidgetRef ref,
     Product product,
     int quantity,
-  ) {
+  ) async {
     final playerNotifier = ref.read(playerNotifierProvider.notifier);
-    final inventoryNotifier = ref.read(inventoryNotifierProvider.notifier);
-    final inventory = ref.read(inventoryNotifierProvider);
 
-    final currentQty = inventoryNotifier.getQuantity(product.id);
+    try {
+      // Backend'e istek gönder
+      final apiService = ApiService();
+      final response = await apiService.post('/trade/sell', data: {
+        'productId': product.id,
+        'quantity': quantity,
+      });
 
-    // TradingSystem ile validasyon
-    final (canSell, errorMessage) = TradingSystem.sellProduct(
-      currentInventoryQuantity: currentQty,
-      quantityToSell: quantity,
-    );
+      if (response.data['success'] == true) {
+        // Backend'den güncel player verisini yükle
+        await playerNotifier.refreshPlayerData();
 
-    if (!canSell) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ $errorMessage'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+        // Başarı mesajı
+        final profitData = response.data['data'];
+        final profit = profitData['profit'] ?? 0.0;
+
+        String message = '💰 $quantity ${product.name} satıldı!';
+        if (profit > 0) {
+          message += ' (Kar: +₺${profit.toStringAsFixed(0)})';
+        } else if (profit < 0) {
+          message += ' (Zarar: ₺${profit.abs().toStringAsFixed(0)})';
+        }
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: profit >= 0 ? Colors.green : Colors.orange,
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ ${response.data['message'] ?? 'Bilinmeyen hata'}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Hata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-
-    final totalRevenue = product.currentPrice * quantity;
-
-    // Kar/zarar hesapla (ortalama alış fiyatı ile)
-    final items = inventory.where((i) => i.productId == product.id).toList();
-    final avgPurchasePrice = items.isEmpty
-        ? product.currentPrice
-        : items.fold<double>(0, (sum, item) =>
-            sum + (item.purchasePrice * item.quantity)) / currentQty;
-
-    final profitLoss = TradingSystem.calculateProfitLoss(
-      purchasePrice: avgPurchasePrice,
-      currentPrice: product.currentPrice,
-      quantity: quantity,
-    );
-
-    // Para ekle
-    playerNotifier.addCash(totalRevenue);
-
-    // Envanterden çıkar
-    inventoryNotifier.removeItem(product.id, quantity);
-
-    // Deneyim hesapla
-    final expGained = TradingSystem.calculateExperienceGain(
-      transactionValue: totalRevenue,
-      isPurchase: false,
-      productCategory: product.category,
-    );
-    playerNotifier.addExperience(expGained);
-
-    // İşlem kaydet
-    playerNotifier.addTransaction(profitLoss);
-
-    // Başarı mesajı
-    final profitPercent = TradingSystem.calculateProfitPercentage(
-      purchasePrice: avgPurchasePrice,
-      currentPrice: product.currentPrice,
-    );
-
-    String message = '💰 $quantity ${product.name} satıldı!';
-    if (profitLoss > 0) {
-      message += ' (Kar: +₺${profitLoss.toStringAsFixed(0)} | +%${profitPercent.toStringAsFixed(1)})';
-    } else if (profitLoss < 0) {
-      message += ' (Zarar: ₺${profitLoss.abs().toStringAsFixed(0)} | %${profitPercent.toStringAsFixed(1)})';
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: profitLoss >= 0 ? Colors.green : Colors.orange,
-      ),
-    );
   }
 }
 

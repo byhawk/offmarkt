@@ -118,7 +118,7 @@ class Shop with _$Shop {
 @freezed
 class ShopType with _$ShopType {
   const factory ShopType({
-    required String id,
+    @JsonKey(name: '_id') required String id,
     required String shopType, // kodu: 'flower_shop', 'supermarket' vs
     required String displayName, // görünüm adı: 'Çiçekçi Mağazası'
     required String nameTemplate, // '{ŞEHİR} {TÜR}'
