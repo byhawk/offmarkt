@@ -10,11 +10,15 @@ final apiService = ApiService();
 @riverpod
 class ShopTypesNotifier extends _$ShopTypesNotifier {
   @override
-  List<ShopType> build() => [];
+  List<ShopType> build() {
+    // Backend'den yükle
+    loadShopTypes();
+    return [];
+  }
 
   Future<void> loadShopTypes() async {
     try {
-      final response = await apiService.get('/player/shop-types');
+      final response = await apiService.get('/shop/types');
       if (response.data['success']) {
         state = (response.data['data']['shopTypes'] as List)
             .map((json) => ShopType.fromJson(json))
@@ -47,16 +51,16 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
   }
 
   Future<bool> purchaseShop({
-    required String shopType,
+    required String shopTypeId,
     required String country,
     required String city,
     String? customName,
   }) async {
     try {
       final response = await apiService.post(
-        '/player/shops/purchase',
+        '/shop/purchase',
         data: {
-          'shopType': shopType,
+          'shopTypeId': shopTypeId,
           'country': country,
           'city': city,
           'customName': customName,

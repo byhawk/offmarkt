@@ -22,7 +22,7 @@ final marketNotifierProvider =
     );
 
 typedef _$MarketNotifier = AutoDisposeNotifier<List<Product>>;
-String _$inventoryNotifierHash() => r'389188fed8d1aa4a100d012b06c7608e1b8a3b82';
+String _$inventoryNotifierHash() => r'd7afccbf148243f7ef67facaddf932bf86d6d019';
 
 /// Envanter provider'ı
 ///

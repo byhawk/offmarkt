@@ -150,6 +150,9 @@ class MarketScreen extends ConsumerWidget {
         // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
 
+        // Inventory'yi yenile
+        await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
+
         // Başarı mesajı
         final discount = TradingSystem.calculateBulkDiscount(quantity);
         String message = '✅ $quantity ${product.name} satın alındı!';
@@ -206,6 +209,9 @@ class MarketScreen extends ConsumerWidget {
       if (response.data['success'] == true) {
         // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
+
+        // Inventory'yi yenile
+        await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
 
         // Başarı mesajı
         final profitData = response.data['data'];

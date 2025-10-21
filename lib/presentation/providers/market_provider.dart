@@ -71,15 +71,44 @@ class MarketNotifier extends _$MarketNotifier {
 class InventoryNotifier extends _$InventoryNotifier {
   @override
   List<InventoryItem> build() {
+    // Backend'den yükle
+    loadInventoryFromBackend();
     return [];
   }
 
-  /// Envantere ürün ekle
+  /// Backend'den inventory yükle
+  Future<void> loadInventoryFromBackend() async {
+    try {
+      final apiService = ApiService();
+      final response = await apiService.get('/auth/me');
+
+      if (response.data['success'] == true) {
+        final playerData = response.data['data']['player'];
+        final inventoryList = playerData['inventory'] as List? ?? [];
+
+        state = inventoryList.map((item) {
+          return InventoryItem(
+            productId: item['productId']?.toString() ?? '',
+            quantity: item['quantity'] ?? 0,
+            purchasePrice: (item['purchasePrice'] ?? 0).toDouble(),
+            source: item['source'] ?? 'market',
+            purchaseDate: item['purchaseDate'] != null
+                ? DateTime.parse(item['purchaseDate'])
+                : DateTime.now(),
+          );
+        }).toList();
+      }
+    } catch (e) {
+      print('Error loading inventory: $e');
+    }
+  }
+
+  /// Envantere ürün ekle (artık kullanılmıyor - backend'e gidiyor)
   void addItem(InventoryItem item) {
     state = [...state, item];
   }
 
-  /// Envanterden ürün çıkar
+  /// Envanterden ürün çıkar (artık kullanılmıyor - backend'e gidiyor)
   void removeItem(String productId, int quantity) {
     final items = [...state];
     items.removeWhere(

@@ -6,7 +6,7 @@ part of 'shops_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$shopTypesNotifierHash() => r'ae23e0a274cb71cbb001033b563324dddb9ea09a';
+String _$shopTypesNotifierHash() => r'60a5c6a6060979b424a30b528032c93507c99751';
 
 /// See also [ShopTypesNotifier].
 @ProviderFor(ShopTypesNotifier)
@@ -23,7 +23,7 @@ final shopTypesNotifierProvider =
 
 typedef _$ShopTypesNotifier = AutoDisposeNotifier<List<ShopType>>;
 String _$playerShopsNotifierHash() =>
-    r'122dc59df02621a87ceac34bc7f105396af373ce';
+    r'9f88f34197eb473cac277454f673b366a0cdb16e';
 
 /// See also [PlayerShopsNotifier].
 @ProviderFor(PlayerShopsNotifier)
