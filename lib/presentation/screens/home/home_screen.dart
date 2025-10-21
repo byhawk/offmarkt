@@ -7,10 +7,12 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/player.dart';
 import '../../../game/systems/risk_system.dart';
+import '../../../services/auth_service.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/common/stat_card.dart';
 import '../../widgets/common/gradient_card.dart';
+import '../auth/login_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,7 +23,16 @@ class HomeScreen extends ConsumerWidget {
     final products = ref.watch(marketNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('OffMarket')),
+      appBar: AppBar(
+        title: const Text('OffMarket'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Çıkış Yap',
+            onPressed: () => _logout(context),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -320,5 +331,40 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Çıkış Yap'),
+        content: const Text('Hesaptan çıkmak istediğinize emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+            ),
+            child: const Text('Çıkış Yap'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final authService = AuthService();
+      await authService.logout();
+
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
   }
 }
