@@ -3,6 +3,7 @@ import '../../data/models/player.dart';
 import '../../game/systems/level_system.dart';
 import '../../game/systems/reputation_system.dart';
 import '../../game/systems/event_system.dart';
+import '../../services/api_service.dart';
 
 part 'player_provider.g.dart';
 
@@ -26,6 +27,45 @@ class PlayerNotifier extends _$PlayerNotifier {
       totalTransactions: 0,
       totalProfit: 0.0,
     );
+  }
+
+  /// Backend'den player verisini yükle
+  Future<void> loadPlayerFromBackend(Map<String, dynamic> playerData) async {
+    try {
+      state = Player(
+        name: playerData['name'] ?? 'Oyuncu',
+        level: playerData['level'] ?? 1,
+        experience: playerData['experience'] ?? 0,
+        cash: (playerData['cash'] ?? 5000.0).toDouble(),
+        bankAccount: (playerData['bankAccount'] ?? 0.0).toDouble(),
+        debt: (playerData['debt'] ?? 0.0).toDouble(),
+        legalReputation: playerData['legalReputation'] ?? 50,
+        streetReputation: playerData['streetReputation'] ?? 50,
+        riskLevel: playerData['riskLevel'] ?? 0,
+        suspicionLevel: playerData['suspicionLevel'] ?? 0,
+        currentDay: playerData['currentDay'] ?? 1,
+        totalTransactions: playerData['totalTransactions'] ?? 0,
+        totalProfit: (playerData['totalProfit'] ?? 0.0).toDouble(),
+        portfolioValue: (playerData['portfolioValue'] ?? 0.0).toDouble(),
+      );
+    } catch (e) {
+      print('Error loading player data: $e');
+    }
+  }
+
+  /// Backend'den güncel player verisini fetch et
+  Future<void> refreshPlayerData() async {
+    try {
+      final apiService = ApiService();
+      final response = await apiService.get('/auth/me');
+
+      if (response.data['success'] == true) {
+        final playerData = response.data['data'];
+        await loadPlayerFromBackend(playerData);
+      }
+    } catch (e) {
+      print('Error refreshing player data: $e');
+    }
   }
 
   /// Nakit güncelle

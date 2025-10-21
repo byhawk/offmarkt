@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_theme.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/main_navigation.dart';
+import 'presentation/providers/player_provider.dart';
 import 'services/auth_service.dart';
 
 void main() {
@@ -26,14 +27,14 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -56,6 +57,10 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
 
       if (user != null) {
+        // PlayerProvider'a backend'den gelen player verisini yükle
+        ref.read(playerNotifierProvider.notifier)
+            .loadPlayerFromBackend(user);
+
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainNavigation()),

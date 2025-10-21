@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../services/auth_service.dart';
+import '../../providers/player_provider.dart';
 import '../main_navigation.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -37,12 +38,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     try {
       final authService = AuthService();
-      await authService.register(
+      final registerData = await authService.register(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         username: _usernameController.text.trim(),
         name: _nameController.text.trim(),
       );
+
+      // PlayerProvider'a backend'den gelen player verisini yükle
+      if (mounted) {
+        ref.read(playerNotifierProvider.notifier)
+            .loadPlayerFromBackend(registerData['player']);
+      }
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(

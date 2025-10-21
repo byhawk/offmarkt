@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../services/auth_service.dart';
+import '../../providers/player_provider.dart';
 import '../main_navigation.dart';
 import 'register_screen.dart';
 
@@ -34,10 +35,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authService = AuthService();
-      await authService.login(
+      final loginData = await authService.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+
+      // PlayerProvider'a backend'den gelen player verisini yükle
+      if (mounted) {
+        ref.read(playerNotifierProvider.notifier)
+            .loadPlayerFromBackend(loginData['player']);
+      }
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
