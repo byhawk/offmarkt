@@ -47,13 +47,25 @@ class AuthService {
 
   // Login
   Future<Map<String, dynamic>> login({
-    required String email,
+    String? email,
+    String? username,
     required String password,
   }) async {
     try {
+      final Map<String, dynamic> loginData = {'password': password};
+
+      // Email veya username ile login (ikisinden biri gerekli)
+      if (email != null && email.isNotEmpty) {
+        loginData['email'] = email;
+      } else if (username != null && username.isNotEmpty) {
+        loginData['username'] = username;
+      } else {
+        throw Exception('Email veya kullanıcı adı gerekli');
+      }
+
       final response = await _dio.post(
         '${ApiConstants.auth}/login',
-        data: {'email': email, 'password': password},
+        data: loginData,
       );
 
       if (response.data['success'] == true) {

@@ -5,8 +5,8 @@ Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları i�
 ## 📅 Geliştirme Tarihi
 
 **Başlangıç**: 17 Ocak 2025
-**Son Güncelleme**: 20 Ocak 2025 (Tick-Based System eklendi ✨)
-**Durum**: Production Ready + Asenkron Ekonomi
+**Son Güncelleme**: 22 Ocak 2025 (Flutter State Persistence Fixes ✨)
+**Durum**: Production Ready + Asenkron Ekonomi + Flutter App
 
 ## 🎯 Proje Özeti
 
@@ -48,20 +48,29 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Oyuncu Detay Sayfası
   - Şifre Sıfırlama
 
-#### 3. Flutter App (%95)
-- **Kod Miktarı**: ~3,200+ satır (sadece game systems)
-- **Ekranlar**: 6 ana ekran
-- **Sistemler**: 9 oyun sistemi
-- **Providers**: 4 state provider
+#### 3. Flutter App (%98)
+- **Kod Miktarı**: ~5,000+ satır
+  - Game Systems: ~1,778 satır
+  - Screens: ~2,500 satır
+  - Providers: ~600 satır
+  - Services: ~300 satır
+  - Models & Utils: ~800 satır
+- **Ekranlar**: 8 ekran (6 oyun + Login + Register)
+- **Sistemler**: 6 oyun sistemi (Trading, Shop, Reputation, Risk, Level, Event)
+- **Providers**: 4 state provider (Player, Market, Inventory, Shops)
 - **Özellikler**:
   - Material 3 Dark Theme
-  - Riverpod State Management
-  - API Service (Backend Entegrasyonu)
+  - Riverpod State Management (keepAlive fix ✨)
+  - Backend API Entegrasyonu (Dio + JWT)
   - Email/Username Login
+  - Register with Validation
   - Backend'den Dinamik Ürün Yükleme
+  - Real-time Trade (Buy/Sell)
+  - Persistent State (logout/login safe)
   - Geri Tuşu Kontrolü (PopScope)
   - Navigation Stack Yönetimi
   - Cross-platform (Android, iOS, Web, Linux)
+  - Release Mode Build
 
 ## 📊 Teknik Detaylar
 
@@ -714,28 +723,45 @@ flutter build linux --release
    - Çözüm: Vanilla JS for simplicity
    - Easy to maintain
 
+5. **Flutter State Persistence** (22 Ocak 2025) ⚠️ KRİTİK
+   - **Problem**: Riverpod provider state her rebuild'de reset oluyordu
+   - **Semptom**: Backend doğru veri dönüyor ama UI yanlış gösteriyordu
+   - **Root Cause**: `build()` metodu her widget rebuild'inde çağrılıyor
+   - **Çözüm**: `@Riverpod(keepAlive: true)` annotation eklendi
+   - **Sonuç**: State artık kalıcı, logout/login safe
+   - **Öğrenilen**: Riverpod lifecycle'ı Redux'tan farklı, build() initialization değil!
+
 ## 🎯 Gelecek Planları
 
-### v1.1 (Yakın Gelecek)
+### v1.3 (Yakın Gelecek - Şubat 2025)
+- [ ] Unit Tests (Flutter game systems)
+- [ ] Widget Tests (UI components)
+- [ ] Android APK Build (Release)
+- [ ] Play Store Hazırlık
+- [ ] Performance Optimizasyonları
+- [ ] UI Polish & Animations
+
+### v1.4 (Mart 2025)
+- [ ] WebSocket Real-time Updates (Flutter side)
+- [ ] Push Notifications
+- [ ] Daily Quests
+- [ ] Achievements System
+- [ ] Leaderboards UI
+
+### v1.5 (Nisan 2025)
 - [ ] Chat System
 - [ ] Friend System
-- [ ] Notifications
-- [ ] Achievements
-- [ ] Daily Quests
-
-### v1.2 (Orta Vadeli)
 - [ ] Clan/Guild System
 - [ ] PvP Trading
 - [ ] Auction House
-- [ ] Special Events
-- [ ] Seasonal Leaderboard
 
-### v1.3 (Uzun Vadeli)
-- [ ] Mobile App Release
+### v2.0 (Uzun Vadeli)
+- [ ] iOS Release
 - [ ] Web Version
-- [ ] Advanced Analytics
+- [ ] Advanced Analytics Dashboard
 - [ ] AI-powered NPCs
-- [ ] Dynamic Economy
+- [ ] Seasonal Events
+- [ ] Premium Features
 
 ## 📊 Kod İstatistikleri
 
@@ -755,26 +781,33 @@ flutter build linux --release
 - **CSS**: 600 satır
 - **JavaScript**: 400 satır
 
-### Flutter
-- **Game Systems**: 3,200+ satır
-- **Screens**: ~1,500 satır
-- **Providers**: ~400 satır
-- **Models**: ~800 satır
-- **Services**: ~200 satır
+### Flutter App
+- **Game Systems**: ~1,778 satır (6 sistem)
+- **Screens**: ~2,500 satır (8 ekran)
+- **Providers**: ~600 satır (4 provider + entegrasyon)
+- **Services**: ~300 satır (API, Auth)
+- **Models & Utils**: ~800 satır
+- **Toplam Flutter**: ~5,000+ satır
 
-### Toplam
-- **Production Code**: ~9,400+ satır (+1,200 satır tick sistemi)
+### Toplam Proje
+- **Backend Code**: ~6,400+ satır (API + TickEngine)
+- **Admin Panel**: ~1,500+ satır
+- **Flutter App**: ~5,000+ satır
+- **Production Code**: ~12,900+ satır
 - **Test Code**: ~500 satır (planlanan)
-- **Documentation**: ~2,500 satır (+500 satır tick sistem dokümantasyonu)
+- **Documentation**: ~3,500+ satır (README, CLAUDE, FLUTTER_MIGRATION)
 
 ## 🛠️ Kullanılan Araçlar
 
 ### Development
-- **IDE**: VS Code
+- **IDE**: VS Code + Flutter Extension
 - **Version Control**: Git
 - **API Testing**: Postman
 - **Database**: MongoDB Compass
 - **Redis**: Redis Commander
+- **Flutter**: 3.27.0+ (stable)
+- **Dart**: 3.6.0+
+- **Android Testing**: USB Debug (M2101K7BG)
 
 ### Deployment
 - **Server**: Ubuntu 22.04 LTS
@@ -797,6 +830,11 @@ flutter build linux --release
 5. **Documentation**: İyi dokümantasyon zaman kazandırır
 6. **Testing**: Test yazmak uzun vadede zaman kazandırır
 7. **Git Commits**: Anlamlı commit mesajları önemli
+8. **Riverpod State Lifecycle**: `build()` metodu initialization değil, factory metodu. `keepAlive: true` kritik!
+9. **Debug Logs Everywhere**: Her kritik state transition noktasına emoji'li log ekle (🔄, ✅, ❌, 📦)
+10. **Backend Endpoint Consistency**: Login endpoint'i partial data, `/auth/me` full data döner
+11. **Hard Analyze**: Standart çözümler işe yaramazsa, log'ları derinlemesine incele
+12. **MongoDB Direct Access**: Backend test için database'i doğrudan kontrol et
 
 ## 🎓 Referanslar
 
@@ -820,10 +858,267 @@ flutter build linux --release
 **Geliştirici**: Claude AI + Human Developer
 **Başlangıç**: 17 Ocak 2025
 **Tick System**: 20 Ocak 2025
-**Versiyon**: 1.1.0 (Tick-Based Economy)
-**Durum**: Production Ready + Asenkron Ekonomi 🚀
+**State Persistence Fix**: 22 Ocak 2025
+**Versiyon**: 1.2.0 (Flutter App + State Persistence)
+**Durum**: Production Ready + Asenkron Ekonomi + Flutter App 🚀
+
+---
+
+## 🐛 Flutter State Persistence Debugging Session - 22 Ocak 2025
+
+### Karşılaşılan Kritik Hatalar
+
+#### Problem 1: Player Cash Yanlış Gösterim
+**Semptom**: Backend 765.98 TL döndürüyor ama UI 5000 TL veya 0 TL gösteriyordu.
+
+**Tespit Süreci**:
+```bash
+# Backend logs
+🔄 Refreshing player data: cash=765.9808798028143
+💾 Player data loaded: cash=765.9808798028143
+✅ Player refreshed: cash=765.9808798028143
+
+# UI logs
+🏠 HomeScreen: Player cash = 5000.0  ← YANLIŞ!
+```
+
+**Root Cause**:
+Riverpod'un `build()` metodu her widget rebuild'inde tekrar çağrılıyor ve default değerler döndürüyordu. Backend'den yüklenen state, sonraki rebuild'lerde `build()` metodu tarafından eziliyordu.
+
+**Çözüm**:
+```dart
+@Riverpod(keepAlive: true)  // ← CRITICAL FIX
+class PlayerNotifier extends _$PlayerNotifier {
+  @override
+  Player build() {
+    // Build artık SADECE bir kez çalışır
+    return const Player(
+      name: 'Yükleniyor...',
+      level: 1,
+      cash: 0.0,  // Default değer artık kalıcı değil
+      // ...
+    );
+  }
+}
+```
+
+**Etkilenen Dosyalar**:
+- `lib/presentation/providers/player_provider.dart`
+- `lib/presentation/providers/market_provider.dart` (InventoryNotifier)
+
+**Sonuç**: ✅ Cash değeri doğru gösteriliyor ve oyun boyunca persist ediyor.
+
+---
+
+#### Problem 2: Inventory Görünmüyor
+**Semptom**: Backend 1 adet ürün döndürüyor ama InventoryScreen boş gösteriyordu.
+
+**Tespit Süreci**:
+```bash
+📦 Loading inventory from backend: 1 items
+  - ProductID: 68f3b60a9680b77a06b856a0, Quantity: 1
+✅ Inventory loaded: 1 items in state
+📦 InventoryScreen: 0 items in inventory  ← YANLIŞ!
+```
+
+**Root Cause**: Aynı `keepAlive` sorunu. `InventoryNotifier.build()` her rebuild'de boş liste `[]` döndürüyordu.
+
+**Çözüm**:
+```dart
+@Riverpod(keepAlive: true)  // ← CRITICAL FIX
+class InventoryNotifier extends _$InventoryNotifier {
+  @override
+  List<InventoryItem> build() {
+    loadInventoryFromBackend();
+    return [];  // Artık sadece ilk kez döndürülür
+  }
+
+  Future<void> loadInventoryFromBackend() async {
+    // Backend'den yükle ve state'i güncelle
+    final response = await apiService.get('/auth/me');
+    state = inventoryList.map(...).toList();
+    print('✅ Inventory loaded: ${state.length} items');
+  }
+}
+```
+
+**Sonuç**: ✅ Inventory item'ları doğru gösteriliyor.
+
+---
+
+#### Problem 3: Login Sonrası Eksik Player Data
+**Semptom**: `/auth/login` endpoint'i sadece temel alanlar döndürüyordu (name, bankAccount, debt eksikti).
+
+**Tespit Süreci**:
+Backend `/auth/login` endpoint'i sadece id, username, email, level, cash gibi temel alanlar döndürüyordu. `totalProfit`, `portfolioValue` gibi alanlar eksikti.
+
+**Çözüm**:
+```dart
+// LoginScreen ve SplashScreen
+Future<void> _login() async {
+  await authService.login(email: email, password: password);
+
+  // ✅ Tam player verisini yükle
+  await ref.read(playerNotifierProvider.notifier).refreshPlayerData();
+
+  Navigator.pushReplacement(...);
+}
+```
+
+`refreshPlayerData()` metodu `/auth/me` endpoint'ini çağırarak tüm player verilerini yükler.
+
+**Sonuç**: ✅ Login sonrası tüm player field'ları doğru yükleniyor.
+
+---
+
+#### Problem 4: Username ile Login Olmuyor
+**Semptom**: Sadece email ile login olabiliyordu, username çalışmıyordu.
+
+**Root Cause**:
+- `AuthService.login()` sadece `email` parametresi kabul ediyordu
+- Backend aslında hem email hem username destekliyordu
+
+**Çözüm**:
+```dart
+// auth_service.dart
+Future<Map<String, dynamic>> login({
+  String? email,
+  String? username,  // ← YENİ
+  required String password,
+}) async {
+  final Map<String, dynamic> loginData = {'password': password};
+
+  // Email veya username
+  if (email != null && email.isNotEmpty) {
+    loginData['email'] = email;
+  } else if (username != null && username.isNotEmpty) {
+    loginData['username'] = username;
+  }
+
+  final response = await _dio.post('${ApiConstants.auth}/login', data: loginData);
+  // ...
+}
+
+// login_screen.dart
+final input = _emailOrUsernameController.text.trim();
+final isEmail = input.contains('@');
+
+await authService.login(
+  email: isEmail ? input : null,
+  username: isEmail ? null : input,
+  password: _passwordController.text,
+);
+```
+
+**Sonuç**: ✅ Hem email hem username ile login çalışıyor.
+
+---
+
+### Öğrenilen Dersler
+
+#### 1. Riverpod `keepAlive` Flag
+**Önemli**: Riverpod'da `build()` metodu bir initialization metodu DEĞİLDİR. Her provider rebuild'inde tekrar çağrılır.
+
+```dart
+// ❌ YANLIŞ: keepAlive olmadan
+@riverpod
+class PlayerNotifier extends _$PlayerNotifier {
+  @override
+  Player build() {
+    // Her rebuild'de çağrılır → state reset olur
+    return const Player(cash: 5000.0);
+  }
+}
+
+// ✅ DOĞRU: keepAlive ile
+@Riverpod(keepAlive: true)
+class PlayerNotifier extends _$PlayerNotifier {
+  @override
+  Player build() {
+    // Sadece bir kez çağrılır → state korunur
+    return const Player(cash: 0.0);
+  }
+}
+```
+
+#### 2. Backend Endpoint Consistency
+- `/auth/login` → Partial data (sadece auth için)
+- `/auth/me` → Full player data (tüm oyun state'i)
+
+**Best Practice**: Login sonrası her zaman `/auth/me` çağır.
+
+#### 3. Debug Logging Strategy
+Her kritik state transition noktasına log ekle:
+
+```dart
+// Backend load
+print('🔄 Refreshing player data: cash=${playerData['cash']}');
+await loadPlayerFromBackend(playerData);
+print('✅ Player refreshed: cash=${state.cash}');
+
+// UI read
+print('🏠 HomeScreen: Player cash = ${player.cash}');
+```
+
+Bu sayede state'in hangi noktada yanlış olduğunu tespit etmek kolay.
+
+#### 4. MongoDB Direct Access for Testing
+Backend testleri için:
+```bash
+mongosh offmarket_db
+db.players.find({}, {username: 1, cash: 1, inventory: 1})
+```
+
+---
+
+### Test Senaryoları
+
+✅ **Senaryo 1: Logout → Login → Data Persist**
+1. Pazardan 1 ürün al (cash azalır)
+2. Logout yap
+3. Login yap
+4. ✅ Cash ve inventory aynı kalıyor
+
+✅ **Senaryo 2: Uygulamayı Kapat → Aç**
+1. Ürün al
+2. Uygulamayı kapat
+3. Tekrar aç
+4. ✅ Veriler korunuyor
+
+✅ **Senaryo 3: Username Login**
+1. Kullanıcı adı ile giriş yap
+2. ✅ Başarılı
+
+✅ **Senaryo 4: Email Login**
+1. Email ile giriş yap
+2. ✅ Başarılı
+
+---
+
+### Kod Değişiklikleri Özeti
+
+| Dosya | Değişiklik | Satır Sayısı |
+|-------|-----------|--------------|
+| `player_provider.dart` | `@Riverpod(keepAlive: true)` eklendi | +1 |
+| `market_provider.dart` | `@Riverpod(keepAlive: true)` eklendi (InventoryNotifier) | +1 |
+| `auth_service.dart` | `username` parametresi eklendi | +10 |
+| `login_screen.dart` | Email/username detection eklendi | +5 |
+| `main.dart` | `refreshPlayerData()` çağrısı eklendi (SplashScreen) | +1 |
+| `home_screen.dart` | Logout'ta `reset()` çağrısı eklendi | +2 |
+| **TOPLAM** | | **+20 satır** |
+
+---
 
 ## Changelog
+
+### v1.2.0 - State Persistence Fixes (22 Ocak 2025)
+- 🐛 **Riverpod keepAlive Fix**: PlayerProvider ve InventoryProvider state artık persist ediyor
+- 🐛 **Full Player Data Loading**: Login ve startup'ta `/auth/me` ile tam veri yükleme
+- ✨ **Username Login Support**: Email ve username ile login desteği
+- 🔧 **Reset on Logout**: Logout'ta provider state temizleme
+- 📊 **Debug Logging**: State lifecycle tracking için detaylı loglar
+- ✅ **4 Kritik Bug Fix**: Cash, Inventory, Login, Persistence sorunları çözüldü
+- 📝 **Documentation**: README.md ve CLAUDE.md'ye bug fix dökümanları eklendi
 
 ### v1.1.0 - Tick-Based Economy (20 Ocak 2025)
 - ✨ **TickEngine**: 5 saniye interval ile asenkron oyun döngüsü

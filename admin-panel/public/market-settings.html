@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OffMarket Admin - Pazar Ayarları</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .setting-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .setting-card h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .setting-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+
+        .product-price-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-emoji {
+            font-size: 32px;
+        }
+
+        .price-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .control-group input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .supply-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .supply-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .supply-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #f44336);
+            transition: width 0.3s;
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-apply:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+
+        <main class="main-content">
+            <header class="header">
+                <h1>💰 Pazar Ayarları</h1>
+                <div class="header-actions">
+                    <button onclick="loadSettings()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <!-- Global Ayarlar -->
+            <div class="section">
+                <h2>🌍 Global Pazar Ayarları</h2>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <h3>⏱️ Fiyat Güncelleme Sıklığı</h3>
+                        <select id="updateFrequency" class="setting-input">
+                            <option value="6">30 Saniye (6 tick)</option>
+                            <option value="12">1 Dakika (12 tick)</option>
+                            <option value="60">5 Dakika (60 tick)</option>
+                        </select>
+                        <p class="setting-desc">Fiyatların ne sıklıkla güncelleneceğini belirler</p>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>📊 Arz-Talep Etkisi</h3>
+                        <input type="range" id="demandEffect" class="setting-input" min="0" max="30" value="15" step="1">
+                        <p class="setting-desc">Arz-talep dengesinin fiyat üzerindeki etkisi: <span id="demandEffectValue">15</span>%</p>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>🎲 Rastgele Volatilite</h3>
+                        <input type="range" id="randomVolatility" class="setting-input" min="0" max="20" value="10" step="1">
+                        <p class="setting-desc">Rastgele fiyat dalgalanmaları: <span id="randomVolatilityValue">10</span>%</p>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>⬆️ Maksimum Fiyat</h3>
+                        <input type="number" id="maxPriceMultiplier" class="setting-input" value="2.0" step="0.1" min="1">
+                        <p class="setting-desc">Taban fiyatın kaç katına kadar çıkabilir</p>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>⬇️ Minimum Fiyat</h3>
+                        <input type="number" id="minPriceMultiplier" class="setting-input" value="0.5" step="0.1" min="0.1" max="1">
+                        <p class="setting-desc">Taban fiyatın kaç katına kadar düşebilir</p>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>🔄 Otomatik Güncelleme</h3>
+                        <select id="autoUpdate" class="setting-input">
+                            <option value="true">Aktif</option>
+                            <option value="false">Pasif</option>
+                        </select>
+                        <p class="setting-desc">TickEngine otomatik fiyat güncellemesi</p>
+                    </div>
+                </div>
+
+                <button onclick="saveGlobalSettings()" class="btn-apply">💾 Global Ayarları Kaydet</button>
+            </div>
+
+            <!-- Ürün Bazlı Ayarlar -->
+            <div class="section">
+                <h2>📦 Ürün Bazlı Fiyat Ayarları</h2>
+                <div id="productsContainer">
+                    <p>Yükleniyor...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let products = [];
+        let globalSettings = {};
+
+        // Range input değer göstergelerini güncelle
+        document.getElementById('demandEffect').addEventListener('input', (e) => {
+            document.getElementById('demandEffectValue').textContent = e.target.value;
+        });
+
+        document.getElementById('randomVolatility').addEventListener('input', (e) => {
+            document.getElementById('randomVolatilityValue').textContent = e.target.value;
+        });
+
+        async function loadSettings() {
+            try {
+                // Ürünleri yükle
+                const productsResult = await API.call('/market/products');
+                if (productsResult && productsResult.success) {
+                    products = productsResult.data;
+                    renderProducts();
+                }
+
+                // Global ayarları yükle (şimdilik yoksa default değerler)
+                globalSettings = {
+                    updateFrequency: 6,
+                    demandEffect: 15,
+                    randomVolatility: 10,
+                    maxPriceMultiplier: 2.0,
+                    minPriceMultiplier: 0.5,
+                    autoUpdate: true
+                };
+
+            } catch (error) {
+                console.error('Ayarlar yüklenirken hata:', error);
+                alert('Ayarlar yüklenemedi!');
+            }
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p>Hiç ürün bulunamadı.</p>';
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-price-card">
+                    <div class="product-header">
+                        <div class="product-info">
+                            <span class="product-emoji">${product.emoji}</span>
+                            <div>
+                                <h3 style="margin: 0; font-size: 18px;">${product.name}</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">
+                                    ${product.category} | Taban: ₺${product.basePrice.toFixed(2)}
+                                </p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 24px; font-weight: bold; color: #667eea;">
+                                ₺${product.currentPrice.toFixed(2)}
+                            </div>
+                            <div style="font-size: 12px; color: ${getPriceChangeColor(product)};">
+                                ${getPriceChange(product)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="price-controls">
+                        <div class="control-group">
+                            <label>Volatilite</label>
+                            <input type="number"
+                                   id="volatility_${product._id}"
+                                   value="${product.volatility}"
+                                   step="0.01"
+                                   min="0"
+                                   max="1">
+                        </div>
+                        <div class="control-group">
+                            <label>Taban Talep (tick)</label>
+                            <input type="number"
+                                   id="baseDemand_${product._id}"
+                                   value="${product.baseDemand}"
+                                   min="1"
+                                   max="100">
+                        </div>
+                        <div class="control-group">
+                            <label>Mevsimsellik</label>
+                            <select id="seasonality_${product._id}">
+                                <option value="low" ${product.seasonality === 'low' ? 'selected' : ''}>Düşük</option>
+                                <option value="stable" ${product.seasonality === 'stable' ? 'selected' : ''}>Stabil</option>
+                                <option value="high" ${product.seasonality === 'high' ? 'selected' : ''}>Yüksek</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="supply-indicator">
+                        <span style="font-size: 12px; font-weight: 600;">Arz Durumu:</span>
+                        <div class="supply-bar">
+                            <div class="supply-fill" style="width: ${getSupplyPercentage(product)}%"></div>
+                        </div>
+                        <span style="font-size: 12px; color: #666;">
+                            ${getSupplyStatus(product)}
+                        </span>
+                    </div>
+
+                    <button onclick="updateProduct('${product._id}')" class="btn-apply" style="margin-top: 15px; width: 100%;">
+                        💾 Kaydet
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getPriceChange(product) {
+            const change = ((product.currentPrice - product.basePrice) / product.basePrice) * 100;
+            return (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+        }
+
+        function getPriceChangeColor(product) {
+            const change = product.currentPrice - product.basePrice;
+            return change >= 0 ? '#4CAF50' : '#f44336';
+        }
+
+        function getSupplyPercentage(product) {
+            // Basit bir supply göstergesi (gerçek backend'den gelecek)
+            return Math.min((product.baseDemand || 10) * 2, 100);
+        }
+
+        function getSupplyStatus(product) {
+            const pct = getSupplyPercentage(product);
+            if (pct < 30) return 'Çok Düşük ⬆️';
+            if (pct < 60) return 'Normal ↔️';
+            if (pct < 80) return 'Yüksek ⬇️';
+            return 'Aşırı Yüksek ⬇️⬇️';
+        }
+
+        async function updateProduct(productId) {
+            try {
+                const volatility = parseFloat(document.getElementById(`volatility_${productId}`).value);
+                const baseDemand = parseInt(document.getElementById(`baseDemand_${productId}`).value);
+                const seasonality = document.getElementById(`seasonality_${productId}`).value;
+
+                const result = await API.call(`/admin/products/${productId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        volatility,
+                        baseDemand,
+                        seasonality
+                    })
+                });
+
+                if (result && result.success) {
+                    alert('Ürün ayarları güncellendi!');
+                    loadSettings();
+                } else {
+                    alert('Güncelleme başarısız: ' + (result?.message || 'Bilinmeyen hata'));
+                }
+
+            } catch (error) {
+                console.error('Ürün güncellenirken hata:', error);
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        async function saveGlobalSettings() {
+            try {
+                globalSettings = {
+                    updateFrequency: parseInt(document.getElementById('updateFrequency').value),
+                    demandEffect: parseInt(document.getElementById('demandEffect').value),
+                    randomVolatility: parseInt(document.getElementById('randomVolatility').value),
+                    maxPriceMultiplier: parseFloat(document.getElementById('maxPriceMultiplier').value),
+                    minPriceMultiplier: parseFloat(document.getElementById('minPriceMultiplier').value),
+                    autoUpdate: document.getElementById('autoUpdate').value === 'true'
+                };
+
+                // Backend'e kaydet (şimdilik localStorage)
+                localStorage.setItem('marketSettings', JSON.stringify(globalSettings));
+                alert('Global ayarlar kaydedildi!\n\nNOT: Backend entegrasyonu için admin API endpoint\'i eklenecek.');
+
+            } catch (error) {
+                console.error('Global ayarlar kaydedilirken hata:', error);
+                alert('Hata: ' + error.message);
+            }
+        }
+
+        // Sayfa yüklendiğinde
+        window.onload = () => {
+            loadSettings();
+        };
+    </script>
+</body>
+</html>

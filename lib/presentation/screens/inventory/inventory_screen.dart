@@ -16,6 +16,9 @@ class InventoryScreen extends ConsumerWidget {
     final inventory = ref.watch(inventoryNotifierProvider);
     final marketNotifier = ref.watch(marketNotifierProvider.notifier);
 
+    // DEBUG
+    print('📦 InventoryScreen: ${inventory.length} items in inventory');
+
     // Envanter ürünlerini grupla
     final Map<String, List<int>> groupedInventory = {};
     double totalValue = 0.0;

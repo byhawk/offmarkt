@@ -57,9 +57,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!mounted) return;
 
       if (user != null) {
-        // PlayerProvider'a backend'den gelen player verisini yükle
-        ref.read(playerNotifierProvider.notifier)
-            .loadPlayerFromBackend(user);
+        // PlayerProvider'a backend'den tam player verisini yükle
+        await ref.read(playerNotifierProvider.notifier).refreshPlayerData();
 
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(

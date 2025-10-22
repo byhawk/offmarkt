@@ -67,7 +67,12 @@ class TickEngine {
     try {
       logger.info(`⏰ Tick #${this.tickCounter} started`);
 
-      // 1. Zamanı gelen action'ları çek
+      // 1. Her 6 tick'te bir (30 saniye) fiyatları güncelle
+      if (this.tickCounter % 6 === 0) {
+        await this.updateMarketPrices();
+      }
+
+      // 2. Zamanı gelen action'ları çek
       const readyActions = await PendingAction.getReadyActions(100);
 
       if (readyActions.length === 0) {
@@ -77,12 +82,12 @@ class TickEngine {
 
       logger.info(`Tick #${this.tickCounter}: Processing ${readyActions.length} actions`);
 
-      // 2. Her action'ı işle
+      // 3. Her action'ı işle
       const results = await Promise.allSettled(
         readyActions.map(action => this.processAction(action))
       );
 
-      // 3. Sonuçları logla
+      // 4. Sonuçları logla
       const successful = results.filter(r => r.status === 'fulfilled').length;
       const failed = results.filter(r => r.status === 'rejected').length;
 
@@ -317,6 +322,144 @@ class TickEngine {
     return {
       message: 'Restock not implemented yet'
     };
+  }
+
+  /**
+   * Market Fiyatlarını Güncelle (Arz-Talep Dengesi)
+   * Her 30 saniyede bir çalışır
+   */
+  async updateMarketPrices() {
+    try {
+      logger.info('💰 Updating market prices based on supply-demand...');
+
+      // Tüm aktif ürünleri al
+      const products = await Product.find({ isActive: true });
+
+      // Her ürün için oyuncu envanterini kontrol et
+      for (const product of products) {
+        // Tüm oyuncuların bu üründen toplam stoğunu hesapla
+        const players = await Player.find({
+          'inventory.productId': product._id
+        });
+
+        let totalPlayerStock = 0;
+        for (const player of players) {
+          const playerItem = player.inventory.find(
+            item => item.productId.toString() === product._id.toString()
+          );
+          if (playerItem) {
+            totalPlayerStock += playerItem.quantity;
+          }
+        }
+
+        // Tüm dükkanların bu üründen toplam stoğunu hesapla
+        const { ShopInstance } = require('../models/Shop');
+        const shops = await ShopInstance.find({
+          'inventory.productId': product._id
+        });
+
+        let totalShopStock = 0;
+        for (const shop of shops) {
+          const shopItem = shop.inventory.find(
+            item => item.productId.toString() === product._id.toString()
+          );
+          if (shopItem) {
+            totalShopStock += shopItem.quantity;
+          }
+        }
+
+        const totalSupply = totalPlayerStock + totalShopStock;
+
+        // Arz-Talep dengesine göre fiyat değişikliği hesapla
+        const demandFactor = this.calculateDemandFactor(totalSupply, product.baseDemand);
+
+        // Volatility ve demand factor'ü birleştir
+        const baseChange = (Math.random() - 0.5) * 2 * product.volatility;
+        const supplyDemandChange = demandFactor * 0.15; // %15'e kadar arz-talep etkisi
+
+        const totalChange = baseChange + supplyDemandChange;
+        const newPrice = product.currentPrice * (1 + totalChange);
+
+        // Fiyatı basePrice'ın %50 ile %200 arasında tut
+        product.currentPrice = Math.max(
+          product.basePrice * 0.5,
+          Math.min(product.basePrice * 2.0, newPrice)
+        );
+
+        // Trending kontrolü (fiyat son 10 güncellemede sürekli artıyorsa)
+        const recentPrices = product.priceHistory.slice(-10);
+        if (recentPrices.length >= 5) {
+          const isUptrend = recentPrices.every((item, i) =>
+            i === 0 || item.price > recentPrices[i - 1].price
+          );
+          product.trending = isUptrend;
+        }
+
+        // Fiyat geçmişine ekle
+        product.priceHistory.push({
+          price: product.currentPrice,
+          timestamp: new Date()
+        });
+
+        // Son 100 kaydı tut
+        if (product.priceHistory.length > 100) {
+          product.priceHistory.shift();
+        }
+
+        await product.save();
+
+        logger.info(
+          `  ${product.emoji} ${product.name}: ` +
+          `₺${product.currentPrice.toFixed(2)} | ` +
+          `Supply: ${totalSupply} | ` +
+          `Demand Factor: ${demandFactor.toFixed(2)} | ` +
+          `Change: ${(totalChange * 100).toFixed(1)}%`
+        );
+      }
+
+      logger.info(`✅ Updated ${products.length} product prices`);
+
+      // WebSocket ile tüm oyunculara bildir
+      if (this.io) {
+        this.io.emit('market:priceUpdate', {
+          timestamp: new Date(),
+          message: 'Market prices updated'
+        });
+      }
+
+    } catch (error) {
+      logger.error('Market price update error:', error);
+    }
+  }
+
+  /**
+   * Arz-Talep Faktörü Hesapla
+   * @param {number} supply - Toplam arz (oyuncu + dükkan stoğu)
+   * @param {number} baseDemand - Ürünün taban talebi
+   * @returns {number} -1 ile +1 arası faktör
+   *
+   * Yüksek arz (supply >> baseDemand) → Fiyat düşer (negatif faktör)
+   * Düşük arz (supply << baseDemand) → Fiyat yükselir (pozitif faktör)
+   */
+  calculateDemandFactor(supply, baseDemand) {
+    const optimalSupply = baseDemand * 50; // 50 tick'lik stok optimal kabul edilir
+
+    if (supply === 0) {
+      // Hiç stok yok → Fiyat maksimum artar
+      return 1.0;
+    }
+
+    if (supply < optimalSupply * 0.3) {
+      // Çok düşük stok (<%30) → Fiyat yükselir
+      return 0.5 + (1 - supply / (optimalSupply * 0.3)) * 0.5;
+    } else if (supply > optimalSupply * 2) {
+      // Çok yüksek stok (>%200) → Fiyat düşer
+      return -0.5 - Math.min((supply - optimalSupply * 2) / optimalSupply, 0.5);
+    } else {
+      // Normal aralık → Küçük dalgalanmalar
+      const deviation = (supply - optimalSupply) / optimalSupply;
+      return -deviation * 0.3; // ±%30'luk sapma için ±0.09 faktör
+    }
   }
 
   /**

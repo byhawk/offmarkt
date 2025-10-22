@@ -16,14 +16,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _emailOrUsernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _emailOrUsernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -35,15 +35,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authService = AuthService();
-      final loginData = await authService.login(
-        email: _emailController.text.trim(),
+      final input = _emailOrUsernameController.text.trim();
+
+      // Email mi username mi kontrol et
+      final isEmail = input.contains('@');
+
+      await authService.login(
+        email: isEmail ? input : null,
+        username: isEmail ? null : input,
         password: _passwordController.text,
       );
 
-      // PlayerProvider'a backend'den gelen player verisini yükle
+      // Backend'den tam player verisini yükle (/auth/me)
       if (mounted) {
-        ref.read(playerNotifierProvider.notifier)
-            .loadPlayerFromBackend(loginData['player']);
+        await ref.read(playerNotifierProvider.notifier).refreshPlayerData();
       }
 
       if (mounted) {
@@ -207,16 +212,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
+                        controller: _emailOrUsernameController,
+                        keyboardType: TextInputType.text,
                         style: const TextStyle(color: AppColors.textPrimary),
                         decoration: InputDecoration(
-                          labelText: 'Email',
+                          labelText: 'Email veya Kullanıcı Adı',
                           labelStyle: const TextStyle(
                             color: AppColors.textSecondary,
                           ),
                           prefixIcon: const Icon(
-                            Icons.email_outlined,
+                            Icons.person_outline,
                             color: AppColors.primary,
                           ),
                           filled: true,
@@ -239,10 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Email gerekli';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Geçerli bir email girin';
+                            return 'Email veya kullanıcı adı gerekli';
                           }
                           return null;
                         },

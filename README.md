@@ -488,6 +488,120 @@ const cleaned = await BannedWord.cleanText('test metni');
 - SQL Injection Protection
 - Banned Words System
 
+## 🐛 Çözülen Kritik Hatalar
+
+### Tarih: 22 Ocak 2025
+
+#### 1. State Persistence Sorunu - PlayerProvider
+**Problem**:
+- Player cash'i backend'den doğru yükleniyordu (765.98 TL) ama UI'da 5000 TL veya 0 TL görünüyordu
+- Logout/login sonrası veriler kayboluyordu
+
+**Kök Sebep**:
+- Riverpod'un `build()` metodu her widget rebuild'de çağrılıyordu
+- `build()` her seferinde default değerleri (5000 TL) döndürüyordu
+- State update'leri kayboluyordu
+
+**Çözüm**:
+```dart
+@Riverpod(keepAlive: true)  // ← EKLENDI
+class PlayerNotifier extends _$PlayerNotifier {
+  @override
+  Player build() {
+    // Build artık sadece 1 kez çağrılır
+    return const Player(cash: 0.0, ...);
+  }
+}
+```
+
+**Sonuç**: ✅ Player verisi kalıcı, logout/login sonrası korunuyor
+
+#### 2. Inventory Görünmeme Sorunu
+**Problem**:
+- Backend'den inventory yükleniyordu (1 item) ama InventoryScreen'de 0 görünüyordu
+- Pazar'da satışa hazır ürün Inventory'de yoktu
+
+**Kök Sebep**:
+- InventoryProvider'ın `build()` metodu her seferinde boş liste `[]` döndürüyordu
+- State update'leri kayboluyordu
+
+**Çözüm**:
+```dart
+@Riverpod(keepAlive: true)  // ← EKLENDI
+class InventoryNotifier extends _$InventoryNotifier {
+  @override
+  List<InventoryItem> build() {
+    loadInventoryFromBackend();
+    return [];
+  }
+}
+```
+
+**Sonuç**: ✅ Inventory kalıcı, items artık görünüyor
+
+#### 3. Login/Auth Flow Optimizasyonu
+**Problem**:
+- `/auth/login` endpoint'i kısmi player verisi döndürüyordu
+- `name`, `bankAccount`, `debt`, `totalProfit` gibi alanlar eksikti
+
+**Çözüm**:
+- LoginScreen ve SplashScreen'de `refreshPlayerData()` çağrılıyor
+- `/auth/me` endpoint'inden tam player verisi yükleniyor
+```dart
+// LoginScreen
+await authService.login(...);
+await ref.read(playerNotifierProvider.notifier).refreshPlayerData();
+
+// SplashScreen (auto-login)
+await ref.read(playerNotifierProvider.notifier).refreshPlayerData();
+```
+
+**Sonuç**: ✅ Tüm player field'ları doğru yükleniyor
+
+#### 4. Username/Email Login Desteği
+**Problem**:
+- Sadece email ile login çalışıyordu
+- Username ile login deneyince hata veriyordu
+
+**Çözüm**:
+```dart
+// AuthService
+Future<Map<String, dynamic>> login({
+  String? email,
+  String? username,  // ← EKLENDI
+  required String password,
+}) async {
+  final isEmail = input.contains('@');
+  loginData['email'] = isEmail ? input : null;
+  loginData['username'] = isEmail ? null : input;
+}
+```
+
+**Sonuç**: ✅ Hem email hem username ile login çalışıyor
+
+### Teknik Detaylar
+
+**Riverpod `keepAlive` Flag**:
+- Provider'ı dispose olmaktan korur
+- `build()` metodu sadece 1 kez çağrılır
+- State güncellemeleri kalıcı olur
+- Memory leak yok (kontrollü kullanımda)
+
+**Etkilenen Dosyalar**:
+- `lib/presentation/providers/player_provider.dart`
+- `lib/presentation/providers/market_provider.dart` (InventoryNotifier)
+- `lib/presentation/screens/auth/login_screen.dart`
+- `lib/main.dart` (SplashScreen)
+- `lib/services/auth_service.dart`
+
+**Test Edilen Senaryolar**:
+- ✅ Yeni hesap aç → Ürün al → Logout → Login → Veriler korunuyor
+- ✅ Oyunu kapat/aç → Veriler korunuyor
+- ✅ Username ile login → Çalışıyor
+- ✅ Email ile login → Çalışıyor
+- ✅ Inventory items Pazar'da satışa hazır
+- ✅ InventoryScreen'de items görünüyor
+
 ## 📝 Lisans
 
 MIT License

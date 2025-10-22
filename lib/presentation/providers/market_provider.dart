@@ -67,11 +67,11 @@ class MarketNotifier extends _$MarketNotifier {
 }
 
 /// Envanter provider'ı
-@riverpod
+@Riverpod(keepAlive: true)
 class InventoryNotifier extends _$InventoryNotifier {
   @override
   List<InventoryItem> build() {
-    // Backend'den yükle
+    // Build sadece ilk kez çalışır, asıl veri loadInventoryFromBackend'den gelecek
     loadInventoryFromBackend();
     return [];
   }
@@ -86,10 +86,16 @@ class InventoryNotifier extends _$InventoryNotifier {
         final playerData = response.data['data']['player'];
         final inventoryList = playerData['inventory'] as List? ?? [];
 
+        print('📦 Loading inventory from backend: ${inventoryList.length} items');
+
         state = inventoryList.map((item) {
+          final productId = item['productId']?.toString() ?? '';
+          final quantity = item['quantity'] ?? 0;
+          print('  - ProductID: $productId, Quantity: $quantity');
+
           return InventoryItem(
-            productId: item['productId']?.toString() ?? '',
-            quantity: item['quantity'] ?? 0,
+            productId: productId,
+            quantity: quantity,
             purchasePrice: (item['purchasePrice'] ?? 0).toDouble(),
             source: item['source'] ?? 'market',
             purchaseDate: item['purchaseDate'] != null
@@ -97,9 +103,11 @@ class InventoryNotifier extends _$InventoryNotifier {
                 : DateTime.now(),
           );
         }).toList();
+
+        print('✅ Inventory loaded: ${state.length} items in state');
       }
     } catch (e) {
-      print('Error loading inventory: $e');
+      print('❌ Error loading inventory: $e');
     }
   }
 

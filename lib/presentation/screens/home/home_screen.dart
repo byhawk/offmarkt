@@ -22,6 +22,9 @@ class HomeScreen extends ConsumerWidget {
     final player = ref.watch(playerNotifierProvider);
     final products = ref.watch(marketNotifierProvider);
 
+    // DEBUG: Player cash'i logla
+    print('🏠 HomeScreen: Player cash = ${player.cash}');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('OffMarket'),
@@ -29,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Çıkış Yap',
-            onPressed: () => _logout(context),
+            onPressed: () => _logout(context, ref),
           ),
         ],
       ),
@@ -333,7 +336,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _logout(BuildContext context) async {
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -356,6 +359,10 @@ class HomeScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      // PlayerProvider'ı resetle
+      ref.read(playerNotifierProvider.notifier).reset();
+
+      // Auth token'ları temizle
       final authService = AuthService();
       await authService.logout();
 

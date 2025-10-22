@@ -7,16 +7,16 @@ import '../../services/api_service.dart';
 
 part 'player_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PlayerNotifier extends _$PlayerNotifier {
   @override
   Player build() {
-    // Başlangıç player state'i
+    // Build sadece ilk kez çalışır (keepAlive: true sayesinde)
     return const Player(
-      name: 'Oyuncu',
+      name: 'Yükleniyor...',
       level: 1,
       experience: 0,
-      cash: 5000.0,
+      cash: 0.0,
       bankAccount: 0.0,
       debt: 0.0,
       legalReputation: 50,
@@ -48,6 +48,7 @@ class PlayerNotifier extends _$PlayerNotifier {
         totalProfit: (playerData['totalProfit'] ?? 0.0).toDouble(),
         portfolioValue: (playerData['portfolioValue'] ?? 0.0).toDouble(),
       );
+      print('💾 Player data loaded: cash=${state.cash}');
     } catch (e) {
       print('Error loading player data: $e');
     }
@@ -68,6 +69,25 @@ class PlayerNotifier extends _$PlayerNotifier {
     } catch (e) {
       print('❌ Error refreshing player data: $e');
     }
+  }
+
+  /// Player state'ini resetle (logout için)
+  void reset() {
+    state = const Player(
+      name: 'Oyuncu',
+      level: 1,
+      experience: 0,
+      cash: 0.0,
+      bankAccount: 0.0,
+      debt: 0.0,
+      legalReputation: 50,
+      streetReputation: 50,
+      riskLevel: 0,
+      suspicionLevel: 0,
+      currentDay: 1,
+      totalTransactions: 0,
+      totalProfit: 0.0,
+    );
   }
 
   /// Nakit güncelle

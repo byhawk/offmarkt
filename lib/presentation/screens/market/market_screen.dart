@@ -93,21 +93,8 @@ class MarketScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Fiyatları güncelle
-          ref.read(marketNotifierProvider.notifier).updatePrices();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('📊 Pazar fiyatları güncellendi!'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        },
-        icon: const Icon(Icons.refresh),
-        label: const Text('Fiyatları Güncelle'),
-        backgroundColor: AppColors.primary,
-      ),
+      // Fiyatlar artık otomatik güncelleniyor (TickEngine ile)
+      // FloatingActionButton kaldırıldı
     );
   }
 
