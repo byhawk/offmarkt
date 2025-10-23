@@ -9,6 +9,7 @@ const { ShopType, ShopInstance } = require('../models/Shop');
 const Event = require('../models/Event');
 const Transaction = require('../models/Transaction');
 const BannedWord = require('../models/BannedWord');
+const MarketSettings = require('../models/MarketSettings');
 const { body, validationResult } = require('express-validator');
 
 // @route   POST /api/admin/login
@@ -1385,6 +1386,51 @@ router.get('/shops/player-instances', protectAdmin, checkPermission('manage_shop
         pages: Math.ceil(total / parseInt(limit))
       }
     }
+  });
+}));
+
+// ============================================
+// MARKET SETTINGS ENDPOINTS
+// ============================================
+
+// @route   GET /api/admin/market-settings
+// @desc    Pazar ayarlarını getir
+// @access  Admin (manage_products)
+router.get('/market-settings', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const settings = await MarketSettings.getSingleton();
+
+  res.json({
+    success: true,
+    data: { settings }
+  });
+}));
+
+// @route   PUT /api/admin/market-settings
+// @desc    Pazar ayarlarını güncelle
+// @access  Admin (manage_products)
+router.put('/market-settings', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const {
+    updateFrequency,
+    demandEffect,
+    randomVolatility,
+    maxPriceMultiplier,
+    minPriceMultiplier,
+    autoUpdate
+  } = req.body;
+
+  const settings = await MarketSettings.updateSettings({
+    updateFrequency,
+    demandEffect,
+    randomVolatility,
+    maxPriceMultiplier,
+    minPriceMultiplier,
+    autoUpdate
+  }, req.admin._id);
+
+  res.json({
+    success: true,
+    message: 'Pazar ayarları güncellendi',
+    data: { settings }
   });
 }));
 

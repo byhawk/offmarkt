@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/product.dart';
 import '../../services/api_service.dart';
@@ -6,11 +7,31 @@ part 'market_provider.g.dart';
 
 @riverpod
 class MarketNotifier extends _$MarketNotifier {
+  Timer? _autoRefreshTimer;
+
   @override
   List<Product> build() {
     // Backend'den ürünleri yükle
     loadProducts();
+
+    // Otomatik refresh başlat (30 saniye)
+    _startAutoRefresh();
+
+    // Provider dispose olduğunda timer'ı temizle
+    ref.onDispose(() {
+      _autoRefreshTimer?.cancel();
+    });
+
     return [];
+  }
+
+  /// Otomatik refresh başlat (30 saniyede bir)
+  void _startAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => loadProducts(),
+    );
   }
 
   /// Backend'den ürünleri yükle
@@ -38,22 +59,6 @@ class MarketNotifier extends _$MarketNotifier {
       // Hata durumunda boş liste
       state = [];
     }
-  }
-
-  /// Fiyatları güncelle (pazar dinamiği)
-  void updatePrices() {
-    state = state.map((product) {
-      // Basit fiyat değişimi simülasyonu
-      final priceChange = (product.volatility * 0.1) - 0.05;
-      final newPrice = product.currentPrice * (1 + priceChange);
-
-      return product.copyWith(
-        currentPrice: newPrice.clamp(
-          product.basePrice * 0.5,
-          product.basePrice * 2.0,
-        ),
-      );
-    }).toList();
   }
 
   /// Ürün ID'sine göre bul

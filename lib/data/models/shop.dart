@@ -140,7 +140,7 @@ class ShopType with _$ShopType {
 @freezed
 class ShopInstance with _$ShopInstance {
   const factory ShopInstance({
-    required String id,
+    @JsonKey(name: '_id') required String id,
     required String shopType, // bağlı olduğu type kodu
     ShopType? shopTypeData, // populate edildiğinde gelir
     required String ownerId,

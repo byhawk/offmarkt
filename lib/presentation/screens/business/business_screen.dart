@@ -6,28 +6,37 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/research_development.dart';
+import '../../../data/models/shop.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 import '../../widgets/common/stat_card.dart';
 
-class BusinessScreen extends ConsumerWidget {
+class BusinessScreen extends ConsumerStatefulWidget {
   const BusinessScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final shopsNotifier = ref.watch(shopsNotifierProvider.notifier);
-    final playerShops = shopsNotifier.getPlayerShops('player_1');
+  ConsumerState<BusinessScreen> createState() => _BusinessScreenState();
+}
+
+class _BusinessScreenState extends ConsumerState<BusinessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load player's owned shops when screen opens
+    Future.microtask(() {
+      ref.read(playerShopsNotifierProvider.notifier).loadPlayerShops();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final playerShops = ref.watch(playerShopsNotifierProvider);
 
     // İşletme istatistikleri
     final totalRevenue = playerShops.fold<double>(
       0,
       (sum, shop) => sum + shop.monthlyRevenue,
     );
-    final totalRent = playerShops.fold<double>(
-      0,
-      (sum, shop) => sum + shop.monthlyRent,
-    );
-    final netProfit = totalRevenue - totalRent;
     final totalCustomers = playerShops.fold<int>(
       0,
       (sum, shop) => sum + shop.monthlyCustomers,
@@ -71,27 +80,9 @@ class BusinessScreen extends ConsumerWidget {
 
                   StatCard(
                     emoji: '💰',
-                    label: 'Aylık Gelir',
+                    label: 'Toplam Gelir',
                     value: Formatters.formatCurrency(totalRevenue),
                     gradientColors: AppColors.successGradient,
-                  ),
-                  const Gap(AppSpacing.md),
-
-                  StatCard(
-                    emoji: '🏠',
-                    label: 'Aylık Kira',
-                    value: Formatters.formatCurrency(totalRent),
-                    gradientColors: AppColors.dangerGradient,
-                  ),
-                  const Gap(AppSpacing.md),
-
-                  StatCard(
-                    emoji: '📊',
-                    label: 'Net Kar',
-                    value: Formatters.formatCurrency(netProfit),
-                    gradientColors: netProfit >= 0
-                        ? AppColors.successGradient
-                        : AppColors.dangerGradient,
                   ),
                   const Gap(AppSpacing.xl),
 
@@ -149,48 +140,50 @@ class _EmptyBusinessView extends StatelessWidget {
 }
 
 class _BusinessCard extends StatelessWidget {
-  final dynamic shop;
+  final ShopInstance shop;
 
   const _BusinessCard({required this.shop});
 
-  String _getLocationIcon(String locationType) {
-    switch (locationType) {
-      case 'street':
-        return '🏪';
-      case 'mall':
-        return '🏬';
-      case 'market':
+  String _getShopIcon(String shopType) {
+    switch (shopType) {
+      case 'supermarket':
         return '🛒';
-      case 'office':
-        return '🏢';
-      case 'warehouse':
-        return '🏭';
+      case 'flower_shop':
+        return '🌸';
+      case 'clothing_store':
+        return '👕';
+      case 'electronics':
+        return '📱';
+      case 'food_shop':
+        return '🍔';
+      case 'general':
+        return '🏪';
       default:
-        return '🏠';
+        return '🏢';
     }
   }
 
-  String _getCategoryName(String? category) {
-    if (category == null) return 'Genel';
-    switch (category) {
+  String _getShopTypeName(String shopType) {
+    switch (shopType) {
+      case 'supermarket':
+        return 'Süpermarket';
+      case 'flower_shop':
+        return 'Çiçekçi';
+      case 'clothing_store':
+        return 'Giyim Mağazası';
       case 'electronics':
         return 'Elektronik';
-      case 'clothing':
-        return 'Giyim';
-      case 'food':
-        return 'Gıda';
-      case 'jewelry':
-        return 'Mücevher';
+      case 'food_shop':
+        return 'Yiyecek Dükkanı';
+      case 'general':
+        return 'Genel Mağaza';
       default:
-        return 'Genel';
+        return 'Dükkan';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final profitMargin = shop.monthlyRent > 0
-        ? ((shop.monthlyRevenue - shop.monthlyRent) / shop.monthlyRent) * 100
-        : 0.0;
 
     return GradientCard(
       gradientColors: shop.isActive
@@ -204,7 +197,7 @@ class _BusinessCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                _getLocationIcon(shop.locationType),
+                _getShopIcon(shop.shopType),
                 style: const TextStyle(fontSize: 36),
               ),
               const Gap(AppSpacing.sm),
@@ -212,10 +205,14 @@ class _BusinessCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(shop.name, style: AppTextStyles.h4),
+                    Text(shop.customName, style: AppTextStyles.h4),
                     Text(
-                      _getCategoryName(shop.businessCategory),
+                      _getShopTypeName(shop.shopType),
                       style: AppTextStyles.caption,
+                    ),
+                    Text(
+                      '${shop.city}, ${shop.country}',
+                      style: AppTextStyles.caption.copyWith(fontSize: 11),
                     ),
                   ],
                 ),
@@ -257,33 +254,15 @@ class _BusinessCard extends StatelessWidget {
                 ),
                 const Gap(AppSpacing.xs),
                 _StatRow(
-                  label: 'Aylık Kira',
-                  value: Formatters.formatCurrency(shop.monthlyRent),
-                  valueColor: AppColors.danger,
-                ),
-                const Gap(AppSpacing.xs),
-                const Divider(color: Colors.white24, height: 1),
-                const Gap(AppSpacing.xs),
-                _StatRow(
-                  label: 'Net Kar',
-                  value: Formatters.formatCurrency(
-                    shop.monthlyRevenue - shop.monthlyRent,
-                  ),
-                  valueColor: (shop.monthlyRevenue - shop.monthlyRent) >= 0
-                      ? Colors.green
-                      : Colors.red,
-                ),
-                const Gap(AppSpacing.xs),
-                _StatRow(
-                  label: 'Kar Marjı',
-                  value: '${profitMargin.toStringAsFixed(1)}%',
-                  valueColor: profitMargin >= 0 ? Colors.green : Colors.red,
-                ),
-                const Gap(AppSpacing.xs),
-                _StatRow(
                   label: 'Müşteri Sayısı',
                   value: '${shop.monthlyCustomers}',
                   valueColor: Colors.white,
+                ),
+                const Gap(AppSpacing.xs),
+                _StatRow(
+                  label: 'Satılan Ürün',
+                  value: '${shop.listedProducts.length}',
+                  valueColor: Colors.white70,
                 ),
               ],
             ),

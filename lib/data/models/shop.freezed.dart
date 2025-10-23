@@ -2433,6 +2433,7 @@ ShopInstance _$ShopInstanceFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ShopInstance {
+  @JsonKey(name: '_id')
   String get id => throw _privateConstructorUsedError;
   String get shopType =>
       throw _privateConstructorUsedError; // bağlı olduğu type kodu
@@ -2470,7 +2471,7 @@ abstract class $ShopInstanceCopyWith<$Res> {
   ) = _$ShopInstanceCopyWithImpl<$Res, ShopInstance>;
   @useResult
   $Res call({
-    String id,
+    @JsonKey(name: '_id') String id,
     String shopType,
     ShopType? shopTypeData,
     String ownerId,
@@ -2618,7 +2619,7 @@ abstract class _$$ShopInstanceImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String id,
+    @JsonKey(name: '_id') String id,
     String shopType,
     ShopType? shopTypeData,
     String ownerId,
@@ -2730,7 +2731,7 @@ class __$$ShopInstanceImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ShopInstanceImpl implements _ShopInstance {
   const _$ShopInstanceImpl({
-    required this.id,
+    @JsonKey(name: '_id') required this.id,
     required this.shopType,
     this.shopTypeData,
     required this.ownerId,
@@ -2749,6 +2750,7 @@ class _$ShopInstanceImpl implements _ShopInstance {
       _$$ShopInstanceImplFromJson(json);
 
   @override
+  @JsonKey(name: '_id')
   final String id;
   @override
   final String shopType;
@@ -2862,7 +2864,7 @@ class _$ShopInstanceImpl implements _ShopInstance {
 
 abstract class _ShopInstance implements ShopInstance {
   const factory _ShopInstance({
-    required final String id,
+    @JsonKey(name: '_id') required final String id,
     required final String shopType,
     final ShopType? shopTypeData,
     required final String ownerId,
@@ -2881,6 +2883,7 @@ abstract class _ShopInstance implements ShopInstance {
       _$ShopInstanceImpl.fromJson;
 
   @override
+  @JsonKey(name: '_id')
   String get id;
   @override
   String get shopType; // bağlı olduğu type kodu

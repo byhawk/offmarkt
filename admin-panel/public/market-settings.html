@@ -154,12 +154,9 @@
                 <div class="settings-grid">
                     <div class="setting-card">
                         <h3>⏱️ Fiyat Güncelleme Sıklığı</h3>
-                        <select id="updateFrequency" class="setting-input">
-                            <option value="6">30 Saniye (6 tick)</option>
-                            <option value="12">1 Dakika (12 tick)</option>
-                            <option value="60">5 Dakika (60 tick)</option>
-                        </select>
-                        <p class="setting-desc">Fiyatların ne sıklıkla güncelleneceğini belirler</p>
+                        <input type="number" id="updateFrequency" class="setting-input" value="6" min="1" max="120" step="1">
+                        <p class="setting-desc">Kaç tick'te bir güncellenecek (1 tick = 5 saniye)<br>
+                        Örnek: 6 = 30s, 12 = 1dk, 60 = 5dk, 120 = 10dk</p>
                     </div>
 
                     <div class="setting-card">
@@ -227,22 +224,30 @@
 
         async function loadSettings() {
             try {
-                // Ürünleri yükle
-                const productsResult = await API.call('/market/products');
+                // Ürünleri yükle (admin endpoint)
+                const productsResult = await API.call('/products');
                 if (productsResult && productsResult.success) {
-                    products = productsResult.data;
+                    products = productsResult.data.products || productsResult.data;
                     renderProducts();
                 }
 
-                // Global ayarları yükle (şimdilik yoksa default değerler)
-                globalSettings = {
-                    updateFrequency: 6,
-                    demandEffect: 15,
-                    randomVolatility: 10,
-                    maxPriceMultiplier: 2.0,
-                    minPriceMultiplier: 0.5,
-                    autoUpdate: true
-                };
+                // Global ayarları yükle (backend'den)
+                const settingsResult = await API.get('/market-settings');
+                if (settingsResult && settingsResult.success) {
+                    globalSettings = settingsResult.data.settings;
+
+                    // Form alanlarını doldur
+                    document.getElementById('updateFrequency').value = globalSettings.updateFrequency || 6;
+                    document.getElementById('demandEffect').value = globalSettings.demandEffect || 15;
+                    document.getElementById('randomVolatility').value = globalSettings.randomVolatility || 10;
+                    document.getElementById('maxPriceMultiplier').value = globalSettings.maxPriceMultiplier || 2.0;
+                    document.getElementById('minPriceMultiplier').value = globalSettings.minPriceMultiplier || 0.5;
+                    document.getElementById('autoUpdate').value = globalSettings.autoUpdate ? 'true' : 'false';
+
+                    // Slider değerlerini güncelle
+                    document.getElementById('demandEffectValue').textContent = globalSettings.demandEffect || 15;
+                    document.getElementById('randomVolatilityValue').textContent = globalSettings.randomVolatility || 10;
+                }
 
             } catch (error) {
                 console.error('Ayarlar yüklenirken hata:', error);
@@ -354,13 +359,10 @@
                 const baseDemand = parseInt(document.getElementById(`baseDemand_${productId}`).value);
                 const seasonality = document.getElementById(`seasonality_${productId}`).value;
 
-                const result = await API.call(`/admin/products/${productId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({
-                        volatility,
-                        baseDemand,
-                        seasonality
-                    })
+                const result = await API.put(`/products/${productId}`, {
+                    volatility,
+                    baseDemand,
+                    seasonality
                 });
 
                 if (result && result.success) {
@@ -378,7 +380,7 @@
 
         async function saveGlobalSettings() {
             try {
-                globalSettings = {
+                const settingsData = {
                     updateFrequency: parseInt(document.getElementById('updateFrequency').value),
                     demandEffect: parseInt(document.getElementById('demandEffect').value),
                     randomVolatility: parseInt(document.getElementById('randomVolatility').value),
@@ -387,13 +389,19 @@
                     autoUpdate: document.getElementById('autoUpdate').value === 'true'
                 };
 
-                // Backend'e kaydet (şimdilik localStorage)
-                localStorage.setItem('marketSettings', JSON.stringify(globalSettings));
-                alert('Global ayarlar kaydedildi!\n\nNOT: Backend entegrasyonu için admin API endpoint\'i eklenecek.');
+                // Backend'e kaydet
+                const result = await API.put('/market-settings', settingsData);
+
+                if (result && result.success) {
+                    globalSettings = result.data.settings;
+                    alert('✅ Global ayarlar başarıyla kaydedildi!\n\nDikkat: TickEngine bir sonraki güncellemede bu ayarları kullanacak.');
+                } else {
+                    alert('❌ Kaydetme başarısız: ' + (result?.message || 'Bilinmeyen hata'));
+                }
 
             } catch (error) {
                 console.error('Global ayarlar kaydedilirken hata:', error);
-                alert('Hata: ' + error.message);
+                alert('❌ Hata: ' + error.message);
             }
         }
 

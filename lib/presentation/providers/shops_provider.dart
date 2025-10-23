@@ -59,26 +59,27 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
     String? customName,
   }) async {
     try {
-      print('🛒 Attempting to rent shop: $shopId with category: $businessCategory');
+      print('🛒 Attempting to purchase shop: $shopId with category: $businessCategory');
       final response = await apiService.post(
-        '/shop/rent',
+        '/shop/purchase',
         data: {
-          'shopId': shopId,
-          'businessCategory': businessCategory,
+          'shopTypeId': shopId,
+          'city': 'İstanbul',
+          'country': 'Türkiye',
           'customName': customName,
         },
       );
 
-      print('📍 Rent response: ${response.data}');
+      print('📍 Purchase response: ${response.data}');
       if (response.data['success']) {
         await loadPlayerShops();
         return true;
       } else {
-        print('❌ Rent failed: ${response.data['message']}');
+        print('❌ Purchase failed: ${response.data['message']}');
         return false;
       }
     } catch (error) {
-      print('❌ Error renting shop: $error');
+      print('❌ Error purchasing shop: $error');
       return false;
     }
   }

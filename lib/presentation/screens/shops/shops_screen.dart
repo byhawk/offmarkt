@@ -166,12 +166,39 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
     WidgetRef ref,
     ShopType shopType,
   ) async {
+    // İş kategorisi seç
+    final businessCategory = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('İş Kategorisi Seçin'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Legal (Yasal)'),
+              onTap: () => Navigator.pop(context, 'legal'),
+            ),
+            ListTile(
+              title: const Text('Grey Market (Gri Pazar)'),
+              onTap: () => Navigator.pop(context, 'grey_market'),
+            ),
+            ListTile(
+              title: const Text('Black Market (Kaçak)'),
+              onTap: () => Navigator.pop(context, 'black_market'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (businessCategory == null || !context.mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${shopType.displayName} Satın Al?'),
+        title: Text('${shopType.displayName} Kirala?'),
         content: Text(
-          'Bu dükkanı ${Formatters.formatCurrency(shopType.purchasePrice)} karşılığında satın almak istiyor musunuz?',
+          'Bu dükkanı ${Formatters.formatCurrency(shopType.purchasePrice)} karşılığında kiralamak istiyor musunuz?',
         ),
         actions: [
           TextButton(
@@ -183,7 +210,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.success,
             ),
-            child: const Text('Satın Al'),
+            child: const Text('Kirala'),
           ),
         ],
       ),
@@ -196,9 +223,8 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
       final playerNotifier = ref.read(playerNotifierProvider.notifier);
 
       final success = await playerShopsNotifier.purchaseShop(
-        shopTypeId: shopType.id,
-        country: 'Türkiye',
-        city: 'İstanbul',
+        shopId: shopType.id,
+        businessCategory: businessCategory,
         customName: null,
       );
 
