@@ -332,6 +332,10 @@ class TickEngine {
     try {
       logger.info('💰 Updating market prices based on supply-demand...');
 
+      // Market settings'i al
+      const MarketSettings = require('../models/MarketSettings');
+      const settings = await MarketSettings.getSingleton();
+
       // Tüm aktif ürünleri al
       const products = await Product.find({ isActive: true });
 
@@ -373,27 +377,39 @@ class TickEngine {
         // Arz-Talep dengesine göre fiyat değişikliği hesapla
         const demandFactor = this.calculateDemandFactor(totalSupply, product.baseDemand);
 
-        // Volatility ve demand factor'ü birleştir
-        const baseChange = (Math.random() - 0.5) * 2 * product.volatility;
-        const supplyDemandChange = demandFactor * 0.15; // %15'e kadar arz-talep etkisi
+        // Rastgele volatilite (market settings'den)
+        const randomVolatility = settings.randomVolatility / 100; // 10 -> 0.10
+        const baseChange = (Math.random() - 0.5) * 2 * randomVolatility;
+
+        // Arz-talep etkisi (market settings'den)
+        const demandEffect = settings.demandEffect / 100; // 15 -> 0.15
+        const supplyDemandChange = demandFactor * demandEffect;
 
         const totalChange = baseChange + supplyDemandChange;
-        const newPrice = product.currentPrice * (1 + totalChange);
+        let newPrice = product.currentPrice * (1 + totalChange);
 
-        // Fiyatı basePrice'ın %50 ile %200 arasında tut
-        product.currentPrice = Math.max(
-          product.basePrice * 0.5,
-          Math.min(product.basePrice * 2.0, newPrice)
-        );
-
-        // Trending kontrolü (fiyat son 10 güncellemede sürekli artıyorsa)
+        // Trending durumunda fiyat düşürme mekanizması
         const recentPrices = product.priceHistory.slice(-10);
         if (recentPrices.length >= 5) {
           const isUptrend = recentPrices.every((item, i) =>
             i === 0 || item.price > recentPrices[i - 1].price
           );
+
+          // Eğer trending ve fiyat taban fiyatın %150'sini geçtiyse, düşüş uygula
+          if (isUptrend && product.currentPrice > product.basePrice * 1.5) {
+            const correctionFactor = -0.02; // %2 düzeltme
+            newPrice = product.currentPrice * (1 + correctionFactor);
+            logger.info(`  🔽 ${product.name}: Correction applied (overpriced)`);
+          }
+
           product.trending = isUptrend;
         }
+
+        // Fiyatı market settings limitlerinde tut
+        product.currentPrice = Math.max(
+          product.basePrice * settings.minPriceMultiplier,
+          Math.min(product.basePrice * settings.maxPriceMultiplier, newPrice)
+        );
 
         // Fiyat geçmişine ekle
         product.priceHistory.push({
@@ -440,25 +456,27 @@ class TickEngine {
    *
    * Yüksek arz (supply >> baseDemand) → Fiyat düşer (negatif faktör)
    * Düşük arz (supply << baseDemand) → Fiyat yükselir (pozitif faktör)
+   * Sıfır stok → Rastgele dalgalanma (arz-talep etkisi yok)
    */
   calculateDemandFactor(supply, baseDemand) {
     const optimalSupply = baseDemand * 50; // 50 tick'lik stok optimal kabul edilir
 
+    // Hiç stok yoksa arz-talep etkisi yok, sadece rastgele dalgalanma
     if (supply === 0) {
-      // Hiç stok yok → Fiyat maksimum artar
-      return 1.0;
+      return (Math.random() - 0.5) * 0.3; // -0.15 ile +0.15 arası küçük dalgalanma
     }
 
     if (supply < optimalSupply * 0.3) {
-      // Çok düşük stok (<%30) → Fiyat yükselir
-      return 0.5 + (1 - supply / (optimalSupply * 0.3)) * 0.5;
+      // Çok düşük stok (<%30) → Fiyat yükselir (ama daha az agresif)
+      return 0.3 + (1 - supply / (optimalSupply * 0.3)) * 0.4;
     } else if (supply > optimalSupply * 2) {
       // Çok yüksek stok (>%200) → Fiyat düşer
-      return -0.5 - Math.min((supply - optimalSupply * 2) / optimalSupply, 0.5);
+      const excessRatio = (supply - optimalSupply * 2) / optimalSupply;
+      return -0.3 - Math.min(excessRatio * 0.3, 0.7); // Maks -1.0
     } else {
-      // Normal aralık → Küçük dalgalanmalar
+      // Normal aralık → Daha dengeli dalgalanmalar
       const deviation = (supply - optimalSupply) / optimalSupply;
-      return -deviation * 0.3; // ±%30'luk sapma için ±0.09 faktör
+      return -deviation * 0.5; // ±%50'lik sapma için ±0.25 faktör
     }
   }
 
