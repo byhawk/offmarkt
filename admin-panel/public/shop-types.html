@@ -163,17 +163,20 @@
         async function loadShopTypes() {
             try {
                 const result = await API.call('/shop-types');
-                if (result.success) {
+                console.log('Shop types result:', result);
+                if (result && result.success) {
                     allShopTypes = result.data.shopTypes || [];
                     const summary = result.data.summary || {};
                     updateStats(summary);
                     displayShopTypes(allShopTypes);
                 } else {
-                    showNotification('Shop types yüklenemedi: ' + result.message, 'error');
+                    const errorMsg = result ? (result.message || 'Bilinmeyen hata') : 'API isteği başarısız (null response)';
+                    console.error('Shop types error:', errorMsg);
+                    showNotification('Endpoint Hatası: ' + errorMsg, 'error');
                 }
             } catch (error) {
-                console.error('Shop types load error:', error);
-                showNotification('Shop types yükleme hatası', 'error');
+                console.error('Shop types load exception:', error);
+                showNotification('JavaScript Hatası: ' + error.message, 'error');
             }
         }
 
@@ -276,7 +279,7 @@
             if (!confirm('Bu dükkan çeşidini devre dışı bırakmak istediğinize emin misiniz?')) return;
 
             try {
-                const result = await API.call(`/shop-types/${id}/deactivate`, 'PATCH');
+                const result = await API.call(`/shop-types/${id}/deactivate`, { method: 'PATCH' });
                 if (result.success) {
                     showNotification('Dükkan çeşidi devre dışı bırakıldı', 'success');
                     loadShopTypes();
@@ -291,7 +294,7 @@
 
         async function activateShopType(id) {
             try {
-                const result = await API.call(`/shop-types/${id}/activate`, 'PATCH');
+                const result = await API.call(`/shop-types/${id}/activate`, { method: 'PATCH' });
                 if (result.success) {
                     showNotification('Dükkan çeşidi aktifleştirildi', 'success');
                     loadShopTypes();
@@ -333,10 +336,10 @@
             try {
                 let result;
                 if (editingTypeId) {
-                    result = await API.call(`/shop-types/${editingTypeId}`, 'PUT', data);
+                    result = await API.put(`/shop-types/${editingTypeId}`, data);
                     if (result.success) showNotification('Dükkan çeşidi güncellendi', 'success');
                 } else {
-                    result = await API.call('/shop-types', 'POST', data);
+                    result = await API.post('/shop-types', data);
                     if (result.success) showNotification('Dükkan çeşidi eklendi', 'success');
                 }
 
