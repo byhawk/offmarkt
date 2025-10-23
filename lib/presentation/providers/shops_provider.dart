@@ -39,59 +39,64 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
 
   Future<void> loadPlayerShops() async {
     try {
-      final response = await apiService.get('/player/shops');
+      final response = await apiService.get('/shop/owned');
+      print('📍 loadPlayerShops response: ${response.data}');
       if (response.data['success']) {
-        state = (response.data['data']['shops'] as List)
+        final shopsList = response.data['data']['shops'] as List;
+        print('📦 Found ${shopsList.length} owned shops');
+        state = shopsList
             .map((json) => ShopInstance.fromJson(json))
             .toList();
       }
     } catch (error) {
-      print('Error loading player shops: $error');
+      print('❌ Error loading player shops: $error');
     }
   }
 
   Future<bool> purchaseShop({
-    required String shopTypeId,
-    required String country,
-    required String city,
+    required String shopId,
+    required String businessCategory,
     String? customName,
   }) async {
     try {
+      print('🛒 Attempting to rent shop: $shopId with category: $businessCategory');
       final response = await apiService.post(
-        '/shop/purchase',
+        '/shop/rent',
         data: {
-          'shopTypeId': shopTypeId,
-          'country': country,
-          'city': city,
+          'shopId': shopId,
+          'businessCategory': businessCategory,
           'customName': customName,
         },
       );
 
+      print('📍 Rent response: ${response.data}');
       if (response.data['success']) {
         await loadPlayerShops();
         return true;
       } else {
-        print('Purchase failed: ${response.data['message']}');
+        print('❌ Rent failed: ${response.data['message']}');
         return false;
       }
     } catch (error) {
-      print('Error purchasing shop: $error');
+      print('❌ Error renting shop: $error');
       return false;
     }
   }
 
   Future<bool> sellShop(String shopId) async {
     try {
-      final response = await apiService.delete('/player/shops/$shopId');
+      print('🏚️ Attempting to leave shop: $shopId');
+      final response = await apiService.post('/shop/leave', data: {'shopId': shopId});
+      print('📍 Leave response: ${response.data}');
       if (response.data['success']) {
         await loadPlayerShops();
         return true;
       } else {
-        print('Sell failed: ${response.data['message']}');
+        print('❌ Leave failed: ${response.data['message']}');
         return false;
       }
     } catch (error) {
-      print('Error selling shop: $error');
+      print('❌ Error leaving shop: $error');
       return false;
     }
   }
