@@ -204,8 +204,10 @@ router.delete('/:id/leave', protect, asyncHandler(async (req, res) => {
 // @desc    Sahip olunan dükkanlar
 // @access  Private
 router.get('/owned', protect, asyncHandler(async (req, res) => {
-  const shops = await Shop.getPlayerShops(req.user._id);
-  
+  // YENİ SİSTEM: ShopInstance collection'ından al
+  const shops = await ShopInstance.find({ ownerId: req.user._id, isActive: true })
+    .sort({ purchasedAt: -1 });
+
   res.json({
     success: true,
     data: { shops }
