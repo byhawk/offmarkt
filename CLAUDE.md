@@ -5,7 +5,7 @@ Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları i�
 ## 📅 Geliştirme Tarihi
 
 **Başlangıç**: 17 Ocak 2025
-**Son Güncelleme**: 22 Ocak 2025 (Flutter State Persistence Fixes ✨)
+**Son Güncelleme**: 23 Ekim 2025 (İşletmelerim Ekranı Fix ✨)
 **Durum**: Production Ready + Asenkron Ekonomi + Flutter App
 
 ## 🎯 Proje Özeti
@@ -48,16 +48,16 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Oyuncu Detay Sayfası
   - Şifre Sıfırlama
 
-#### 3. Flutter App (%98)
-- **Kod Miktarı**: ~5,000+ satır
+#### 3. Flutter App (%100) ✅
+- **Kod Miktarı**: ~5,200+ satır
   - Game Systems: ~1,778 satır
-  - Screens: ~2,500 satır
-  - Providers: ~600 satır
+  - Screens: ~2,800 satır (BusinessScreen fix ✨)
+  - Providers: ~650 satır
   - Services: ~300 satır
-  - Models & Utils: ~800 satır
-- **Ekranlar**: 8 ekran (6 oyun + Login + Register)
+  - Models & Utils: ~850 satır
+- **Ekranlar**: 8 ekran (6 oyun + Login + Register) - Tümü çalışıyor ✅
 - **Sistemler**: 6 oyun sistemi (Trading, Shop, Reputation, Risk, Level, Event)
-- **Providers**: 4 state provider (Player, Market, Inventory, Shops)
+- **Providers**: 4 state provider (Player, Market, Inventory, Shops) - Backend entegre ✅
 - **Özellikler**:
   - Material 3 Dark Theme
   - Riverpod State Management (keepAlive fix ✨)
@@ -65,7 +65,10 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
   - Email/Username Login
   - Register with Validation
   - Backend'den Dinamik Ürün Yükleme
-  - Real-time Trade (Buy/Sell)
+  - Real-time Trade (Buy/Sell) ✅
+  - Inventory Management ✅
+  - Shop Purchase & Management ✅
+  - Business Screen (Owned Shops) ✅ - **FIX: 23 Ekim 2025**
   - Persistent State (logout/login safe)
   - Geri Tuşu Kontrolü (PopScope)
   - Navigation Stack Yönetimi
@@ -1110,6 +1113,18 @@ db.players.find({}, {username: 1, cash: 1, inventory: 1})
 ---
 
 ## Changelog
+
+### v1.3.0 - İşletmelerim Ekranı Fix (23 Ekim 2025)
+- 🐛 **BusinessScreen ShopInstance Entegrasyonu**: Eski sistem yerine yeni ShopInstance sistemi kullanılıyor
+- 🐛 **JSON Mapping Fix**: ShopInstance.id field'ına `@JsonKey(name: '_id')` annotation'ı eklendi
+- 🐛 **Null Safety Fix**: Backend'den gelen `_id` artık doğru parse ediliyor
+- ✨ **ConsumerStatefulWidget**: BusinessScreen artık initState() ile shop'ları yüklüyor
+- ✨ **Field Compatibility**: customName, shopType, city/country field'ları kullanılıyor
+- 🔧 **Stats Simplification**: Kira ve kar marjı kaldırıldı (field yok backend'de)
+- 📊 **Icon & Display**: Her shop type için doğru emoji ve Türkçe isim
+- ✅ **4 Shop Test Passed**: Database'deki tüm shop'lar ekranda görüntüleniyor
+- 📝 **Debug Logs**: PlayerShops provider'a detaylı loglar eklendi (📍, 📦, ❌)
+- 📈 **12 dosya değişiklik**: 312 satır ekleme, 149 satır silme
 
 ### v1.2.0 - State Persistence Fixes (22 Ocak 2025)
 - 🐛 **Riverpod keepAlive Fix**: PlayerProvider ve InventoryProvider state artık persist ediyor
