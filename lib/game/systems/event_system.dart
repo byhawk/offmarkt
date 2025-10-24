@@ -39,13 +39,13 @@ class EventSystem {
       events.add(EventType.taxInspection);
     }
 
-    if (player.legalReputation < 40) {
-      events.add(EventType.policeRaid);
-    }
+    // if (player.legalReputation < 40) {
+    //   events.add(EventType.policeRaid);
+    // }
 
-    if (player.streetReputation > 60) {
-      events.add(EventType.gangOffer);
-    }
+    // if (player.streetReputation > 60) {
+    //   events.add(EventType.gangOffer);
+    // }
 
     if (player.debt > 20000) {
       events.add(EventType.debtCollector);

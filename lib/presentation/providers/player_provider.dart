@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/player.dart';
 import '../../game/systems/level_system.dart';
-import '../../game/systems/reputation_system.dart';
 import '../../game/systems/event_system.dart';
 import '../../services/api_service.dart';
 
@@ -19,10 +18,6 @@ class PlayerNotifier extends _$PlayerNotifier {
       cash: 0.0,
       bankAccount: 0.0,
       debt: 0.0,
-      legalReputation: 50,
-      streetReputation: 50,
-      riskLevel: 0,
-      suspicionLevel: 0,
       currentDay: 1,
       totalTransactions: 0,
       totalProfit: 0.0,
@@ -39,10 +34,6 @@ class PlayerNotifier extends _$PlayerNotifier {
         cash: (playerData['cash'] ?? 5000.0).toDouble(),
         bankAccount: (playerData['bankAccount'] ?? 0.0).toDouble(),
         debt: (playerData['debt'] ?? 0.0).toDouble(),
-        legalReputation: playerData['legalReputation'] ?? 50,
-        streetReputation: playerData['streetReputation'] ?? 50,
-        riskLevel: playerData['riskLevel'] ?? 0,
-        suspicionLevel: playerData['suspicionLevel'] ?? 0,
         currentDay: playerData['currentDay'] ?? 1,
         totalTransactions: playerData['totalTransactions'] ?? 0,
         totalProfit: (playerData['totalProfit'] ?? 0.0).toDouble(),
@@ -80,10 +71,6 @@ class PlayerNotifier extends _$PlayerNotifier {
       cash: 0.0,
       bankAccount: 0.0,
       debt: 0.0,
-      legalReputation: 50,
-      streetReputation: 50,
-      riskLevel: 0,
-      suspicionLevel: 0,
       currentDay: 1,
       totalTransactions: 0,
       totalProfit: 0.0,
@@ -125,33 +112,6 @@ class PlayerNotifier extends _$PlayerNotifier {
     }
   }
 
-  /// İtibar güncelle (ReputationSystem ile)
-  void updateReputation({int? legal, int? street}) {
-    state = state.copyWith(
-      legalReputation: legal ?? state.legalReputation,
-      streetReputation: street ?? state.streetReputation,
-    );
-  }
-
-  /// İtibar aksiyonu uygula
-  void applyReputationAction(ReputationAction action, int amount) {
-    final (newLegal, newStreet) = ReputationSystem.updateReputation(
-      player: state,
-      action: action,
-      amount: amount,
-    );
-
-    state = state.copyWith(
-      legalReputation: newLegal,
-      streetReputation: newStreet,
-    );
-  }
-
-  /// Risk seviyesi güncelle
-  void updateRisk(int risk) {
-    state = state.copyWith(riskLevel: risk.clamp(0, 100));
-  }
-
   /// Gün ilerlet (EventSystem ile rastgele olaylar)
   void advanceDay() {
     final newDay = state.currentDay + 1;
@@ -186,33 +146,6 @@ class PlayerNotifier extends _$PlayerNotifier {
         case EffectType.cashLoss:
           state = state.copyWith(
             cash: (state.cash - effect.value).clamp(0, double.infinity),
-          );
-        case EffectType.reputationChange:
-          if (effect.target == 'legal') {
-            state = state.copyWith(
-              legalReputation: (state.legalReputation + effect.value.toInt())
-                  .clamp(0, 100),
-            );
-          } else if (effect.target == 'street') {
-            state = state.copyWith(
-              streetReputation: (state.streetReputation + effect.value.toInt())
-                  .clamp(0, 100),
-            );
-          } else if (effect.target == 'both') {
-            state = state.copyWith(
-              legalReputation: (state.legalReputation + effect.value.toInt())
-                  .clamp(0, 100),
-              streetReputation: (state.streetReputation + effect.value.toInt())
-                  .clamp(0, 100),
-            );
-          }
-        case EffectType.riskIncrease:
-          state = state.copyWith(
-            riskLevel: (state.riskLevel + effect.value.toInt()).clamp(0, 100),
-          );
-        case EffectType.riskDecrease:
-          state = state.copyWith(
-            riskLevel: (state.riskLevel - effect.value.toInt()).clamp(0, 100),
           );
         case EffectType.expGain:
           addExperience(effect.value.toInt());
@@ -251,17 +184,6 @@ class PlayerNotifier extends _$PlayerNotifier {
 
     // Nakit bonusu ekle
     state = state.copyWith(cash: state.cash + rewards.cashBonus);
-
-    // İtibar bonusu ekle
-    final (newLegal, newStreet) = (
-      (state.legalReputation + rewards.reputationBonus).clamp(0, 100),
-      (state.streetReputation + (rewards.reputationBonus ~/ 2)).clamp(0, 100),
-    );
-
-    state = state.copyWith(
-      legalReputation: newLegal,
-      streetReputation: newStreet,
-    );
   }
 
   /// Portföy değerini güncelle
