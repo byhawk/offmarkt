@@ -2025,6 +2025,8 @@ mixin _$ShopType {
   int get minCustomers => throw _privateConstructorUsedError; // minimum müşteri
   String get locationType =>
       throw _privateConstructorUsedError; // 'street', 'mall' vs
+  List<String> get allowedCategories =>
+      throw _privateConstructorUsedError; // izin verilen ürün kategorileri
   bool get isActive => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
@@ -2054,6 +2056,7 @@ abstract class $ShopTypeCopyWith<$Res> {
     int storageCapacity,
     int minCustomers,
     String locationType,
+    List<String> allowedCategories,
     bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -2084,6 +2087,7 @@ class _$ShopTypeCopyWithImpl<$Res, $Val extends ShopType>
     Object? storageCapacity = null,
     Object? minCustomers = null,
     Object? locationType = null,
+    Object? allowedCategories = null,
     Object? isActive = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -2126,6 +2130,10 @@ class _$ShopTypeCopyWithImpl<$Res, $Val extends ShopType>
                 ? _value.locationType
                 : locationType // ignore: cast_nullable_to_non_nullable
                       as String,
+            allowedCategories: null == allowedCategories
+                ? _value.allowedCategories
+                : allowedCategories // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             isActive: null == isActive
                 ? _value.isActive
                 : isActive // ignore: cast_nullable_to_non_nullable
@@ -2163,6 +2171,7 @@ abstract class _$$ShopTypeImplCopyWith<$Res>
     int storageCapacity,
     int minCustomers,
     String locationType,
+    List<String> allowedCategories,
     bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -2192,6 +2201,7 @@ class __$$ShopTypeImplCopyWithImpl<$Res>
     Object? storageCapacity = null,
     Object? minCustomers = null,
     Object? locationType = null,
+    Object? allowedCategories = null,
     Object? isActive = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -2234,6 +2244,10 @@ class __$$ShopTypeImplCopyWithImpl<$Res>
             ? _value.locationType
             : locationType // ignore: cast_nullable_to_non_nullable
                   as String,
+        allowedCategories: null == allowedCategories
+            ? _value._allowedCategories
+            : allowedCategories // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         isActive: null == isActive
             ? _value.isActive
             : isActive // ignore: cast_nullable_to_non_nullable
@@ -2264,10 +2278,11 @@ class _$ShopTypeImpl implements _ShopType {
     required this.storageCapacity,
     required this.minCustomers,
     required this.locationType,
+    final List<String> allowedCategories = const [],
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
-  });
+  }) : _allowedCategories = allowedCategories;
 
   factory _$ShopTypeImpl.fromJson(Map<String, dynamic> json) =>
       _$$ShopTypeImplFromJson(json);
@@ -2299,6 +2314,18 @@ class _$ShopTypeImpl implements _ShopType {
   @override
   final String locationType;
   // 'street', 'mall' vs
+  final List<String> _allowedCategories;
+  // 'street', 'mall' vs
+  @override
+  @JsonKey()
+  List<String> get allowedCategories {
+    if (_allowedCategories is EqualUnmodifiableListView)
+      return _allowedCategories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_allowedCategories);
+  }
+
+  // izin verilen ürün kategorileri
   @override
   @JsonKey()
   final bool isActive;
@@ -2309,7 +2336,7 @@ class _$ShopTypeImpl implements _ShopType {
 
   @override
   String toString() {
-    return 'ShopType(id: $id, shopType: $shopType, displayName: $displayName, nameTemplate: $nameTemplate, purchasePrice: $purchasePrice, rackCapacity: $rackCapacity, storageCapacity: $storageCapacity, minCustomers: $minCustomers, locationType: $locationType, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ShopType(id: $id, shopType: $shopType, displayName: $displayName, nameTemplate: $nameTemplate, purchasePrice: $purchasePrice, rackCapacity: $rackCapacity, storageCapacity: $storageCapacity, minCustomers: $minCustomers, locationType: $locationType, allowedCategories: $allowedCategories, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -2334,6 +2361,10 @@ class _$ShopTypeImpl implements _ShopType {
                 other.minCustomers == minCustomers) &&
             (identical(other.locationType, locationType) ||
                 other.locationType == locationType) &&
+            const DeepCollectionEquality().equals(
+              other._allowedCategories,
+              _allowedCategories,
+            ) &&
             (identical(other.isActive, isActive) ||
                 other.isActive == isActive) &&
             (identical(other.createdAt, createdAt) ||
@@ -2355,6 +2386,7 @@ class _$ShopTypeImpl implements _ShopType {
     storageCapacity,
     minCustomers,
     locationType,
+    const DeepCollectionEquality().hash(_allowedCategories),
     isActive,
     createdAt,
     updatedAt,
@@ -2385,6 +2417,7 @@ abstract class _ShopType implements ShopType {
     required final int storageCapacity,
     required final int minCustomers,
     required final String locationType,
+    final List<String> allowedCategories,
     final bool isActive,
     final DateTime? createdAt,
     final DateTime? updatedAt,
@@ -2412,6 +2445,8 @@ abstract class _ShopType implements ShopType {
   int get minCustomers; // minimum müşteri
   @override
   String get locationType; // 'street', 'mall' vs
+  @override
+  List<String> get allowedCategories; // izin verilen ürün kategorileri
   @override
   bool get isActive;
   @override

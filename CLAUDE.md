@@ -1,4 +1,4 @@
-# OffMarket - Claude Geliştirme Notları
+# Deal Baron - Claude Geliştirme Notları
 
 Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları içerir.
 
@@ -10,7 +10,7 @@ Bu dosya, projenin Claude AI ile geliştirilme sürecini ve teknik detayları i�
 
 ## 🎯 Proje Özeti
 
-OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir online multiplayer iş simülasyon oyunudur.
+Deal Baron, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir online multiplayer iş simülasyon oyunudur.
 
 ### Tamamlanan Bileşenler
 
@@ -201,7 +201,7 @@ OffMarket, Flutter ve Node.js kullanılarak geliştirilen tam özellikli bir onl
 
 ## 🎮 Tick-Based Game System - NEW ✨
 
-OffMarket, **5 saniye tick interval** ile çalışan asenkron bir oyun ekonomisine sahiptir. Bu sistem, oyuncular offline olduğunda bile dükkanların çalışmasına ve satış yapmasına olanak tanır.
+Deal Baron, **5 saniye tick interval** ile çalışan asenkron bir oyun ekonomisine sahiptir. Bu sistem, oyuncular offline olduğunda bile dükkanların çalışmasına ve satış yapmasına olanak tanır.
 
 ### Sistem Mimarisi
 

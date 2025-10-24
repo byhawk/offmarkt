@@ -1,7 +1,7 @@
 {
-  "name": "offmarket-backend",
+  "name": "deal-baron-backend",
   "version": "1.0.0",
-  "description": "OffMarket Online Game Backend API",
+  "description": "Deal Baron Online Game Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,7 @@
     "trading",
     "multiplayer"
   ],
-  "author": "OffMarket Team",
+  "author": "Deal Baron Team",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",

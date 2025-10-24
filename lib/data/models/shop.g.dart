@@ -182,6 +182,11 @@ _$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
       storageCapacity: (json['storageCapacity'] as num).toInt(),
       minCustomers: (json['minCustomers'] as num).toInt(),
       locationType: json['locationType'] as String,
+      allowedCategories:
+          (json['allowedCategories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       isActive: json['isActive'] as bool? ?? true,
       createdAt: json['createdAt'] == null
           ? null
@@ -202,6 +207,7 @@ Map<String, dynamic> _$$ShopTypeImplToJson(_$ShopTypeImpl instance) =>
       'storageCapacity': instance.storageCapacity,
       'minCustomers': instance.minCustomers,
       'locationType': instance.locationType,
+      'allowedCategories': instance.allowedCategories,
       'isActive': instance.isActive,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),

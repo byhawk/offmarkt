@@ -1,4 +1,4 @@
-# OffMarket - Online Multiplayer İş Simülasyon ve Ekonomik Oyun
+# Deal Baron - Online Multiplayer İş Simülasyon ve Ekonomik Oyun
 
 Kompleks ekonomik simülasyon sistemleri ile gelişmiş ticaret ve iş yönetimi oyunu.
 Flutter frontend, Node.js backend, MongoDB veritabanı ve kapsamlı admin paneli ile enterprise-grade oyun deneyimi.
@@ -9,7 +9,7 @@ Flutter frontend, Node.js backend, MongoDB veritabanı ve kapsamlı admin paneli
 
 ## 🎮 Proje Hakkında
 
-OffMarket, oyuncuların bir iş imparatorluğu kurmasını sağlayan kapsamlı bir online simülasyon oyunudur. Oyuncular:
+Deal Baron, oyuncuların bir iş imparatorluğu kurmasını sağlayan kapsamlı bir online simülasyon oyunudur. Oyuncular:
 - Gerçek zamanlı pazar sistemi ile ticaret
 - Diğer oyuncularla rekabet
 - Dinamik fiyatlandırma ve olaylar

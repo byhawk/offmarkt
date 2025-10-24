@@ -1,14 +1,14 @@
 {
-  "name": "offmarket-admin-panel",
+  "name": "deal-baron-admin-panel",
   "version": "1.0.0",
-  "description": "OffMarket Admin Panel",
+  "description": "Deal Baron Admin Panel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": ["admin", "panel"],
-  "author": "OffMarket Team",
+  "author": "Deal Baron Team",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
