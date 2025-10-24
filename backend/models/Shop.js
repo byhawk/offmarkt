@@ -127,6 +127,12 @@ const shopTypeSchema = new mongoose.Schema({
     required: true,
     enum: ['street', 'mall', 'market', 'office', 'warehouse']
   },
+  // İzin verilen ürün kategorileri
+  allowedCategories: {
+    type: [String],
+    required: true,
+    default: []
+  },
   isActive: {
     type: Boolean,
     default: true

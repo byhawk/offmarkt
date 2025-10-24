@@ -465,6 +465,20 @@ router.post('/:shopId/inventory/add', protect, asyncHandler(async (req, res) => 
     });
   }
 
+  // Dükkan tipini kontrol et ve izin verilen kategorileri al
+  const { ShopType } = require('../models/Shop');
+  const shopType = await ShopType.findOne({ shopType: shop.shopType });
+
+  if (shopType && shopType.allowedCategories && shopType.allowedCategories.length > 0) {
+    // Ürün kategorisi izin verilen kategorilerde mi?
+    if (!shopType.allowedCategories.includes(product.category)) {
+      return res.status(400).json({
+        success: false,
+        message: `Bu dükkan tipi "${product.category}" kategorisindeki ürünleri satamaz. İzin verilen kategoriler: ${shopType.allowedCategories.join(', ')}`
+      });
+    }
+  }
+
   if (!quantity || quantity <= 0) {
     return res.status(400).json({
       success: false,
