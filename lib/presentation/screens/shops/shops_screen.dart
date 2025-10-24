@@ -166,33 +166,6 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
     WidgetRef ref,
     ShopType shopType,
   ) async {
-    // İş kategorisi seç
-    final businessCategory = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('İş Kategorisi Seçin'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Legal (Yasal)'),
-              onTap: () => Navigator.pop(context, 'legal'),
-            ),
-            ListTile(
-              title: const Text('Grey Market (Gri Pazar)'),
-              onTap: () => Navigator.pop(context, 'grey_market'),
-            ),
-            ListTile(
-              title: const Text('Black Market (Kaçak)'),
-              onTap: () => Navigator.pop(context, 'black_market'),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (businessCategory == null || !context.mounted) return;
-
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -224,7 +197,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
 
       final success = await playerShopsNotifier.purchaseShop(
         shopId: shopType.id,
-        businessCategory: businessCategory,
+        businessCategory: 'general',
         customName: null,
       );
 

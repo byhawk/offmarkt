@@ -61,35 +61,7 @@ const playerSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  
-  // Reputation
-  legalReputation: {
-    type: Number,
-    default: 50,
-    min: 0,
-    max: 100
-  },
-  streetReputation: {
-    type: Number,
-    default: 50,
-    min: 0,
-    max: 100
-  },
-  
-  // Risk
-  riskLevel: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 100
-  },
-  suspicionLevel: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 100
-  },
-  
+
   // Progress
   currentDay: {
     type: Number,

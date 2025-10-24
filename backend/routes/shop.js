@@ -38,10 +38,10 @@ router.get('/available', protect, asyncHandler(async (req, res) => {
 // @desc    Dükkan kirala
 // @access  Private
 router.post('/rent', protect, asyncHandler(async (req, res) => {
-  const { shopId, businessCategory } = req.body;
+  const { shopId } = req.body;
 
   const shop = await Shop.findById(shopId);
-  
+
   if (!shop || !shop.isAvailable) {
     return res.status(400).json({
       success: false,
@@ -50,7 +50,7 @@ router.post('/rent', protect, asyncHandler(async (req, res) => {
   }
 
   const totalCost = shop.monthlyRent + shop.deposit;
-  
+
   if (req.user.cash < totalCost) {
     return res.status(400).json({
       success: false,
@@ -59,7 +59,7 @@ router.post('/rent', protect, asyncHandler(async (req, res) => {
   }
 
   // Dükkanı kirala
-  await shop.rent(req.user._id, businessCategory);
+  await shop.rent(req.user._id);
   
   // Oyuncuya ekle
   req.user.ownedShops.push(shop._id);

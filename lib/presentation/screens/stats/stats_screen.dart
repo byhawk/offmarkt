@@ -155,44 +155,6 @@ class StatsScreen extends ConsumerWidget {
               ),
             const Gap(AppSpacing.lg),
 
-            // İtibar
-            Text('İtibar & Risk', style: AppTextStyles.h3),
-            const Gap(AppSpacing.md),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _ProgressCard(
-                    emoji: '⚖️',
-                    label: 'Yasal İtibar',
-                    value: player.legalReputation,
-                    maxValue: 100,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const Gap(AppSpacing.md),
-                Expanded(
-                  child: _ProgressCard(
-                    emoji: '🌃',
-                    label: 'Sokak İtibarı',
-                    value: player.streetReputation,
-                    maxValue: 100,
-                    color: AppColors.warning,
-                  ),
-                ),
-              ],
-            ),
-            const Gap(AppSpacing.md),
-
-            _ProgressCard(
-              emoji: '⚠️',
-              label: 'Risk Seviyesi',
-              value: player.riskLevel,
-              maxValue: 100,
-              color: AppColors.danger,
-            ),
-            const Gap(AppSpacing.lg),
-
             // İşletme istatistikleri
             Text('İşletme', style: AppTextStyles.h3),
             const Gap(AppSpacing.md),

@@ -49,7 +49,6 @@ const shopSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Player'
   },
-  businessCategory: String,
   isActive: {
     type: Boolean,
     default: true
@@ -365,11 +364,10 @@ const shopInstanceSchema = new mongoose.Schema({
 });
 
 // Dükkanı kirala
-shopSchema.methods.rent = function(playerId, category) {
+shopSchema.methods.rent = function(playerId) {
   this.isAvailable = false;
   this.rentedBy = playerId;
   this.rentedAt = new Date();
-  this.businessCategory = category;
   return this.save();
 };
 
@@ -378,7 +376,6 @@ shopSchema.methods.leave = function() {
   this.isAvailable = true;
   this.rentedBy = null;
   this.rentedAt = null;
-  this.businessCategory = null;
   this.monthlyRevenue = 0;
   this.monthlyCustomers = 0;
   return this.save();

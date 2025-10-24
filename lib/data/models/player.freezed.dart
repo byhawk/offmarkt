@@ -27,10 +27,6 @@ mixin _$Player {
   double get cash => throw _privateConstructorUsedError;
   double get bankAccount => throw _privateConstructorUsedError;
   double get debt => throw _privateConstructorUsedError;
-  int get legalReputation => throw _privateConstructorUsedError;
-  int get streetReputation => throw _privateConstructorUsedError;
-  int get riskLevel => throw _privateConstructorUsedError;
-  int get suspicionLevel => throw _privateConstructorUsedError;
   int get currentDay => throw _privateConstructorUsedError;
   int get totalTransactions => throw _privateConstructorUsedError;
   double get totalProfit => throw _privateConstructorUsedError;
@@ -57,10 +53,6 @@ abstract class $PlayerCopyWith<$Res> {
     double cash,
     double bankAccount,
     double debt,
-    int legalReputation,
-    int streetReputation,
-    int riskLevel,
-    int suspicionLevel,
     int currentDay,
     int totalTransactions,
     double totalProfit,
@@ -89,10 +81,6 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
     Object? cash = null,
     Object? bankAccount = null,
     Object? debt = null,
-    Object? legalReputation = null,
-    Object? streetReputation = null,
-    Object? riskLevel = null,
-    Object? suspicionLevel = null,
     Object? currentDay = null,
     Object? totalTransactions = null,
     Object? totalProfit = null,
@@ -124,22 +112,6 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
                 ? _value.debt
                 : debt // ignore: cast_nullable_to_non_nullable
                       as double,
-            legalReputation: null == legalReputation
-                ? _value.legalReputation
-                : legalReputation // ignore: cast_nullable_to_non_nullable
-                      as int,
-            streetReputation: null == streetReputation
-                ? _value.streetReputation
-                : streetReputation // ignore: cast_nullable_to_non_nullable
-                      as int,
-            riskLevel: null == riskLevel
-                ? _value.riskLevel
-                : riskLevel // ignore: cast_nullable_to_non_nullable
-                      as int,
-            suspicionLevel: null == suspicionLevel
-                ? _value.suspicionLevel
-                : suspicionLevel // ignore: cast_nullable_to_non_nullable
-                      as int,
             currentDay: null == currentDay
                 ? _value.currentDay
                 : currentDay // ignore: cast_nullable_to_non_nullable
@@ -177,10 +149,6 @@ abstract class _$$PlayerImplCopyWith<$Res> implements $PlayerCopyWith<$Res> {
     double cash,
     double bankAccount,
     double debt,
-    int legalReputation,
-    int streetReputation,
-    int riskLevel,
-    int suspicionLevel,
     int currentDay,
     int totalTransactions,
     double totalProfit,
@@ -208,10 +176,6 @@ class __$$PlayerImplCopyWithImpl<$Res>
     Object? cash = null,
     Object? bankAccount = null,
     Object? debt = null,
-    Object? legalReputation = null,
-    Object? streetReputation = null,
-    Object? riskLevel = null,
-    Object? suspicionLevel = null,
     Object? currentDay = null,
     Object? totalTransactions = null,
     Object? totalProfit = null,
@@ -243,22 +207,6 @@ class __$$PlayerImplCopyWithImpl<$Res>
             ? _value.debt
             : debt // ignore: cast_nullable_to_non_nullable
                   as double,
-        legalReputation: null == legalReputation
-            ? _value.legalReputation
-            : legalReputation // ignore: cast_nullable_to_non_nullable
-                  as int,
-        streetReputation: null == streetReputation
-            ? _value.streetReputation
-            : streetReputation // ignore: cast_nullable_to_non_nullable
-                  as int,
-        riskLevel: null == riskLevel
-            ? _value.riskLevel
-            : riskLevel // ignore: cast_nullable_to_non_nullable
-                  as int,
-        suspicionLevel: null == suspicionLevel
-            ? _value.suspicionLevel
-            : suspicionLevel // ignore: cast_nullable_to_non_nullable
-                  as int,
         currentDay: null == currentDay
             ? _value.currentDay
             : currentDay // ignore: cast_nullable_to_non_nullable
@@ -290,10 +238,6 @@ class _$PlayerImpl implements _Player {
     this.cash = 5000.0,
     this.bankAccount = 0.0,
     this.debt = 0.0,
-    this.legalReputation = 50,
-    this.streetReputation = 50,
-    this.riskLevel = 0,
-    this.suspicionLevel = 0,
     this.currentDay = 1,
     this.totalTransactions = 0,
     this.totalProfit = 0.0,
@@ -323,18 +267,6 @@ class _$PlayerImpl implements _Player {
   final double debt;
   @override
   @JsonKey()
-  final int legalReputation;
-  @override
-  @JsonKey()
-  final int streetReputation;
-  @override
-  @JsonKey()
-  final int riskLevel;
-  @override
-  @JsonKey()
-  final int suspicionLevel;
-  @override
-  @JsonKey()
   final int currentDay;
   @override
   @JsonKey()
@@ -348,7 +280,7 @@ class _$PlayerImpl implements _Player {
 
   @override
   String toString() {
-    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, legalReputation: $legalReputation, streetReputation: $streetReputation, riskLevel: $riskLevel, suspicionLevel: $suspicionLevel, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue)';
+    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue)';
   }
 
   @override
@@ -364,14 +296,6 @@ class _$PlayerImpl implements _Player {
             (identical(other.bankAccount, bankAccount) ||
                 other.bankAccount == bankAccount) &&
             (identical(other.debt, debt) || other.debt == debt) &&
-            (identical(other.legalReputation, legalReputation) ||
-                other.legalReputation == legalReputation) &&
-            (identical(other.streetReputation, streetReputation) ||
-                other.streetReputation == streetReputation) &&
-            (identical(other.riskLevel, riskLevel) ||
-                other.riskLevel == riskLevel) &&
-            (identical(other.suspicionLevel, suspicionLevel) ||
-                other.suspicionLevel == suspicionLevel) &&
             (identical(other.currentDay, currentDay) ||
                 other.currentDay == currentDay) &&
             (identical(other.totalTransactions, totalTransactions) ||
@@ -392,10 +316,6 @@ class _$PlayerImpl implements _Player {
     cash,
     bankAccount,
     debt,
-    legalReputation,
-    streetReputation,
-    riskLevel,
-    suspicionLevel,
     currentDay,
     totalTransactions,
     totalProfit,
@@ -424,10 +344,6 @@ abstract class _Player implements Player {
     final double cash,
     final double bankAccount,
     final double debt,
-    final int legalReputation,
-    final int streetReputation,
-    final int riskLevel,
-    final int suspicionLevel,
     final int currentDay,
     final int totalTransactions,
     final double totalProfit,
@@ -448,14 +364,6 @@ abstract class _Player implements Player {
   double get bankAccount;
   @override
   double get debt;
-  @override
-  int get legalReputation;
-  @override
-  int get streetReputation;
-  @override
-  int get riskLevel;
-  @override
-  int get suspicionLevel;
   @override
   int get currentDay;
   @override
