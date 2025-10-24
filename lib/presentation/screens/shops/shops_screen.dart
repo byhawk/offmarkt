@@ -117,6 +117,36 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           ),
                         ],
                       ),
+                      if (shopType.allowedCategories.isNotEmpty) ...[
+                        const Gap(AppSpacing.sm),
+                        Text('📦 İzin Verilen Kategoriler:', style: AppTextStyles.caption),
+                        const Gap(AppSpacing.xs),
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          runSpacing: AppSpacing.xs,
+                          children: shopType.allowedCategories.map((category) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.primary.withOpacity(0.5),
+                                ),
+                              ),
+                              child: Text(
+                                _getCategoryDisplayName(category),
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                       const Gap(AppSpacing.md),
                       SizedBox(
                         width: double.infinity,
@@ -158,6 +188,23 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
         return '🏪';
       default:
         return '🏢';
+    }
+  }
+
+  String _getCategoryDisplayName(String category) {
+    switch (category) {
+      case 'food':
+        return 'Gıda';
+      case 'electronics':
+        return 'Elektronik';
+      case 'clothing':
+        return 'Giyim';
+      case 'jewelry':
+        return 'Mücevher';
+      case 'vehicles':
+        return 'Araçlar';
+      default:
+        return category;
     }
   }
 

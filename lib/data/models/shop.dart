@@ -127,6 +127,7 @@ class ShopType with _$ShopType {
     required int storageCapacity, // depo kapasitesi (adet)
     required int minCustomers, // minimum müşteri
     required String locationType, // 'street', 'mall' vs
+    @Default([]) List<String> allowedCategories, // izin verilen ürün kategorileri
     @Default(true) bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
