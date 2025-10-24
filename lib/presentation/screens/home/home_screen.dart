@@ -148,23 +148,55 @@ class HomeScreen extends ConsumerWidget {
               const Gap(AppSpacing.lg),
 
               // İstatistikler
-              Text('İstatistikler', style: AppTextStyles.h4),
+              Text('Genel Bakış', style: AppTextStyles.h4),
               const Gap(AppSpacing.md),
 
-              StatCard(
-                emoji: '📊',
-                label: 'Toplam İşlem',
-                value: Formatters.formatNumber(player.totalTransactions),
-              ),
-              const Gap(AppSpacing.md),
-
-              StatCard(
-                emoji: '💹',
-                label: 'Toplam Kar',
-                value: Formatters.formatCurrency(player.totalProfit),
-                gradientColors: player.totalProfit >= 0
-                    ? AppColors.successGradient
-                    : AppColors.dangerGradient,
+              GradientCard(
+                gradientColors: AppColors.darkGradient,
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Toplam Net Kar',
+                            style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
+                          ),
+                          const Gap(AppSpacing.sm),
+                          Text(
+                            Formatters.formatCurrency(player.totalProfit),
+                            style: AppTextStyles.h1.copyWith(
+                              color: AppColors.accentGold,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(width: 1, height: 60, color: AppColors.border),
+                    const Gap(AppSpacing.md),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Toplam İşlem',
+                            style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
+                          ),
+                          const Gap(AppSpacing.xs),
+                          Text(
+                            Formatters.formatNumber(player.totalTransactions),
+                            style: AppTextStyles.h3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const Gap(AppSpacing.xxl),
