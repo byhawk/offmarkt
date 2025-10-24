@@ -11,13 +11,41 @@ import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/common/stat_card.dart';
 import '../../widgets/common/gradient_card.dart';
+import 'dart:async';
 import '../auth/login_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isAuctionVisible = true;
+  Timer? _auctionTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Yanıp sönme efekti için zamanlayıcı
+    _auctionTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
+      if (mounted) {
+        setState(() {
+          _isAuctionVisible = !_isAuctionVisible;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _auctionTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final player = ref.watch(playerNotifierProvider);
     final products = ref.watch(marketNotifierProvider);
 
@@ -143,6 +171,32 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const Icon(Icons.arrow_forward_ios, size: 20),
                   ],
+                ),
+              ),
+              const Gap(AppSpacing.md),
+
+              // Canlı İhale Kartı
+              AnimatedOpacity(
+                opacity: _isAuctionVisible ? 1.0 : 0.6,
+                duration: const Duration(milliseconds: 700),
+                child: GradientCard(
+                  gradientColors: AppColors.dangerGradient,
+                  child: Row(
+                    children: [
+                      const Text('🔥', style: TextStyle(fontSize: 32)),
+                      const Gap(AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Canlı İhale!', style: AppTextStyles.h4),
+                            Text('Nadir bir arsa satışta!', style: AppTextStyles.caption),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.gavel, size: 24),
+                    ],
+                  ),
                 ),
               ),
               const Gap(AppSpacing.lg),

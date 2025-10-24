@@ -86,6 +86,12 @@ class _BusinessScreenState extends ConsumerState<BusinessScreen> {
                   ),
                   const Gap(AppSpacing.xl),
 
+                  // Aktif Araştırma
+                  Text('Aktif Araştırma', style: AppTextStyles.h3),
+                  const Gap(AppSpacing.md),
+                  _ActiveResearchCard(),
+                  const Gap(AppSpacing.xl),
+
                   // Dükkan detayları
                   Text('Dükkanlarım', style: AppTextStyles.h3),
                   const Gap(AppSpacing.md),
@@ -454,5 +460,78 @@ class _NewProjectDialogState extends State<_NewProjectDialog> {
     projectNameController.dispose();
     projectDescController.dispose();
     super.dispose();
+  }
+}
+
+class _ActiveResearchCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Bu kısım gelecekte dinamik verilerle doldurulacak
+    const researchName = 'Gelişmiş Lojistik Ağı';
+    const timeRemaining = '2s 14d';
+    const progress = 0.65;
+
+    return GradientCard(
+      gradientColors: AppColors.primaryGradient,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.science, size: 28),
+              const Gap(AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  researchName,
+                  style: AppTextStyles.h4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const Gap(AppSpacing.md),
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.white.withOpacity(0.2),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentGold),
+              minHeight: 12,
+            ),
+          ),
+          const Gap(AppSpacing.sm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Kalan Süre: $timeRemaining',
+                style: AppTextStyles.caption.copyWith(color: Colors.white70),
+              ),
+              Text(
+                '${(progress * 100).toStringAsFixed(0)}%',
+                style: AppTextStyles.caption.copyWith(color: Colors.white),
+              ),
+            ],
+          ),
+          const Gap(AppSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Hızlandırma özelliği yakında gelecek!')),
+                );
+              },
+              icon: const Icon(Icons.rocket_launch, size: 18),
+              label: const Text('Hızlandır'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentGold,
+                foregroundColor: AppColors.backgroundPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
