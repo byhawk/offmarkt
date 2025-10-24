@@ -10,6 +10,7 @@ import '../../../data/models/shop.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 import '../../widgets/common/stat_card.dart';
+import 'hr/hr_screen.dart';
 
 class BusinessScreen extends ConsumerStatefulWidget {
   const BusinessScreen({super.key});
@@ -279,40 +280,39 @@ class _BusinessCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton.icon(
+                child: OutlinedButton.icon(
                   onPressed: () {
-                    // Ürün ekle / Yönet
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ürün yönetimi yakında eklenecek!'),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const HrScreen()));
                   },
-                  icon: const Icon(Icons.inventory_2),
-                  label: const Text('Ürünler'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                  ),
+                  icon: const Icon(Icons.groups, size: 18),
+                  label: const Text('Çalışanlar'),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
                 ),
               ),
               const Gap(AppSpacing.sm),
               Expanded(
-                child: ElevatedButton.icon(
+                child: OutlinedButton.icon(
                   onPressed: () {
-                    // Raporlar
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Raporlar yakında eklenecek!'),
-                      ),
+                      const SnackBar(content: Text('Ürün yönetimi yakında eklenecek!')),
                     );
                   },
-                  icon: const Icon(Icons.analytics),
+                  icon: const Icon(Icons.inventory_2, size: 18),
+                  label: const Text('Ürünler'),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                ),
+              ),
+              const Gap(AppSpacing.sm),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Raporlar yakında eklenecek!')),
+                    );
+                  },
+                  icon: const Icon(Icons.analytics, size: 18),
                   label: const Text('Raporlar'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.success,
-                    foregroundColor: Colors.white,
-                  ),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
                 ),
               ),
             ],
