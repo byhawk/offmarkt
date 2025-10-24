@@ -5,7 +5,7 @@ import 'market/market_screen.dart';
 import 'inventory/inventory_screen.dart';
 import 'shops/shops_screen.dart';
 import 'business/business_screen.dart';
-import 'stats/stats_screen.dart';
+import 'holding/holding_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -23,7 +23,7 @@ class _MainNavigationState extends State<MainNavigation> {
     InventoryScreen(),
     ShopsScreen(),
     BusinessScreen(),
-    StatsScreen(),
+    HoldingScreen(),
   ];
 
   final List<NavigationItem> _navItems = const [
@@ -32,7 +32,7 @@ class _MainNavigationState extends State<MainNavigation> {
     NavigationItem(icon: Icons.inventory, label: 'Envanter', emoji: '📦'),
     NavigationItem(icon: Icons.apartment, label: 'Dükkanlar', emoji: '🏢'),
     NavigationItem(icon: Icons.business_center, label: 'İşletme', emoji: '💼'),
-    NavigationItem(icon: Icons.bar_chart, label: 'İstatistik', emoji: '📊'),
+    NavigationItem(icon: Icons.corporate_fare, label: 'Holding', emoji: '🏛️'),
   ];
 
   void _onItemTapped(int index) {
@@ -75,7 +75,7 @@ class _MainNavigationState extends State<MainNavigation> {
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.transparent,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: AppColors.accentGold,
         unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,

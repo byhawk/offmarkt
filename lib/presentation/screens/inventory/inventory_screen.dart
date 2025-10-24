@@ -226,14 +226,12 @@ class _InventoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isProfit = profitLoss >= 0;
+    final profitColor = isProfit ? AppColors.success : AppColors.danger;
 
     return GradientCard(
-      gradientColors: isProfit
-          ? AppColors.successGradient
-          : AppColors.dangerGradient,
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Ürün başlığı
           Row(
@@ -261,33 +259,30 @@ class _InventoryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Kar/Zarar göstergesi
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: isProfit ? Colors.green : Colors.red,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${isProfit ? '+' : ''}${profitPercent.toStringAsFixed(1)}%',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
           ),
           const Gap(AppSpacing.md),
+
+          // Merkezi Kar/Zarar Göstergesi
+          Column(
+            children: [
+              Text(
+                '${isProfit ? '+' : ''}${Formatters.formatCurrency(profitLoss)}',
+                style: AppTextStyles.h2.copyWith(color: profitColor, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '(${isProfit ? '+' : ''}${profitPercent.toStringAsFixed(1)}%)',
+                style: AppTextStyles.bodyLarge.copyWith(color: profitColor),
+              ),
+            ],
+          ),
+          const Gap(AppSpacing.lg),
 
           // Fiyat bilgileri
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: Colors.black12,
+              color: Colors.black.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -298,10 +293,7 @@ class _InventoryCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Ortalama Alış',
-                          style: AppTextStyles.caption,
-                        ),
+                        Text('Ortalama Alış', style: AppTextStyles.caption),
                         Text(
                           Formatters.formatCurrency(averagePurchasePrice),
                           style: AppTextStyles.label,
@@ -311,15 +303,10 @@ class _InventoryCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          'Şu Anki Fiyat',
-                          style: AppTextStyles.caption,
-                        ),
+                        Text('Şu Anki Fiyat', style: AppTextStyles.caption),
                         Text(
                           Formatters.formatCurrency(product.currentPrice),
-                          style: AppTextStyles.label.copyWith(
-                            color: AppColors.success,
-                          ),
+                          style: AppTextStyles.label.copyWith(color: AppColors.primaryLight),
                         ),
                       ],
                     ),
@@ -328,38 +315,12 @@ class _InventoryCard extends StatelessWidget {
                 const Gap(AppSpacing.sm),
                 const Divider(color: Colors.white24, height: 1),
                 const Gap(AppSpacing.sm),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Toplam Değer',
-                          style: AppTextStyles.caption,
-                        ),
-                        Text(
-                          Formatters.formatCurrency(currentValue),
-                          style: AppTextStyles.h4.copyWith(
-                            color: AppColors.success,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Kar/Zarar',
-                          style: AppTextStyles.caption,
-                        ),
-                        Text(
-                          '${isProfit ? '+' : ''}${Formatters.formatCurrency(profitLoss)}',
-                          style: AppTextStyles.h4.copyWith(
-                            color: isProfit ? Colors.green : Colors.red,
-                          ),
-                        ),
-                      ],
+                    Text('Toplam Değer', style: AppTextStyles.caption),
+                    Text(
+                      Formatters.formatCurrency(currentValue),
+                      style: AppTextStyles.h4,
                     ),
                   ],
                 ),

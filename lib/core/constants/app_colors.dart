@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Colors
-  static const Color primary = Color(0xFF00D4FF);
-  static const Color primaryDark = Color(0xFF00A8CC);
-  static const Color primaryLight = Color(0xFF66E3FF);
+  // Primary Colors - Koyu Lacivertler
+  static const Color primary = Color(0xFF1A237E); // Koyu Lacivert
+  static const Color primaryDark = Color(0xFF101851);
+  static const Color primaryLight = Color(0xFF2F3B9A);
 
   // Background Colors
   static const Color backgroundPrimary = Color(0xFF0A0E27);
@@ -15,20 +15,25 @@ class AppColors {
   static const Color backgroundCard = Color(0xFF1E2749);
   static const Color backgroundInput = Color(0xFF252E52);
 
-  // Accent Colors
-  static const Color success = Color(0xFF00FF87);
-  static const Color successDark = Color(0xFF00D4AA);
-  static const Color danger = Color(0xFFFF0844);
-  static const Color dangerDark = Color(0xFFCC0036);
-  static const Color warning = Color(0xFFFFAA00);
-  static const Color warningDark = Color(0xFFCC8800);
-  static const Color info = Color(0xFF0066FF);
+  // Accent & Semantic Colors
+  static const Color accentGold = Color(0xFFD4AF37); // Altın Sarısı Vurgu
+  static const Color accentDarkOrange = Color(0xFFB87333); // Koyu Turuncu Vurgu
 
-  // Text Colors
+  static const Color success = Color(0xFF1B5E20); // Tok Yeşil (Finansal)
+  static const Color successDark = Color(0xFF0C3B0E);
+  static const Color danger = Color(0xFFB71C1C); // Tok Kırmızı (Finansal)
+  static const Color dangerDark = Color(0xFF8A0F0F);
+  static const Color warning = Color(0xFFE65100); // Koyu Turuncu
+  static const Color warningDark = Color(0xFFBF360C);
+  static const Color info = Color(0xFF0D47A1); // Koyu Mavi
+
+  // Text & Neutral Colors
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFB8C5D6);
+  static const Color ashGrey = Color(0xFF6c757d); // Kül Grisi
   static const Color textMuted = Color(0xFF6B7B94);
   static const Color textDisabled = Color(0xFF4A5568);
+
 
   // Border & Divider
   static const Color border = Color(0xFF2D3B56);
@@ -40,28 +45,28 @@ class AppColors {
 
   // Gradients
   static const List<Color> primaryGradient = [
-    Color(0xFF00D4FF),
-    Color(0xFF0066FF),
+    primaryLight,
+    primary,
   ];
 
   static const List<Color> successGradient = [
-    Color(0xFF00FF87),
-    Color(0xFF00D4AA),
+    Color(0xFF2E7D32),
+    success,
   ];
 
   static const List<Color> dangerGradient = [
-    Color(0xFFFF0844),
-    Color(0xFFFF6B9D),
+    Color(0xFFD32F2F),
+    danger,
   ];
 
   static const List<Color> warningGradient = [
-    Color(0xFFFFAA00),
-    Color(0xFFFF6B00),
+    Color(0xFFF57C00),
+    warning,
   ];
 
   static const List<Color> goldGradient = [
-    Color(0xFFFFD700),
-    Color(0xFFFFA500),
+    Color(0xFFFBC02D),
+    accentGold,
   ];
 
   static const List<Color> darkGradient = [

@@ -94,7 +94,13 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('💰 Fiyat', style: AppTextStyles.caption),
+                              Row(
+                                children: [
+                                  Icon(Icons.monetization_on, size: 14, color: AppColors.textMuted),
+                                  Gap(AppSpacing.xs),
+                                  Text('Fiyat', style: AppTextStyles.caption),
+                                ],
+                              ),
                               Text(
                                 Formatters.formatCurrency(shopType.purchasePrice),
                                 style: AppTextStyles.h4.copyWith(
@@ -108,7 +114,13 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('👥 Min Müşteri', style: AppTextStyles.caption),
+                              Row(
+                                children: [
+                                  Icon(Icons.group, size: 14, color: AppColors.textMuted),
+                                  Gap(AppSpacing.xs),
+                                  Text('Min Müşteri', style: AppTextStyles.caption),
+                                ],
+                              ),
                               Text(
                                 '${shopType.minCustomers}/gün',
                                 style: AppTextStyles.label,
@@ -155,9 +167,10 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                               ? () => _purchaseShop(context, ref, shopType)
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.success,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: Colors.grey,
+                            backgroundColor: AppColors.accentGold,
+                            foregroundColor: AppColors.backgroundPrimary,
+                            disabledBackgroundColor: AppColors.ashGrey.withOpacity(0.5),
+                            disabledForegroundColor: AppColors.textMuted,
                           ),
                           child: Text(
                             canAfford ? 'Satın Al' : 'Yetersiz Nakit',
@@ -228,7 +241,8 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.accentGold,
+              foregroundColor: AppColors.backgroundPrimary,
             ),
             child: const Text('Kirala'),
           ),
