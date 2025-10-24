@@ -47,9 +47,27 @@ dev_dependencies:
   freezed: ^2.5.7
   json_serializable: ^6.9.2
 
+  # Icon Generation
+  flutter_launcher_icons: ^0.13.1
+
 flutter:
   uses-material-design: true
 
   # Assets
   assets:
     - assets/data/
+    - assets/images/
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+
+  # Android Adaptive Icon
+  adaptive_icon_background: "#1a1a2e"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
+
+  # iOS
+  remove_alpha_ios: true
