@@ -269,13 +269,13 @@
         async function loadShopsData() {
             try {
                 // Ekonomik istatistikleri al
-                const dashboardResult = await API.call('/admin/economic-dashboard');
+                const dashboardResult = await API.call('/economic-dashboard');
                 if (dashboardResult.success) {
                     updateEconomicStats(dashboardResult.data.marketOverview);
                 }
 
                 // Detaylı dükkan bilgilerini al
-                const shopsResult = await API.call('/admin/shops/detailed');
+                const shopsResult = await API.call('/shops/detailed');
                 if (shopsResult.success) {
                     allShops = shopsResult.data.shops || [];
                     displayShops(allShops);
@@ -394,7 +394,7 @@
 
         async function viewShopDetails(shopId) {
             try {
-                const result = await API.call(`/admin/shops/${shopId}/listed-products`);
+                const result = await API.call(`/shops/${shopId}/listed-products`);
                 if (result.success) {
                     showShopDetailModal(result.data);
                 }
@@ -477,7 +477,7 @@
             if (!confirm('Bu dükkanın tüm envanterini sıfırlamak istediğinize emin misiniz?')) return;
 
             try {
-                const result = await API.call(`/admin/shops/${shopId}/reset-inventory`, 'POST');
+                const result = await API.call(`/shops/${shopId}/reset-inventory`, 'POST');
                 if (result.success) {
                     showNotification('Dükkan envanteri sıfırlandı', 'success');
                     loadShopsData();
@@ -551,10 +551,10 @@
             try {
                 let result;
                 if (editingShopId) {
-                    result = await API.call(`/admin/shops/${editingShopId}`, 'PUT', data);
+                    result = await API.call(`/shops/${editingShopId}`, 'PUT', data);
                     if (result.success) showNotification('Dükkan güncellendi', 'success');
                 } else {
-                    result = await API.call('/admin/shops', 'POST', data);
+                    result = await API.call('/shops', 'POST', data);
                     if (result.success) showNotification('Dükkan oluşturuldu', 'success');
                 }
 

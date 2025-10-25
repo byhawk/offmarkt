@@ -148,7 +148,7 @@
         async function loadEconomicData() {
             try {
                 showLoading();
-                const response = await API.call('/admin/economic-dashboard');
+                const response = await API.call('/economic-dashboard');
 
                 if (response.success) {
                     updateMarketOverview(response.data.marketOverview);
@@ -285,7 +285,7 @@
 
             try {
                 showLoading();
-                const response = await API.call('/admin/market/global-price-adjustment', 'POST');
+                const response = await API.call('/market/global-price-adjustment', 'POST');
 
                 if (response.success) {
                     alert(`${response.data.totalAdjustments} fiyat ayarlama işlemi gerçekleştirildi`);
@@ -313,7 +313,7 @@
 
             try {
                 showLoading();
-                const response = await API.call(`/admin/shops/${shopId}/reset-inventory`, 'POST');
+                const response = await API.call(`/shops/${shopId}/reset-inventory`, 'POST');
 
                 if (response.success) {
                     alert('Dükkan envanteri sıfırlandı');

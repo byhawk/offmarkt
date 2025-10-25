@@ -98,7 +98,7 @@
                 }
 
                 // Ekonomik analiz verileri
-                const marketResult = await API.call('/admin/market/supply-demand-analysis');
+                const marketResult = await API.call('/market/supply-demand-analysis');
                 if (marketResult && marketResult.success) {
                     marketResult.data.analyses.forEach(analysis => {
                         productEconomics[analysis.productId] = {
