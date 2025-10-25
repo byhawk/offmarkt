@@ -11,7 +11,7 @@ import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 import '../../widgets/common/stat_card.dart';
 import '../research/research_screen.dart';
-import 'hr/hr_screen.dart';
+import '../hr/hr_screen.dart';
 import '../../providers/research_provider.dart';
 
 class BusinessScreen extends ConsumerStatefulWidget {
