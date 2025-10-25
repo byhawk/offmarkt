@@ -17,6 +17,15 @@ _$PlayerImpl _$$PlayerImplFromJson(Map<String, dynamic> json) => _$PlayerImpl(
   totalTransactions: (json['totalTransactions'] as num?)?.toInt() ?? 0,
   totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
   portfolioValue: (json['portfolioValue'] as num?)?.toDouble() ?? 0.0,
+  activeResearch: json['activeResearch'] == null
+      ? null
+      : ActiveResearch.fromJson(json['activeResearch'] as Map<String, dynamic>),
+  completedResearchIds:
+      (json['completedResearchIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  researchPoints: (json['researchPoints'] as num?)?.toInt() ?? 10,
 );
 
 Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
@@ -31,4 +40,7 @@ Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
       'totalTransactions': instance.totalTransactions,
       'totalProfit': instance.totalProfit,
       'portfolioValue': instance.portfolioValue,
+      'activeResearch': instance.activeResearch,
+      'completedResearchIds': instance.completedResearchIds,
+      'researchPoints': instance.researchPoints,
     };
