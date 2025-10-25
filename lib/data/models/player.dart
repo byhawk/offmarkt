@@ -20,6 +20,7 @@ class Player with _$Player {
     ActiveResearch? activeResearch,
     @Default([]) List<String> completedResearchIds,
     @Default(10) int researchPoints,
+    String? holdingId,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
