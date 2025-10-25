@@ -34,6 +34,7 @@ mixin _$Player {
   ActiveResearch? get activeResearch => throw _privateConstructorUsedError;
   List<String> get completedResearchIds => throw _privateConstructorUsedError;
   int get researchPoints => throw _privateConstructorUsedError;
+  String? get holdingId => throw _privateConstructorUsedError;
 
   /// Serializes this Player to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -63,6 +64,7 @@ abstract class $PlayerCopyWith<$Res> {
     ActiveResearch? activeResearch,
     List<String> completedResearchIds,
     int researchPoints,
+    String? holdingId,
   });
 
   $ActiveResearchCopyWith<$Res>? get activeResearch;
@@ -96,6 +98,7 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
     Object? activeResearch = freezed,
     Object? completedResearchIds = null,
     Object? researchPoints = null,
+    Object? holdingId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -151,6 +154,10 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
                 ? _value.researchPoints
                 : researchPoints // ignore: cast_nullable_to_non_nullable
                       as int,
+            holdingId: freezed == holdingId
+                ? _value.holdingId
+                : holdingId // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -193,6 +200,7 @@ abstract class _$$PlayerImplCopyWith<$Res> implements $PlayerCopyWith<$Res> {
     ActiveResearch? activeResearch,
     List<String> completedResearchIds,
     int researchPoints,
+    String? holdingId,
   });
 
   @override
@@ -226,6 +234,7 @@ class __$$PlayerImplCopyWithImpl<$Res>
     Object? activeResearch = freezed,
     Object? completedResearchIds = null,
     Object? researchPoints = null,
+    Object? holdingId = freezed,
   }) {
     return _then(
       _$PlayerImpl(
@@ -281,6 +290,10 @@ class __$$PlayerImplCopyWithImpl<$Res>
             ? _value.researchPoints
             : researchPoints // ignore: cast_nullable_to_non_nullable
                   as int,
+        holdingId: freezed == holdingId
+            ? _value.holdingId
+            : holdingId // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -303,6 +316,7 @@ class _$PlayerImpl implements _Player {
     this.activeResearch,
     final List<String> completedResearchIds = const [],
     this.researchPoints = 10,
+    this.holdingId,
   }) : _completedResearchIds = completedResearchIds;
 
   factory _$PlayerImpl.fromJson(Map<String, dynamic> json) =>
@@ -353,10 +367,12 @@ class _$PlayerImpl implements _Player {
   @override
   @JsonKey()
   final int researchPoints;
+  @override
+  final String? holdingId;
 
   @override
   String toString() {
-    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue, activeResearch: $activeResearch, completedResearchIds: $completedResearchIds, researchPoints: $researchPoints)';
+    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue, activeResearch: $activeResearch, completedResearchIds: $completedResearchIds, researchPoints: $researchPoints, holdingId: $holdingId)';
   }
 
   @override
@@ -387,7 +403,9 @@ class _$PlayerImpl implements _Player {
               _completedResearchIds,
             ) &&
             (identical(other.researchPoints, researchPoints) ||
-                other.researchPoints == researchPoints));
+                other.researchPoints == researchPoints) &&
+            (identical(other.holdingId, holdingId) ||
+                other.holdingId == holdingId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -407,6 +425,7 @@ class _$PlayerImpl implements _Player {
     activeResearch,
     const DeepCollectionEquality().hash(_completedResearchIds),
     researchPoints,
+    holdingId,
   );
 
   /// Create a copy of Player
@@ -438,6 +457,7 @@ abstract class _Player implements Player {
     final ActiveResearch? activeResearch,
     final List<String> completedResearchIds,
     final int researchPoints,
+    final String? holdingId,
   }) = _$PlayerImpl;
 
   factory _Player.fromJson(Map<String, dynamic> json) = _$PlayerImpl.fromJson;
@@ -468,6 +488,8 @@ abstract class _Player implements Player {
   List<String> get completedResearchIds;
   @override
   int get researchPoints;
+  @override
+  String? get holdingId;
 
   /// Create a copy of Player
   /// with the given fields replaced by the non-null parameter values.

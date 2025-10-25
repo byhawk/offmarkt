@@ -26,6 +26,7 @@ _$PlayerImpl _$$PlayerImplFromJson(Map<String, dynamic> json) => _$PlayerImpl(
           .toList() ??
       const [],
   researchPoints: (json['researchPoints'] as num?)?.toInt() ?? 10,
+  holdingId: json['holdingId'] as String?,
 );
 
 Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
@@ -43,4 +44,5 @@ Map<String, dynamic> _$$PlayerImplToJson(_$PlayerImpl instance) =>
       'activeResearch': instance.activeResearch,
       'completedResearchIds': instance.completedResearchIds,
       'researchPoints': instance.researchPoints,
+      'holdingId': instance.holdingId,
     };
