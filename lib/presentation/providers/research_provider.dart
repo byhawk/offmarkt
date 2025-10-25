@@ -1,196 +1,113 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:offmarket_flutter/data/models/research_development.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../data/models/player.dart';
+import '../../data/models/research_development.dart';
+import 'player_provider.dart';
 
-class ResearchNotifier extends StateNotifier<Map<String, dynamic>> {
-  ResearchNotifier()
-    : super({
-        'lab': null,
-        'projects': <RdProject>[],
-        'completedProjects': <RdProject>[],
-        'availableProjects': <RdProjectType>[],
-        'loading': false,
-        'error': null,
-      });
+part 'research_provider.freezed.dart';
+part 'research_provider.g.dart';
 
-  Future<void> loadResearchLab(String playerId) async {
-    state = {...state, 'loading': true, 'error': null};
+// Statik teknoloji ağacı verisi
+final List<ResearchNode> _staticResearchTree = [
+  ResearchNode(
+    id: 'basic_logistics',
+    name: 'Temel Lojistik',
+    description: 'Ticaret rotalarınızı daha verimli hale getirir.',
+    researchPointsCost: 5,
+    durationSeconds: 60,
+    dependencies: [],
+    bonusType: ResearchBonusType.costReduction,
+    bonusValue: 2.0,
+  ),
+  ResearchNode(
+    id: 'advanced_logistics',
+    name: 'Gelişmiş Lojistik',
+    description: 'Tedarik zinciri maliyetlerini önemli ölçüde düşürür.',
+    researchPointsCost: 15,
+    durationSeconds: 300,
+    dependencies: ['basic_logistics'],
+    bonusType: ResearchBonusType.costReduction,
+    bonusValue: 5.0,
+  ),
+  ResearchNode(
+    id: 'basic_marketing',
+    name: 'Temel Pazarlama',
+    description: 'Ürünlerinize olan talebi artırır.',
+    researchPointsCost: 5,
+    durationSeconds: 60,
+    dependencies: [],
+    bonusType: ResearchBonusType.marketDemand,
+    bonusValue: 3.0,
+  ),
+];
 
-    try {
-      final RdLab mockLab = RdLab(
-        id: 'lab_$playerId',
-        playerId: playerId,
-        totalInvestment: 150000.0,
-        currentBudget: 50000.0,
-        efficiencyBonus: 15.0,
-        safetyFactor: 85.0,
-        innovationRate: 20.0,
-        maxProjects: 3,
-        currentProjects: 0,
-        activeProjects: [],
-        staff: [],
-      );
+@freezed
+class ResearchState with _$ResearchState {
+  const factory ResearchState({
+    required List<ResearchNode> researchTree,
+    required Player player,
+  }) = _ResearchState;
 
-      state = {...state, 'lab': mockLab, 'loading': false};
-    } catch (error) {
-      state = {...state, 'error': error.toString(), 'loading': false};
+  const ResearchState._();
+
+  ResearchStatus getNodeStatus(String nodeId) {
+    if (player.completedResearchIds.contains(nodeId)) {
+      return ResearchStatus.completed;
     }
-  }
-
-  Future<void> loadActiveProjects(String playerId) async {
-    state = {...state, 'loading': true, 'error': null};
-
-    try {
-      final List<RdProject> mockProjects = [
-        RdProject(
-          id: 'project_1',
-          playerId: playerId,
-          type: RdProjectType.productDevelopment,
-          level: RdProjectLevel.advanced,
-          status: RdProjectStatus.inProgress,
-          name: 'Yeni Ürün Geliştirme',
-          description: 'Pazar talebine uygun yeni ürün geliştirmesi',
-          startDate: DateTime.now().subtract(const Duration(days: 15)),
-          durationInDays: 45,
-          budget: 25000.0,
-          costIncurred: 12500.0,
-          progress: 0.55,
-          successProbability: 75.0,
-          potentialValue: 150000.0,
-          efficiencyIncrease: 20.0,
-          qualityImprovement: 15.0,
-          marketAdvantage: 25.0,
-          milestones: [],
-          requiredResources: [],
-          teamMembers: [],
-          achievements: ['Hızlı Prototyping'],
-        ),
-      ];
-
-      state = {...state, 'projects': mockProjects, 'loading': false};
-    } catch (error) {
-      state = {...state, 'error': error.toString(), 'loading': false};
-    }
-  }
-
-  Future<void> startNewProject(RdRequest request) async {
-    state = {...state, 'loading': true, 'error': null};
-
-    try {
-      final newProject = RdProject(
-        id: 'project_${DateTime.now().millisecondsSinceEpoch}',
-        playerId: request.playerId,
-        type: request.type,
-        level: request.level,
-        status: RdProjectStatus.inProgress,
-        name: '${request.level.displayName} ${request.type.displayName}',
-        description: request.projectDescription,
-        startDate: DateTime.now(),
-        durationInDays: _calculateDuration(request.level),
-        budget: _calculateBudget(request),
-        progress: 0.0,
-        successProbability: 70.0,
-        potentialValue: _calculatePotentialValue(request),
-      );
-
-      final currentProjects = List<RdProject>.from(state['projects'] ?? []);
-      currentProjects.add(newProject);
-
-      state = {...state, 'projects': currentProjects, 'loading': false};
-    } catch (error) {
-      state = {...state, 'error': error.toString(), 'loading': false};
-    }
-  }
-
-  RdLab? get currentLab => state['lab'] as RdLab?;
-  List<RdProject> get activeProjects =>
-      List<RdProject>.from(state['projects'] ?? []);
-  bool get isLoading => state['loading'] == true;
-  String? get error => state['error'] as String?;
-
-  void updateProjectProgress(String projectId, double newProgress) {
-    final currentProjects = List<RdProject>.from(state['projects'] ?? []);
-    final updatedProjects = currentProjects.map((project) {
-      if (project.id == projectId) {
-        return project.copyWith(progress: newProgress);
-      }
-      return project;
-    }).toList();
-
-    state = {...state, 'projects': updatedProjects};
-  }
-
-  void toggleProjectStatus(String projectId) {
-    final currentProjects = List<RdProject>.from(state['projects'] ?? []);
-    final updatedProjects = currentProjects.map((project) {
-      if (project.id == projectId) {
-        final newStatus = project.status == RdProjectStatus.paused
-            ? RdProjectStatus.inProgress
-            : RdProjectStatus.paused;
-        return project.copyWith(status: newStatus);
-      }
-      return project;
-    }).toList();
-
-    state = {...state, 'projects': updatedProjects};
-  }
-
-  int _calculateDuration(RdProjectLevel level) {
-    switch (level) {
-      case RdProjectLevel.basic:
-        return 20;
-      case RdProjectLevel.advanced:
-        return 35;
-      case RdProjectLevel.expert:
-        return 50;
-      case RdProjectLevel.innovative:
-        return 65;
-      case RdProjectLevel.revolutionary:
-        return 80;
-    }
-  }
-
-  double _calculateBudget(RdRequest request) {
-    double baseBudget = 0;
-    switch (request.level) {
-      case RdProjectLevel.basic:
-        baseBudget = 10000;
-        break;
-      case RdProjectLevel.advanced:
-        baseBudget = 25000;
-        break;
-      case RdProjectLevel.expert:
-        baseBudget = 50000;
-        break;
-      case RdProjectLevel.innovative:
-        baseBudget = 100000;
-        break;
-      case RdProjectLevel.revolutionary:
-        baseBudget = 200000;
-        break;
+    if (player.activeResearch?.nodeId == nodeId) {
+      return ResearchStatus.inProgress;
     }
 
-    if (request.usePremiumResources) baseBudget *= 1.5;
-    if (request.hireExternalExperts) baseBudget *= 1.3;
-    return baseBudget;
-  }
+    final node = researchTree.firstWhere((n) => n.id == nodeId);
+    final dependenciesMet = node.dependencies.every((depId) => player.completedResearchIds.contains(depId));
 
-  double _calculatePotentialValue(RdRequest request) {
-    switch (request.level) {
-      case RdProjectLevel.basic:
-        return 50000;
-      case RdProjectLevel.advanced:
-        return 150000;
-      case RdProjectLevel.expert:
-        return 300000;
-      case RdProjectLevel.innovative:
-        return 600000;
-      case RdProjectLevel.revolutionary:
-        return 1500000;
+    if (dependenciesMet) {
+      return ResearchStatus.available;
     }
+
+    return ResearchStatus.locked;
   }
 }
 
-final researchNotifierProvider =
-    StateNotifierProvider<ResearchNotifier, Map<String, dynamic>>(
-      (ref) => ResearchNotifier(),
+@riverpod
+class ResearchNotifier extends _$ResearchNotifier {
+  @override
+  ResearchState build() {
+    final player = ref.watch(playerNotifierProvider);
+    return ResearchState(
+      researchTree: _staticResearchTree,
+      player: player,
     );
+  }
+
+  (bool, String?) startResearch(String nodeId) {
+    final player = ref.read(playerNotifierProvider);
+    final playerNotifier = ref.read(playerNotifierProvider.notifier);
+    final node = state.researchTree.firstWhere((n) => n.id == nodeId);
+
+    if (player.activeResearch != null) {
+      return (false, 'Zaten bir araştırma devam ediyor.');
+    }
+
+    if (player.researchPoints < node.researchPointsCost) {
+      return (false, 'Yetersiz araştırma puanı.');
+    }
+
+    final status = state.getNodeStatus(nodeId);
+    if (status != ResearchStatus.available) {
+      return (false, 'Bu araştırma henüz yapılamaz.');
+    }
+
+    playerNotifier.updateResearchPoints(-node.researchPointsCost);
+
+    final now = DateTime.now();
+    final endTime = now.add(Duration(seconds: node.durationSeconds));
+    final activeResearch = ActiveResearch(nodeId: nodeId, startTime: now, endTime: endTime);
+
+    playerNotifier.setActiveResearch(activeResearch);
+
+    return (true, '${node.name} araştırması başlatıldı.');
+  }
+
+  // TODO: Araştırma tamamlama mantığı için bir zamanlayıcı veya periyodik kontrol eklenecek.
+}

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'research_development.dart';
 
 part 'player.freezed.dart';
 part 'player.g.dart';
@@ -16,6 +17,9 @@ class Player with _$Player {
     @Default(0) int totalTransactions,
     @Default(0.0) double totalProfit,
     @Default(0.0) double portfolioValue,
+    ActiveResearch? activeResearch,
+    @Default([]) List<String> completedResearchIds,
+    @Default(10) int researchPoints,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);

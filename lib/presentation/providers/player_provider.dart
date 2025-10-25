@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/player.dart';
+import '../../data/models/research_development.dart' as rd;
 import '../../game/systems/level_system.dart';
 import '../../game/systems/event_system.dart';
 import '../../services/api_service.dart';
@@ -195,5 +196,27 @@ class PlayerNotifier extends _$PlayerNotifier {
   void levelUp() {
     state = state.copyWith(level: state.level + 1, experience: 0);
     _applyLevelRewards(state.level);
+  }
+
+  // --- Araştırma (R&D) Metodları ---
+
+  /// Araştırma puanlarını güncelle
+  void updateResearchPoints(int amount) {
+    state = state.copyWith(researchPoints: state.researchPoints + amount);
+  }
+
+  /// Aktif araştırmayı ayarla
+  void setActiveResearch(rd.ActiveResearch? research) {
+    state = state.copyWith(activeResearch: research);
+  }
+
+  /// Bir araştırmayı tamamla
+  void completeResearch(String nodeId) {
+    final newCompletedIds = [...state.completedResearchIds, nodeId];
+    state = state.copyWith(
+      completedResearchIds: newCompletedIds,
+      activeResearch: null, // Aktif araştırmayı temizle
+    );
+    // TODO: Araştırma bonuslarını oyuncuya uygula
   }
 }
