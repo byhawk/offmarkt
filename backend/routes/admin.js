@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../middleware/errorHandler');
 const { generateAdminToken, protectAdmin, checkPermission, requireSuperAdmin } = require('../middleware/adminAuth');
+const { handleUpload } = require('../middleware/uploadHandler');
 const Admin = require('../models/Admin');
 const Player = require('../models/Player');
 const Product = require('../models/Product');
@@ -1431,6 +1432,115 @@ router.put('/market-settings', protectAdmin, checkPermission('manage_products'),
     success: true,
     message: 'Pazar ayarları güncellendi',
     data: { settings }
+  });
+}));
+
+// ============================================
+// IMAGE UPLOAD ENDPOINTS
+// ============================================
+
+// @route   POST /api/admin/upload
+// @desc    Resim yükle (Product, Shop, ShopType için)
+// @access  Private (Admin)
+router.post('/upload', protectAdmin, checkPermission('manage_products'), handleUpload);
+
+// @route   PUT /api/admin/products/:id/image
+// @desc    Ürüne resim ekle
+// @access  Private (Admin)
+router.put('/products/:id/image', protectAdmin, checkPermission('manage_products'), asyncHandler(async (req, res) => {
+  const { imageUrl } = req.body;
+  
+  if (!imageUrl) {
+    return res.status(400).json({
+      success: false,
+      message: 'Resim URL\'si gerekli'
+    });
+  }
+
+  const product = await Product.findByIdAndUpdate(
+    req.params.id,
+    { imageUrl },
+    { new: true }
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ürün bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Ürün resmi güncellendi',
+    data: { product }
+  });
+}));
+
+// @route   PUT /api/admin/shops/:id/image
+// @desc    Dükkana resim ekle
+// @access  Private (Admin)
+router.put('/shops/:id/image', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const { imageUrl } = req.body;
+  
+  if (!imageUrl) {
+    return res.status(400).json({
+      success: false,
+      message: 'Resim URL\'si gerekli'
+    });
+  }
+
+  const Shop = require('../models/Shop').Shop || require('../models/Shop');
+  const shop = await Shop.findByIdAndUpdate(
+    req.params.id,
+    { imageUrl },
+    { new: true }
+  );
+
+  if (!shop) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Dükkan resmi güncellendi',
+    data: { shop }
+  });
+}));
+
+// @route   PUT /api/admin/shop-types/:id/image
+// @desc    Dükkan türüne resim ekle
+// @access  Private (Admin)
+router.put('/shop-types/:id/image', protectAdmin, checkPermission('manage_shops'), asyncHandler(async (req, res) => {
+  const { imageUrl } = req.body;
+  
+  if (!imageUrl) {
+    return res.status(400).json({
+      success: false,
+      message: 'Resim URL\'si gerekli'
+    });
+  }
+
+  const shopType = await ShopType.findByIdAndUpdate(
+    req.params.id,
+    { imageUrl },
+    { new: true }
+  );
+
+  if (!shopType) {
+    return res.status(404).json({
+      success: false,
+      message: 'Dükkan türü bulunamadı'
+    });
+  }
+
+  res.json({
+    success: true,
+    message: 'Dükkan türü resmi güncellendi',
+    data: { shopType }
   });
 }));
 
