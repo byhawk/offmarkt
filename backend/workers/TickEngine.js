@@ -77,25 +77,56 @@ class TickEngine {
 
       if (readyActions.length === 0) {
         logger.info(`Tick #${this.tickCounter}: No pending actions`);
-        return;
+      } else {
+        logger.info(`Tick #${this.tickCounter}: Processing ${readyActions.length} actions`);
+
+        // 3. Her action'ı işle
+        const results = await Promise.allSettled(
+          readyActions.map(action => this.processAction(action))
+        );
+
+        // 4. Sonuçları logla
+        const successful = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results.filter(r => r.status === 'rejected').length;
+
+        logger.info(
+          `  Actions: Success: ${successful}, Failed: ${failed}`
+        );
       }
 
-      logger.info(`Tick #${this.tickCounter}: Processing ${readyActions.length} actions`);
+      // 5. HR Sistem - Maaş Ödeme (Her 12 tick'te = 60 saniye)
+      if (this.tickCounter % 12 === 0) {
+        await this.processHRSystem();
+      }
 
-      // 3. Her action'ı işle
-      const results = await Promise.allSettled(
-        readyActions.map(action => this.processAction(action))
-      );
+      // 6. R&D Sistem - Proje İlerlemesi (Her tick'te)
+      await this.processRDSystem();
 
-      // 4. Sonuçları logla
-      const successful = results.filter(r => r.status === 'fulfilled').length;
-      const failed = results.filter(r => r.status === 'rejected').length;
+      // 7. Holding Sistem - Temettü Ödeme (Her 24 tick'te = 120 saniye)
+      if (this.tickCounter % 24 === 0) {
+        await this.processHoldingSystem();
+      }
+
+      // 8. Auction Sistem - İhale Tamamlama (Her 6 tick'te = 30 saniye)
+      if (this.tickCounter % 6 === 0) {
+        await this.processAuctionSystem();
+      }
+
+      // 9. Global Events - Olay Tetikleme (Her 24 tick'te = 120 saniye)
+      if (this.tickCounter % 24 === 0) {
+        await this.processGlobalEvents();
+      }
+
+      // 10. Bank Sistem - Faiz Hesaplama (Her 12 tick'te = 60 saniye)
+      if (this.tickCounter % 12 === 0) {
+        await this.processBankInterest();
+      }
+
+      // 11. Premium Sistem - Boost Yönetimi (Her tick'te)
+      await this.processPremiumBoosts();
 
       const elapsed = Date.now() - startTime;
-      logger.info(
-        `✅ Tick #${this.tickCounter} completed in ${elapsed}ms | ` +
-        `Success: ${successful}, Failed: ${failed}`
-      );
+      logger.info(`✅ Tick #${this.tickCounter} completed in ${elapsed}ms`);
 
     } catch (error) {
       logger.error('TickEngine error:', error);
@@ -509,6 +540,276 @@ class TickEngine {
 
     } catch (error) {
       logger.error('WebSocket notification error:', error);
+    }
+  }
+
+  /**
+   * HR Sistem - Maaş Ödeme
+   */
+  async processHRSystem() {
+    try {
+      logger.info('💼 HR System: Processing salaries...');
+      
+      const Employee = require('../models/Employee');
+      const employees = await Employee.find({ status: 'active' });
+
+      let totalPaid = 0;
+      let successCount = 0;
+
+      for (const employee of employees) {
+        const player = await Player.findById(employee.playerId);
+        if (!player) continue;
+
+        const salary = employee.salary;
+        
+        if (player.cash >= salary) {
+          player.cash -= salary;
+          employee.totalEarnings += salary;
+          employee.lastPaymentDate = new Date();
+          
+          await player.save();
+          await employee.save();
+          
+          totalPaid += salary;
+          successCount++;
+        }
+      }
+
+      logger.info(`  ✅ Paid ${successCount} employees, Total: ₺${totalPaid.toFixed(2)}`);
+    } catch (error) {
+      logger.error('HR System error:', error);
+    }
+  }
+
+  /**
+   * R&D Sistem - Proje İlerlemesi
+   */
+  async processRDSystem() {
+    try {
+      const RdLab = require('../models/RdLab');
+      const labs = await RdLab.find({});
+
+      let completedCount = 0;
+      let failedCount = 0;
+
+      for (const lab of labs) {
+        for (const project of lab.activeProjects) {
+          if (project.status !== 'in_progress') continue;
+
+          const now = new Date();
+          const totalDuration = project.endDate - project.startDate;
+          const elapsed = now - project.startDate;
+          const progress = Math.min(100, (elapsed / totalDuration) * 100);
+
+          project.progress = progress;
+
+          if (now >= project.endDate) {
+            const random = Math.random();
+            const successProbability = 0.7 * lab.safetyFactor;
+
+            if (random < successProbability) {
+              project.status = 'completed';
+              lab.totalProjectsCompleted += 1;
+              lab.completedProjects.push(project.projectId);
+              completedCount++;
+            } else {
+              project.status = 'failed';
+              lab.totalProjectsFailed += 1;
+              lab.failedProjects.push(project.projectId);
+              failedCount++;
+            }
+
+            lab.activeProjects = lab.activeProjects.filter(p => p.projectId !== project.projectId);
+            lab.updateSuccessRate();
+          }
+        }
+
+        await lab.save();
+      }
+
+      if (completedCount > 0 || failedCount > 0) {
+        logger.info(`🔬 R&D System: Completed: ${completedCount}, Failed: ${failedCount}`);
+      }
+    } catch (error) {
+      logger.error('R&D System error:', error);
+    }
+  }
+
+  /**
+   * Holding Sistem - Temettü Ödeme
+   */
+  async processHoldingSystem() {
+    try {
+      logger.info('📈 Holding System: Processing dividends...');
+      
+      const Holding = require('../models/Holding');
+      const holdings = await Holding.find({});
+
+      let totalPaid = 0;
+      let holdingCount = 0;
+
+      for (const holding of holdings) {
+        if (holding.shares.length === 0) continue;
+
+        const player = await Player.findById(holding.playerId);
+        if (!player) continue;
+
+        const dividend = holding.monthlyDividend;
+        if (dividend > 0) {
+          player.cash += dividend;
+          holding.receiveDividend(dividend);
+          
+          await player.save();
+          await holding.save();
+          
+          totalPaid += dividend;
+          holdingCount++;
+        }
+      }
+
+      if (holdingCount > 0) {
+        logger.info(`  ✅ Paid dividends to ${holdingCount} holdings, Total: ₺${totalPaid.toFixed(2)}`);
+      }
+    } catch (error) {
+      logger.error('Holding System error:', error);
+    }
+  }
+
+  /**
+   * Auction Sistem - İhale Tamamlama
+   */
+  async processAuctionSystem() {
+    try {
+      const Auction = require('../models/Auction');
+      const auctions = await Auction.find({ status: 'active' });
+
+      let completedCount = 0;
+      let failedCount = 0;
+
+      for (const auction of auctions) {
+        if (new Date() >= auction.endDate) {
+          auction.completeAuction();
+          await auction.save();
+
+          if (auction.status === 'completed' && auction.winner) {
+            const winner = await Player.findById(auction.winner);
+            if (winner) {
+              winner.cash -= auction.finalPrice;
+              await winner.save();
+            }
+            completedCount++;
+          } else if (auction.status === 'failed') {
+            failedCount++;
+          }
+        }
+      }
+
+      if (completedCount > 0 || failedCount > 0) {
+        logger.info(`🔨 Auction System: Completed: ${completedCount}, Failed: ${failedCount}`);
+      }
+    } catch (error) {
+      logger.error('Auction System error:', error);
+    }
+  }
+
+  /**
+   * Global Events - Olay Tetikleme
+   */
+  async processGlobalEvents() {
+    try {
+      logger.info('🌍 Global Events: Processing events...');
+      
+      const GlobalEvent = require('../models/GlobalEvent');
+      const activeEvents = await GlobalEvent.find({ isActive: true, isTriggered: true });
+
+      let processedCount = 0;
+
+      for (const event of activeEvents) {
+        // Olay süresi biterse deaktifleştir
+        if (new Date() >= event.endDate) {
+          event.isActive = false;
+          await event.save();
+          processedCount++;
+        }
+      }
+
+      if (processedCount > 0) {
+        logger.info(`  ✅ Processed ${processedCount} events`);
+      }
+    } catch (error) {
+      logger.error('Global Events error:', error);
+    }
+  }
+
+  /**
+   * Bank Sistem - Faiz Hesaplama
+   */
+  async processBankInterest() {
+    try {
+      logger.info('🏦 Bank System: Calculating interest...');
+      
+      const BankAccount = require('../models/BankAccount');
+      const accounts = await BankAccount.find({ isActive: true });
+
+      let totalInterest = 0;
+      let successCount = 0;
+
+      for (const account of accounts) {
+        if (account.balance > 0) {
+          const dailyInterest = account.balance * account.interestRate;
+          
+          await account.calculateInterest();
+          
+          // Oyuncuya faizi ekle
+          const player = await Player.findById(account.playerId);
+          if (player) {
+            player.cash += dailyInterest;
+            await player.save();
+          }
+          
+          totalInterest += dailyInterest;
+          successCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        logger.info(`  ✅ Calculated interest for ${successCount} accounts, Total: ₺${totalInterest.toFixed(2)}`);
+      }
+    } catch (error) {
+      logger.error('Bank System error:', error);
+    }
+  }
+
+  /**
+   * Premium Sistem - Boost Yönetimi
+   */
+  async processPremiumBoosts() {
+    try {
+      const PremiumCurrency = require('../models/PremiumCurrency');
+      const premiums = await PremiumCurrency.find({ 'activeBoosts.isActive': true });
+
+      let deactivatedCount = 0;
+
+      for (const premium of premiums) {
+        const now = new Date();
+        
+        for (const boost of premium.activeBoosts) {
+          if (boost.isActive && boost.endDate <= now) {
+            boost.isActive = false;
+            deactivatedCount++;
+          }
+        }
+        
+        if (deactivatedCount > 0) {
+          await premium.save();
+        }
+      }
+
+      if (deactivatedCount > 0) {
+        logger.info(`💎 Premium System: Deactivated ${deactivatedCount} boosts`);
+      }
+    } catch (error) {
+      logger.error('Premium System error:', error);
     }
   }
 

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Baron Admin - İK Yönetimi</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar will be loaded by sidebar.js -->
+
+        <main class="main-content">
+            <!-- HR Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3 id="total-employees">0</h3>
+                        <p>Toplam Çalışan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="total-salaries">₺0</h3>
+                        <p>Aylık Maaş Gideri</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="avg-performance">0%</h3>
+                        <p>Ortalama Performans</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-content">
+                        <h3 id="avg-satisfaction">0%</h3>
+                        <p>Ortalama Memnuniyet</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>İK Yönetimi</h1>
+                <div class="header-actions">
+                    <button onclick="openHireDialog()" class="btn-refresh">➕ Çalışan İşe Al</button>
+                    <button onclick="refreshEmployees()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>İsim</th>
+                                <th>Pozisyon</th>
+                                <th>Maaş</th>
+                                <th>Performans</th>
+                                <th>Memnuniyet</th>
+                                <th>Toplam Kazanç</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTable">
+                            <tr><td colspan="8" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hire Employee Modal -->
+    <div id="hireModal" class="modal">
+        <div class="modal-content">
+            <h2>Yeni Çalışan İşe Al</h2>
+            <form id="hireForm">
+                <div class="form-group">
+                    <label>İsim</label>
+                    <input type="text" id="employeeName" placeholder="Çalışan adı" required>
+                </div>
+                <div class="form-group">
+                    <label>Pozisyon</label>
+                    <select id="employeePosition" required>
+                        <option value="Manager">Müdür</option>
+                        <option value="Specialist">Uzman</option>
+                        <option value="Technician">Teknisyen</option>
+                        <option value="Analyst">Analist</option>
+                        <option value="Director">Direktör</option>
+                        <option value="Consultant">Danışman</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Maaş (₺)</label>
+                    <input type="number" id="employeeSalary" placeholder="5000" min="1000" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeHireDialog()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">İşe Al</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allEmployees = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadEmployees();
+        });
+
+        async function loadEmployees() {
+            try {
+                const result = await API.call('/hr/employees');
+                if (result && result.success) {
+                    allEmployees = result.data.employees || [];
+                    updateStats(result.data);
+                    displayEmployees(allEmployees);
+                } else {
+                    showNotification('Hata: ' + (result?.message || 'Bilinmeyen hata'), 'error');
+                }
+            } catch (error) {
+                console.error('Load employees error:', error);
+                showNotification('Çalışanlar yüklenemedi', 'error');
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('total-employees').textContent = data.count || 0;
+            document.getElementById('total-salaries').textContent = '₺' + formatCurrency(data.totalSalaries || 0);
+            
+            if (allEmployees.length > 0) {
+                const avgPerformance = allEmployees.reduce((sum, e) => sum + e.performance, 0) / allEmployees.length;
+                const avgSatisfaction = allEmployees.reduce((sum, e) => sum + e.satisfaction, 0) / allEmployees.length;
+                
+                document.getElementById('avg-performance').textContent = Math.round(avgPerformance) + '%';
+                document.getElementById('avg-satisfaction').textContent = Math.round(avgSatisfaction) + '%';
+            }
+        }
+
+        function displayEmployees(employees) {
+            const tbody = document.getElementById('employeesTable');
+            if (!employees || employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">Çalışan bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = employees.map(emp => `
+                <tr>
+                    <td><strong>${emp.name}</strong></td>
+                    <td>${emp.position}</td>
+                    <td>₺${formatCurrency(emp.salary)}</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${emp.performance}%"></div>
+                        </div>
+                        ${Math.round(emp.performance)}%
+                    </td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${emp.satisfaction}%"></div>
+                        </div>
+                        ${Math.round(emp.satisfaction)}%
+                    </td>
+                    <td>₺${formatCurrency(emp.totalEarnings)}</td>
+                    <td>
+                        <span class="badge ${emp.status === 'active' ? 'success' : 'secondary'}">
+                            ${emp.status === 'active' ? 'Aktif' : 'Çıkarıldı'}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="viewEmployee('${emp._id}')" class="btn-sm">👁️ Detay</button>
+                        ${emp.status === 'active' ? 
+                            `<button onclick="fireEmployee('${emp._id}')" class="btn-sm danger">🚫 Çıkar</button>` :
+                            ''
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openHireDialog() {
+            document.getElementById('hireModal').style.display = 'flex';
+        }
+
+        function closeHireDialog() {
+            document.getElementById('hireModal').style.display = 'none';
+            document.getElementById('hireForm').reset();
+        }
+
+        document.getElementById('hireForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById('employeeName').value.trim(),
+                position: document.getElementById('employeePosition').value,
+                salary: parseInt(document.getElementById('employeeSalary').value)
+            };
+
+            try {
+                const result = await API.post('/hr/hire', data);
+                if (result.success) {
+                    showNotification('Çalışan başarıyla işe alındı', 'success');
+                    closeHireDialog();
+                    loadEmployees();
+                } else {
+                    showNotification('Hata: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Hire error:', error);
+                showNotification('İşe alma başarısız', 'error');
+            }
+        });
+
+        async function fireEmployee(id) {
+            if (!confirm('Bu çalışanı çıkarmak istediğinize emin misiniz?')) return;
+
+            try {
+                const result = await API.delete(`/hr/employees/${id}`);
+                if (result.success) {
+                    showNotification('Çalışan çıkarıldı', 'success');
+                    loadEmployees();
+                } else {
+                    showNotification('Hata: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Fire error:', error);
+                showNotification('Çalışan çıkarılamadı', 'error');
+            }
+        }
+
+        function viewEmployee(id) {
+            const emp = allEmployees.find(e => e._id === id);
+            if (emp) {
+                alert(`${emp.name}\nPozisyon: ${emp.position}\nMaaş: ₺${emp.salary}\nPerformans: ${emp.performance}%\nMemnuniyet: ${emp.satisfaction}%`);
+            }
+        }
+
+        function refreshEmployees() {
+            loadEmployees();
+        }
+
+        function showNotification(message, type = 'info') {
+            alert(message);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+    </script>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #10b981);
+            transition: width 0.3s ease;
+        }
+    </style>
+</body>
+</html>

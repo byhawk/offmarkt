@@ -59,7 +59,9 @@ class ResearchState with _$ResearchState {
     }
 
     final node = researchTree.firstWhere((n) => n.id == nodeId);
-    final dependenciesMet = node.dependencies.every((depId) => player.completedResearchIds.contains(depId));
+    final dependenciesMet = node.dependencies.every(
+      (depId) => player.completedResearchIds.contains(depId),
+    );
 
     if (dependenciesMet) {
       return ResearchStatus.available;
@@ -74,10 +76,7 @@ class ResearchNotifier extends _$ResearchNotifier {
   @override
   ResearchState build() {
     final player = ref.watch(playerNotifierProvider);
-    return ResearchState(
-      researchTree: _staticResearchTree,
-      player: player,
-    );
+    return ResearchState(researchTree: _staticResearchTree, player: player);
   }
 
   (bool, String?) startResearch(String nodeId) {
@@ -102,12 +101,29 @@ class ResearchNotifier extends _$ResearchNotifier {
 
     final now = DateTime.now();
     final endTime = now.add(Duration(seconds: node.durationSeconds));
-    final activeResearch = ActiveResearch(nodeId: nodeId, startTime: now, endTime: endTime);
+    final activeResearch = ActiveResearch(
+      nodeId: nodeId,
+      startTime: now,
+      endTime: endTime,
+    );
 
     playerNotifier.setActiveResearch(activeResearch);
 
     return (true, '${node.name} araştırması başlatıldı.');
   }
 
-  // TODO: Araştırma tamamlama mantığı için bir zamanlayıcı veya periyodik kontrol eklenecek.
+  /// Araştırma tamamlanmasını kontrol et ve işle
+  Future<void> checkAndCompleteResearch() async {
+    final player = ref.read(playerNotifierProvider);
+    final activeResearch = player.activeResearch;
+
+    if (activeResearch == null) return;
+
+    final now = DateTime.now();
+    if (now.isAfter(activeResearch.endTime)) {
+      // Araştırma tamamlandı
+      final playerNotifier = ref.read(playerNotifierProvider.notifier);
+      playerNotifier.completeResearch(activeResearch.nodeId);
+    }
+  }
 }

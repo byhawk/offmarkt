@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Baron Admin - Global Olaylar</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-content">
+                        <h3 id="active-events">0</h3>
+                        <p>Aktif Olaylar</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-content">
+                        <h3 id="triggered-events">0</h3>
+                        <p>Tetiklenen Olaylar</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="total-events">0</h3>
+                        <p>Toplam Olaylar</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>Global Olaylar</h1>
+                <div class="header-actions">
+                    <button onclick="openCreateDialog()" class="btn-refresh">➕ Olay Oluştur</button>
+                    <button onclick="refreshEvents()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <h2>Aktif Olaylar</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Olay</th>
+                                <th>Tür</th>
+                                <th>Şiddet</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTable">
+                            <tr><td colspan="7" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <h2>Yeni Olay Oluştur</h2>
+            <form id="createForm">
+                <div class="form-group">
+                    <label>Olay Adı</label>
+                    <input type="text" id="eventName" placeholder="Olay adı" required>
+                </div>
+                <div class="form-group">
+                    <label>Olay Türü</label>
+                    <select id="eventType" required>
+                        <option value="economic_crisis">Ekonomik Kriz</option>
+                        <option value="boom_period">Boom Dönemi</option>
+                        <option value="natural_disaster">Doğal Afet</option>
+                        <option value="technology_breakthrough">Teknoloji Atılımı</option>
+                        <option value="weather_change">Hava Durumu Değişimi</option>
+                        <option value="epidemic">Salgın</option>
+                        <option value="policy_change">Politika Değişimi</option>
+                        <option value="trade_change">Dış Ticaret Değişimi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Şiddet</label>
+                    <select id="eventSeverity" required>
+                        <option value="low">Düşük</option>
+                        <option value="medium" selected>Orta</option>
+                        <option value="high">Yüksek</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Süre (Saat)</label>
+                    <input type="number" id="eventDuration" placeholder="24" value="24" min="1" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeCreateDialog()" class="btn-secondary">İptal</button>
+                    <button type="submit" class="btn-primary">Oluştur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let allEvents = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadEvents();
+        });
+
+        async function loadEvents() {
+            try {
+                const result = await getGlobalEvents();
+                if (result && result.success) {
+                    allEvents = result.data.events || [];
+                    updateStats(allEvents);
+                    displayEvents(allEvents);
+                } else {
+                    console.error('Failed to load events:', result?.message);
+                    document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="error">Olaylar yüklenemedi</td></tr>';
+                }
+            } catch (error) {
+                console.error('Load events error:', error);
+                document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="error">Bağlantı hatası</td></tr>';
+            }
+        }
+
+        function updateStats(events) {
+            const active = events.filter(e => e.isActive).length;
+            const triggered = events.filter(e => e.isTriggered).length;
+            
+            document.getElementById('active-events').textContent = active;
+            document.getElementById('triggered-events').textContent = triggered;
+            document.getElementById('total-events').textContent = events.length;
+        }
+
+        function displayEvents(events) {
+            const tbody = document.getElementById('eventsTable');
+            if (!events || events.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">Olay bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = events.map(event => `
+                <tr>
+                    <td><strong>${event.name}</strong></td>
+                    <td>${getEventTypeLabel(event.type)}</td>
+                    <td><span class="badge ${event.severity}">${event.severity}</span></td>
+                    <td>${new Date(event.startDate).toLocaleString('tr-TR')}</td>
+                    <td>${event.endDate ? new Date(event.endDate).toLocaleString('tr-TR') : '-'}</td>
+                    <td>
+                        <span class="badge ${event.isActive ? 'success' : 'secondary'}">
+                            ${event.isActive ? 'Aktif' : 'İnaktif'}
+                        </span>
+                    </td>
+                    <td>
+                        ${!event.isTriggered ? 
+                            `<button onclick="triggerEvent('${event._id}')" class="btn-sm">⚡ Tetikle</button>` :
+                            ''
+                        }
+                        <button onclick="deleteEvent('${event._id}')" class="btn-sm danger">🗑️ Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getEventTypeLabel(type) {
+            const labels = {
+                economic_crisis: '📉 Ekonomik Kriz',
+                boom_period: '📈 Boom Dönemi',
+                natural_disaster: '🌪️ Doğal Afet',
+                technology_breakthrough: '🚀 Teknoloji Atılımı',
+                weather_change: '🌤️ Hava Durumu',
+                epidemic: '🦠 Salgın',
+                policy_change: '📋 Politika Değişimi',
+                trade_change: '🚢 Dış Ticaret'
+            };
+            return labels[type] || type;
+        }
+
+        function openCreateDialog() {
+            document.getElementById('createModal').style.display = 'flex';
+        }
+
+        function closeCreateDialog() {
+            document.getElementById('createModal').style.display = 'none';
+            document.getElementById('createForm').reset();
+        }
+
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById('eventName').value.trim(),
+                type: document.getElementById('eventType').value,
+                severity: document.getElementById('eventSeverity').value,
+                durationHours: parseInt(document.getElementById('eventDuration').value)
+            };
+
+            try {
+                const result = await createGlobalEvent(data);
+                if (result && result.success) {
+                    alert('Olay başarıyla oluşturuldu');
+                    closeCreateDialog();
+                    loadEvents();
+                } else {
+                    alert('Hata: ' + (result?.message || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                console.error('Create error:', error);
+                alert('Olay oluşturulamadı: ' + error.message);
+            }
+        });
+
+        async function triggerEvent(id) {
+            if (!confirm('Bu olayı tetiklemek istediğinize emin misiniz?')) return;
+
+            try {
+                const result = await triggerGlobalEvent(id);
+                if (result && result.success) {
+                    alert('Olay tetiklendi');
+                    loadEvents();
+                } else {
+                    alert('Hata: ' + (result?.message || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                console.error('Trigger error:', error);
+                alert('Olay tetiklenemedi: ' + error.message);
+            }
+        }
+
+        async function deleteEvent(id) {
+            if (!confirm('Bu olayı silmek istediğinize emin misiniz?')) return;
+
+            try {
+                const result = await deleteGlobalEvent(id);
+                if (result && result.success) {
+                    alert('Olay silindi');
+                    loadEvents();
+                } else {
+                    alert('Hata: ' + (result?.message || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Olay silinemedi: ' + error.message);
+            }
+        }
+
+        function refreshEvents() {
+            loadEvents();
+        }
+    </script>
+    <style>
+        .badge.low { background: #10b981; }
+        .badge.medium { background: #f59e0b; }
+        .badge.high { background: #ef4444; }
+    </style>
+</body>
+</html>

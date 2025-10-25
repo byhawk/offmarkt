@@ -31,6 +31,8 @@ mixin _$Player {
   int get totalTransactions => throw _privateConstructorUsedError;
   double get totalProfit => throw _privateConstructorUsedError;
   double get portfolioValue => throw _privateConstructorUsedError;
+  int get legalReputation => throw _privateConstructorUsedError;
+  int get streetReputation => throw _privateConstructorUsedError;
   ActiveResearch? get activeResearch => throw _privateConstructorUsedError;
   List<String> get completedResearchIds => throw _privateConstructorUsedError;
   int get researchPoints => throw _privateConstructorUsedError;
@@ -61,6 +63,8 @@ abstract class $PlayerCopyWith<$Res> {
     int totalTransactions,
     double totalProfit,
     double portfolioValue,
+    int legalReputation,
+    int streetReputation,
     ActiveResearch? activeResearch,
     List<String> completedResearchIds,
     int researchPoints,
@@ -95,6 +99,8 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
     Object? totalTransactions = null,
     Object? totalProfit = null,
     Object? portfolioValue = null,
+    Object? legalReputation = null,
+    Object? streetReputation = null,
     Object? activeResearch = freezed,
     Object? completedResearchIds = null,
     Object? researchPoints = null,
@@ -142,6 +148,14 @@ class _$PlayerCopyWithImpl<$Res, $Val extends Player>
                 ? _value.portfolioValue
                 : portfolioValue // ignore: cast_nullable_to_non_nullable
                       as double,
+            legalReputation: null == legalReputation
+                ? _value.legalReputation
+                : legalReputation // ignore: cast_nullable_to_non_nullable
+                      as int,
+            streetReputation: null == streetReputation
+                ? _value.streetReputation
+                : streetReputation // ignore: cast_nullable_to_non_nullable
+                      as int,
             activeResearch: freezed == activeResearch
                 ? _value.activeResearch
                 : activeResearch // ignore: cast_nullable_to_non_nullable
@@ -197,6 +211,8 @@ abstract class _$$PlayerImplCopyWith<$Res> implements $PlayerCopyWith<$Res> {
     int totalTransactions,
     double totalProfit,
     double portfolioValue,
+    int legalReputation,
+    int streetReputation,
     ActiveResearch? activeResearch,
     List<String> completedResearchIds,
     int researchPoints,
@@ -231,6 +247,8 @@ class __$$PlayerImplCopyWithImpl<$Res>
     Object? totalTransactions = null,
     Object? totalProfit = null,
     Object? portfolioValue = null,
+    Object? legalReputation = null,
+    Object? streetReputation = null,
     Object? activeResearch = freezed,
     Object? completedResearchIds = null,
     Object? researchPoints = null,
@@ -278,6 +296,14 @@ class __$$PlayerImplCopyWithImpl<$Res>
             ? _value.portfolioValue
             : portfolioValue // ignore: cast_nullable_to_non_nullable
                   as double,
+        legalReputation: null == legalReputation
+            ? _value.legalReputation
+            : legalReputation // ignore: cast_nullable_to_non_nullable
+                  as int,
+        streetReputation: null == streetReputation
+            ? _value.streetReputation
+            : streetReputation // ignore: cast_nullable_to_non_nullable
+                  as int,
         activeResearch: freezed == activeResearch
             ? _value.activeResearch
             : activeResearch // ignore: cast_nullable_to_non_nullable
@@ -313,6 +339,8 @@ class _$PlayerImpl implements _Player {
     this.totalTransactions = 0,
     this.totalProfit = 0.0,
     this.portfolioValue = 0.0,
+    this.legalReputation = 0,
+    this.streetReputation = 0,
     this.activeResearch,
     final List<String> completedResearchIds = const [],
     this.researchPoints = 10,
@@ -353,6 +381,12 @@ class _$PlayerImpl implements _Player {
   @JsonKey()
   final double portfolioValue;
   @override
+  @JsonKey()
+  final int legalReputation;
+  @override
+  @JsonKey()
+  final int streetReputation;
+  @override
   final ActiveResearch? activeResearch;
   final List<String> _completedResearchIds;
   @override
@@ -372,7 +406,7 @@ class _$PlayerImpl implements _Player {
 
   @override
   String toString() {
-    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue, activeResearch: $activeResearch, completedResearchIds: $completedResearchIds, researchPoints: $researchPoints, holdingId: $holdingId)';
+    return 'Player(name: $name, level: $level, experience: $experience, cash: $cash, bankAccount: $bankAccount, debt: $debt, currentDay: $currentDay, totalTransactions: $totalTransactions, totalProfit: $totalProfit, portfolioValue: $portfolioValue, legalReputation: $legalReputation, streetReputation: $streetReputation, activeResearch: $activeResearch, completedResearchIds: $completedResearchIds, researchPoints: $researchPoints, holdingId: $holdingId)';
   }
 
   @override
@@ -396,6 +430,10 @@ class _$PlayerImpl implements _Player {
                 other.totalProfit == totalProfit) &&
             (identical(other.portfolioValue, portfolioValue) ||
                 other.portfolioValue == portfolioValue) &&
+            (identical(other.legalReputation, legalReputation) ||
+                other.legalReputation == legalReputation) &&
+            (identical(other.streetReputation, streetReputation) ||
+                other.streetReputation == streetReputation) &&
             (identical(other.activeResearch, activeResearch) ||
                 other.activeResearch == activeResearch) &&
             const DeepCollectionEquality().equals(
@@ -422,6 +460,8 @@ class _$PlayerImpl implements _Player {
     totalTransactions,
     totalProfit,
     portfolioValue,
+    legalReputation,
+    streetReputation,
     activeResearch,
     const DeepCollectionEquality().hash(_completedResearchIds),
     researchPoints,
@@ -454,6 +494,8 @@ abstract class _Player implements Player {
     final int totalTransactions,
     final double totalProfit,
     final double portfolioValue,
+    final int legalReputation,
+    final int streetReputation,
     final ActiveResearch? activeResearch,
     final List<String> completedResearchIds,
     final int researchPoints,
@@ -482,6 +524,10 @@ abstract class _Player implements Player {
   double get totalProfit;
   @override
   double get portfolioValue;
+  @override
+  int get legalReputation;
+  @override
+  int get streetReputation;
   @override
   ActiveResearch? get activeResearch;
   @override

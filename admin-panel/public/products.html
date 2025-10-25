@@ -64,6 +64,15 @@
                     <label>Taban Fiyat</label>
                     <input type="number" id="productBasePrice" min="1" required>
                 </div>
+                <div class="form-group">
+                    <label>Ürün Resmi</label>
+                    <div class="image-upload-group">
+                        <input type="file" id="productImage" accept="image/*">
+                        <div id="imagePreview" class="image-preview"></div>
+                        <button type="button" onclick="uploadProductImage()" class="btn-secondary">📤 Resim Yükle</button>
+                    </div>
+                    <input type="hidden" id="productImageUrl">
+                </div>
                 <div class="modal-actions">
                     <button type="button" onclick="closeProductModal()" class="btn-secondary">İptal</button>
                     <button type="submit" class="btn-primary">Kaydet</button>
@@ -253,6 +262,37 @@
 
         function refreshProducts() {
             loadProducts();
+        }
+
+        // Resim yükleme fonksiyonları
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').innerHTML = 
+                        `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadProductImage() {
+            const fileInput = document.getElementById('productImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Lütfen bir resim seçin');
+                return;
+            }
+
+            const result = await uploadImage(file, 'products');
+            if (result && result.success) {
+                document.getElementById('productImageUrl').value = result.imageUrl;
+                alert('Resim başarıyla yüklendi!');
+            } else {
+                alert('Resim yükleme başarısız: ' + (result?.message || 'Bilinmeyen hata'));
+            }
         }
 
         loadProducts();

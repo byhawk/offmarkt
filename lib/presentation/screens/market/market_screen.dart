@@ -19,7 +19,6 @@ class MarketScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(playerNotifierProvider);
     final products = ref.watch(marketNotifierProvider);
-    final inventory = ref.watch(inventoryNotifierProvider);
     final inventoryNotifier = ref.watch(inventoryNotifierProvider.notifier);
 
     return Scaffold(
@@ -47,9 +46,7 @@ class MarketScreen extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.primaryGradient,
-              ),
+              gradient: LinearGradient(colors: AppColors.primaryGradient),
             ),
             child: Column(
               children: [
@@ -60,9 +57,7 @@ class MarketScreen extends ConsumerWidget {
                 const Gap(AppSpacing.xs),
                 Text(
                   '${products.length} ürün mevcut',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white70,
-                  ),
+                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
                 ),
               ],
             ),
@@ -129,17 +124,19 @@ class MarketScreen extends ConsumerWidget {
     try {
       // Backend'e istek gönder
       final apiService = ApiService();
-      final response = await apiService.post('/trade/buy', data: {
-        'productId': product.id,
-        'quantity': quantity,
-      });
+      final response = await apiService.post(
+        '/trade/buy',
+        data: {'productId': product.id, 'quantity': quantity},
+      );
 
       if (response.data['success'] == true) {
         // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
 
         // Inventory'yi yenile
-        await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
+        await ref
+            .read(inventoryNotifierProvider.notifier)
+            .loadInventoryFromBackend();
 
         // Başarı mesajı
         final discount = TradingSystem.calculateBulkDiscount(quantity);
@@ -150,17 +147,16 @@ class MarketScreen extends ConsumerWidget {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: Colors.green,
-            ),
+            SnackBar(content: Text(message), backgroundColor: Colors.green),
           );
         }
       } else {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('❌ ${response.data['message'] ?? 'Bilinmeyen hata'}'),
+              content: Text(
+                '❌ ${response.data['message'] ?? 'Bilinmeyen hata'}',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -169,10 +165,7 @@ class MarketScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Hata: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('❌ Hata: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -189,17 +182,19 @@ class MarketScreen extends ConsumerWidget {
     try {
       // Backend'e istek gönder
       final apiService = ApiService();
-      final response = await apiService.post('/trade/sell', data: {
-        'productId': product.id,
-        'quantity': quantity,
-      });
+      final response = await apiService.post(
+        '/trade/sell',
+        data: {'productId': product.id, 'quantity': quantity},
+      );
 
       if (response.data['success'] == true) {
         // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
 
         // Inventory'yi yenile
-        await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
+        await ref
+            .read(inventoryNotifierProvider.notifier)
+            .loadInventoryFromBackend();
 
         // Başarı mesajı
         final profitData = response.data['data'];
@@ -224,7 +219,9 @@ class MarketScreen extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('❌ ${response.data['message'] ?? 'Bilinmeyen hata'}'),
+              content: Text(
+                '❌ ${response.data['message'] ?? 'Bilinmeyen hata'}',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -233,10 +230,7 @@ class MarketScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Hata: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('❌ Hata: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -260,7 +254,8 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final priceChange = ((product.currentPrice - product.basePrice) / product.basePrice) * 100;
+    final priceChange =
+        ((product.currentPrice - product.basePrice) / product.basePrice) * 100;
     final canBuy = playerCash >= product.currentPrice;
 
     return GradientCard(
@@ -274,10 +269,23 @@ class _ProductCard extends StatelessWidget {
           // Ürün başlığı
           Row(
             children: [
-              Text(
-                product.emoji,
-                style: const TextStyle(fontSize: 40),
-              ),
+              // Resim veya Emoji
+              if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    product.imageUrl!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Text(
+                      product.emoji,
+                      style: const TextStyle(fontSize: 40),
+                    ),
+                  ),
+                )
+              else
+                Text(product.emoji, style: const TextStyle(fontSize: 40)),
               const Gap(AppSpacing.md),
               Expanded(
                 child: Column(
@@ -285,10 +293,7 @@ class _ProductCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          product.name,
-                          style: AppTextStyles.h3,
-                        ),
+                        Text(product.name, style: AppTextStyles.h3),
                         if (product.isTrending) ...[
                           const Gap(AppSpacing.xs),
                           const Text('🔥', style: TextStyle(fontSize: 16)),
@@ -332,25 +337,17 @@ class _ProductCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Fiyat',
-                    style: AppTextStyles.caption,
-                  ),
+                  Text('Fiyat', style: AppTextStyles.caption),
                   Text(
                     Formatters.formatCurrency(product.currentPrice),
-                    style: AppTextStyles.h3.copyWith(
-                      color: AppColors.success,
-                    ),
+                    style: AppTextStyles.h3.copyWith(color: AppColors.success),
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    'Stoğunuz',
-                    style: AppTextStyles.caption,
-                  ),
+                  Text('Stoğunuz', style: AppTextStyles.caption),
                   Text(
                     '$inventoryQuantity adet',
                     style: AppTextStyles.h4.copyWith(
@@ -426,10 +423,7 @@ class _ProductCard extends StatelessWidget {
                         : null,
                     icon: const Icon(Icons.remove),
                   ),
-                  Text(
-                    '$quantity',
-                    style: AppTextStyles.h3,
-                  ),
+                  Text('$quantity', style: AppTextStyles.h3),
                   IconButton(
                     onPressed: () => setState(() => quantity++),
                     icon: const Icon(Icons.add),
@@ -489,10 +483,7 @@ class _ProductCard extends StatelessWidget {
                         : null,
                     icon: const Icon(Icons.remove),
                   ),
-                  Text(
-                    '$quantity',
-                    style: AppTextStyles.h3,
-                  ),
+                  Text('$quantity', style: AppTextStyles.h3),
                   IconButton(
                     onPressed: quantity < inventoryQuantity
                         ? () => setState(() => quantity++)

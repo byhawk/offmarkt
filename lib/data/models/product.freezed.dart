@@ -15,6 +15,203 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+PriceHistory _$PriceHistoryFromJson(Map<String, dynamic> json) {
+  return _PriceHistory.fromJson(json);
+}
+
+/// @nodoc
+mixin _$PriceHistory {
+  double get price => throw _privateConstructorUsedError;
+  DateTime get changedAt => throw _privateConstructorUsedError;
+  String get reason => throw _privateConstructorUsedError;
+
+  /// Serializes this PriceHistory to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $PriceHistoryCopyWith<PriceHistory> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $PriceHistoryCopyWith<$Res> {
+  factory $PriceHistoryCopyWith(
+    PriceHistory value,
+    $Res Function(PriceHistory) then,
+  ) = _$PriceHistoryCopyWithImpl<$Res, PriceHistory>;
+  @useResult
+  $Res call({double price, DateTime changedAt, String reason});
+}
+
+/// @nodoc
+class _$PriceHistoryCopyWithImpl<$Res, $Val extends PriceHistory>
+    implements $PriceHistoryCopyWith<$Res> {
+  _$PriceHistoryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? price = null,
+    Object? changedAt = null,
+    Object? reason = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            price: null == price
+                ? _value.price
+                : price // ignore: cast_nullable_to_non_nullable
+                      as double,
+            changedAt: null == changedAt
+                ? _value.changedAt
+                : changedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            reason: null == reason
+                ? _value.reason
+                : reason // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$PriceHistoryImplCopyWith<$Res>
+    implements $PriceHistoryCopyWith<$Res> {
+  factory _$$PriceHistoryImplCopyWith(
+    _$PriceHistoryImpl value,
+    $Res Function(_$PriceHistoryImpl) then,
+  ) = __$$PriceHistoryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({double price, DateTime changedAt, String reason});
+}
+
+/// @nodoc
+class __$$PriceHistoryImplCopyWithImpl<$Res>
+    extends _$PriceHistoryCopyWithImpl<$Res, _$PriceHistoryImpl>
+    implements _$$PriceHistoryImplCopyWith<$Res> {
+  __$$PriceHistoryImplCopyWithImpl(
+    _$PriceHistoryImpl _value,
+    $Res Function(_$PriceHistoryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? price = null,
+    Object? changedAt = null,
+    Object? reason = null,
+  }) {
+    return _then(
+      _$PriceHistoryImpl(
+        price: null == price
+            ? _value.price
+            : price // ignore: cast_nullable_to_non_nullable
+                  as double,
+        changedAt: null == changedAt
+            ? _value.changedAt
+            : changedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        reason: null == reason
+            ? _value.reason
+            : reason // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$PriceHistoryImpl implements _PriceHistory {
+  const _$PriceHistoryImpl({
+    required this.price,
+    required this.changedAt,
+    this.reason = 'manual',
+  });
+
+  factory _$PriceHistoryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PriceHistoryImplFromJson(json);
+
+  @override
+  final double price;
+  @override
+  final DateTime changedAt;
+  @override
+  @JsonKey()
+  final String reason;
+
+  @override
+  String toString() {
+    return 'PriceHistory(price: $price, changedAt: $changedAt, reason: $reason)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PriceHistoryImpl &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.changedAt, changedAt) ||
+                other.changedAt == changedAt) &&
+            (identical(other.reason, reason) || other.reason == reason));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, price, changedAt, reason);
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$PriceHistoryImplCopyWith<_$PriceHistoryImpl> get copyWith =>
+      __$$PriceHistoryImplCopyWithImpl<_$PriceHistoryImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PriceHistoryImplToJson(this);
+  }
+}
+
+abstract class _PriceHistory implements PriceHistory {
+  const factory _PriceHistory({
+    required final double price,
+    required final DateTime changedAt,
+    final String reason,
+  }) = _$PriceHistoryImpl;
+
+  factory _PriceHistory.fromJson(Map<String, dynamic> json) =
+      _$PriceHistoryImpl.fromJson;
+
+  @override
+  double get price;
+  @override
+  DateTime get changedAt;
+  @override
+  String get reason;
+
+  /// Create a copy of PriceHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$PriceHistoryImplCopyWith<_$PriceHistoryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 Product _$ProductFromJson(Map<String, dynamic> json) {
   return _Product.fromJson(json);
 }
@@ -23,6 +220,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) {
 mixin _$Product {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
   String get emoji => throw _privateConstructorUsedError;
   double get basePrice => throw _privateConstructorUsedError;
   double get currentPrice => throw _privateConstructorUsedError;
@@ -31,6 +229,10 @@ mixin _$Product {
   bool get isTrending => throw _privateConstructorUsedError;
   double get seasonalFactor => throw _privateConstructorUsedError;
   String get category => throw _privateConstructorUsedError;
+  double get minPrice => throw _privateConstructorUsedError;
+  double get maxPrice => throw _privateConstructorUsedError;
+  List<PriceHistory> get priceHistory => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this Product to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,6 +251,7 @@ abstract class $ProductCopyWith<$Res> {
   $Res call({
     String id,
     String name,
+    String? description,
     String emoji,
     double basePrice,
     double currentPrice,
@@ -57,6 +260,10 @@ abstract class $ProductCopyWith<$Res> {
     bool isTrending,
     double seasonalFactor,
     String category,
+    double minPrice,
+    double maxPrice,
+    List<PriceHistory> priceHistory,
+    String? imageUrl,
   });
 }
 
@@ -77,6 +284,7 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? description = freezed,
     Object? emoji = null,
     Object? basePrice = null,
     Object? currentPrice = null,
@@ -85,6 +293,10 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
     Object? isTrending = null,
     Object? seasonalFactor = null,
     Object? category = null,
+    Object? minPrice = null,
+    Object? maxPrice = null,
+    Object? priceHistory = null,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -96,6 +308,10 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            description: freezed == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
             emoji: null == emoji
                 ? _value.emoji
                 : emoji // ignore: cast_nullable_to_non_nullable
@@ -128,6 +344,22 @@ class _$ProductCopyWithImpl<$Res, $Val extends Product>
                 ? _value.category
                 : category // ignore: cast_nullable_to_non_nullable
                       as String,
+            minPrice: null == minPrice
+                ? _value.minPrice
+                : minPrice // ignore: cast_nullable_to_non_nullable
+                      as double,
+            maxPrice: null == maxPrice
+                ? _value.maxPrice
+                : maxPrice // ignore: cast_nullable_to_non_nullable
+                      as double,
+            priceHistory: null == priceHistory
+                ? _value.priceHistory
+                : priceHistory // ignore: cast_nullable_to_non_nullable
+                      as List<PriceHistory>,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -145,6 +377,7 @@ abstract class _$$ProductImplCopyWith<$Res> implements $ProductCopyWith<$Res> {
   $Res call({
     String id,
     String name,
+    String? description,
     String emoji,
     double basePrice,
     double currentPrice,
@@ -153,6 +386,10 @@ abstract class _$$ProductImplCopyWith<$Res> implements $ProductCopyWith<$Res> {
     bool isTrending,
     double seasonalFactor,
     String category,
+    double minPrice,
+    double maxPrice,
+    List<PriceHistory> priceHistory,
+    String? imageUrl,
   });
 }
 
@@ -172,6 +409,7 @@ class __$$ProductImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? description = freezed,
     Object? emoji = null,
     Object? basePrice = null,
     Object? currentPrice = null,
@@ -180,6 +418,10 @@ class __$$ProductImplCopyWithImpl<$Res>
     Object? isTrending = null,
     Object? seasonalFactor = null,
     Object? category = null,
+    Object? minPrice = null,
+    Object? maxPrice = null,
+    Object? priceHistory = null,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$ProductImpl(
@@ -191,6 +433,10 @@ class __$$ProductImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        description: freezed == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String?,
         emoji: null == emoji
             ? _value.emoji
             : emoji // ignore: cast_nullable_to_non_nullable
@@ -223,6 +469,22 @@ class __$$ProductImplCopyWithImpl<$Res>
             ? _value.category
             : category // ignore: cast_nullable_to_non_nullable
                   as String,
+        minPrice: null == minPrice
+            ? _value.minPrice
+            : minPrice // ignore: cast_nullable_to_non_nullable
+                  as double,
+        maxPrice: null == maxPrice
+            ? _value.maxPrice
+            : maxPrice // ignore: cast_nullable_to_non_nullable
+                  as double,
+        priceHistory: null == priceHistory
+            ? _value._priceHistory
+            : priceHistory // ignore: cast_nullable_to_non_nullable
+                  as List<PriceHistory>,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -234,6 +496,7 @@ class _$ProductImpl implements _Product {
   const _$ProductImpl({
     required this.id,
     required this.name,
+    this.description,
     required this.emoji,
     required this.basePrice,
     required this.currentPrice,
@@ -242,7 +505,11 @@ class _$ProductImpl implements _Product {
     this.isTrending = false,
     this.seasonalFactor = 1.0,
     this.category = 'legal',
-  });
+    this.minPrice = 0.0,
+    this.maxPrice = 1000.0,
+    final List<PriceHistory> priceHistory = const [],
+    this.imageUrl,
+  }) : _priceHistory = priceHistory;
 
   factory _$ProductImpl.fromJson(Map<String, dynamic> json) =>
       _$$ProductImplFromJson(json);
@@ -251,6 +518,8 @@ class _$ProductImpl implements _Product {
   final String id;
   @override
   final String name;
+  @override
+  final String? description;
   @override
   final String emoji;
   @override
@@ -272,10 +541,27 @@ class _$ProductImpl implements _Product {
   @override
   @JsonKey()
   final String category;
+  @override
+  @JsonKey()
+  final double minPrice;
+  @override
+  @JsonKey()
+  final double maxPrice;
+  final List<PriceHistory> _priceHistory;
+  @override
+  @JsonKey()
+  List<PriceHistory> get priceHistory {
+    if (_priceHistory is EqualUnmodifiableListView) return _priceHistory;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_priceHistory);
+  }
+
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'Product(id: $id, name: $name, emoji: $emoji, basePrice: $basePrice, currentPrice: $currentPrice, demand: $demand, volatility: $volatility, isTrending: $isTrending, seasonalFactor: $seasonalFactor, category: $category)';
+    return 'Product(id: $id, name: $name, description: $description, emoji: $emoji, basePrice: $basePrice, currentPrice: $currentPrice, demand: $demand, volatility: $volatility, isTrending: $isTrending, seasonalFactor: $seasonalFactor, category: $category, minPrice: $minPrice, maxPrice: $maxPrice, priceHistory: $priceHistory, imageUrl: $imageUrl)';
   }
 
   @override
@@ -285,6 +571,8 @@ class _$ProductImpl implements _Product {
             other is _$ProductImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
             (identical(other.emoji, emoji) || other.emoji == emoji) &&
             (identical(other.basePrice, basePrice) ||
                 other.basePrice == basePrice) &&
@@ -298,7 +586,17 @@ class _$ProductImpl implements _Product {
             (identical(other.seasonalFactor, seasonalFactor) ||
                 other.seasonalFactor == seasonalFactor) &&
             (identical(other.category, category) ||
-                other.category == category));
+                other.category == category) &&
+            (identical(other.minPrice, minPrice) ||
+                other.minPrice == minPrice) &&
+            (identical(other.maxPrice, maxPrice) ||
+                other.maxPrice == maxPrice) &&
+            const DeepCollectionEquality().equals(
+              other._priceHistory,
+              _priceHistory,
+            ) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -307,6 +605,7 @@ class _$ProductImpl implements _Product {
     runtimeType,
     id,
     name,
+    description,
     emoji,
     basePrice,
     currentPrice,
@@ -315,6 +614,10 @@ class _$ProductImpl implements _Product {
     isTrending,
     seasonalFactor,
     category,
+    minPrice,
+    maxPrice,
+    const DeepCollectionEquality().hash(_priceHistory),
+    imageUrl,
   );
 
   /// Create a copy of Product
@@ -335,6 +638,7 @@ abstract class _Product implements Product {
   const factory _Product({
     required final String id,
     required final String name,
+    final String? description,
     required final String emoji,
     required final double basePrice,
     required final double currentPrice,
@@ -343,6 +647,10 @@ abstract class _Product implements Product {
     final bool isTrending,
     final double seasonalFactor,
     final String category,
+    final double minPrice,
+    final double maxPrice,
+    final List<PriceHistory> priceHistory,
+    final String? imageUrl,
   }) = _$ProductImpl;
 
   factory _Product.fromJson(Map<String, dynamic> json) = _$ProductImpl.fromJson;
@@ -351,6 +659,8 @@ abstract class _Product implements Product {
   String get id;
   @override
   String get name;
+  @override
+  String? get description;
   @override
   String get emoji;
   @override
@@ -367,6 +677,14 @@ abstract class _Product implements Product {
   double get seasonalFactor;
   @override
   String get category;
+  @override
+  double get minPrice;
+  @override
+  double get maxPrice;
+  @override
+  List<PriceHistory> get priceHistory;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of Product
   /// with the given fields replaced by the non-null parameter values.

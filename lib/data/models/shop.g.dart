@@ -144,6 +144,7 @@ _$ShopImpl _$$ShopImplFromJson(Map<String, dynamic> json) => _$ShopImpl(
       : AutoPurchaseSettings.fromJson(
           json['autoPurchaseSettings'] as Map<String, dynamic>,
         ),
+  imageUrl: json['imageUrl'] as String?,
 );
 
 Map<String, dynamic> _$$ShopImplToJson(_$ShopImpl instance) =>
@@ -169,6 +170,7 @@ Map<String, dynamic> _$$ShopImplToJson(_$ShopImpl instance) =>
       'monthlyCustomers': instance.monthlyCustomers,
       'listedProducts': instance.listedProducts,
       'autoPurchaseSettings': instance.autoPurchaseSettings,
+      'imageUrl': instance.imageUrl,
     };
 
 _$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
@@ -194,6 +196,7 @@ _$ShopTypeImpl _$$ShopTypeImplFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
+      imageUrl: json['imageUrl'] as String?,
     );
 
 Map<String, dynamic> _$$ShopTypeImplToJson(_$ShopTypeImpl instance) =>
@@ -211,6 +214,7 @@ Map<String, dynamic> _$$ShopTypeImplToJson(_$ShopTypeImpl instance) =>
       'isActive': instance.isActive,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
+      'imageUrl': instance.imageUrl,
     };
 
 _$ShopInstanceImpl _$$ShopInstanceImplFromJson(Map<String, dynamic> json) =>
@@ -238,6 +242,7 @@ _$ShopInstanceImpl _$$ShopInstanceImplFromJson(Map<String, dynamic> json) =>
           : AutoPurchaseSettings.fromJson(
               json['autoPurchaseSettings'] as Map<String, dynamic>,
             ),
+      imageUrl: json['imageUrl'] as String?,
     );
 
 Map<String, dynamic> _$$ShopInstanceImplToJson(_$ShopInstanceImpl instance) =>
@@ -255,4 +260,5 @@ Map<String, dynamic> _$$ShopInstanceImplToJson(_$ShopInstanceImpl instance) =>
       'isActive': instance.isActive,
       'listedProducts': instance.listedProducts,
       'autoPurchaseSettings': instance.autoPurchaseSettings,
+      'imageUrl': instance.imageUrl,
     };

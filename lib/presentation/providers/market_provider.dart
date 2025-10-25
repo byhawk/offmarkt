@@ -55,7 +55,6 @@ class MarketNotifier extends _$MarketNotifier {
 
       state = products;
     } catch (e) {
-      print('Error loading products: $e');
       // Hata durumunda boş liste
       state = [];
     }
@@ -91,12 +90,9 @@ class InventoryNotifier extends _$InventoryNotifier {
         final playerData = response.data['data']['player'];
         final inventoryList = playerData['inventory'] as List? ?? [];
 
-        print('📦 Loading inventory from backend: ${inventoryList.length} items');
-
         state = inventoryList.map((item) {
           final productId = item['productId']?.toString() ?? '';
           final quantity = item['quantity'] ?? 0;
-          print('  - ProductID: $productId, Quantity: $quantity');
 
           return InventoryItem(
             productId: productId,
@@ -108,11 +104,9 @@ class InventoryNotifier extends _$InventoryNotifier {
                 : DateTime.now(),
           );
         }).toList();
-
-        print('✅ Inventory loaded: ${state.length} items in state');
       }
     } catch (e) {
-      print('❌ Error loading inventory: $e');
+      // Inventory loading failed - maintain current state
     }
   }
 

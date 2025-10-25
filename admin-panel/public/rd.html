@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Baron Admin - R&D Yönetimi</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🔬</div>
+                    <div class="stat-content">
+                        <h3 id="active-projects">0</h3>
+                        <p>Aktif Projeler</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 id="completed-projects">0</h3>
+                        <p>Tamamlanan Projeler</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-content">
+                        <h3 id="failed-projects">0</h3>
+                        <p>Başarısız Projeler</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="success-rate">0%</h3>
+                        <p>Başarı Oranı</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>R&D Yönetimi</h1>
+                <div class="header-actions">
+                    <button onclick="refreshRD()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <h2>Aktif Projeler</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Oyuncu</th>
+                                <th>Proje Sayısı</th>
+                                <th>Lab Seviyesi</th>
+                                <th>Bütçe</th>
+                                <th>Başarı Oranı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labsTable">
+                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadRDData();
+        });
+
+        async function loadRDData() {
+            try {
+                const result = await API.call('/rd/projects');
+                if (result && result.success) {
+                    updateStats(result.data);
+                    displayLabs(result.data);
+                }
+            } catch (error) {
+                console.error('Load RD error:', error);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('active-projects').textContent = data.projects?.length || 0;
+            document.getElementById('completed-projects').textContent = data.completedProjects || 0;
+            document.getElementById('failed-projects').textContent = data.failedProjects || 0;
+            document.getElementById('success-rate').textContent = Math.round(data.successRate || 0) + '%';
+        }
+
+        function displayLabs(data) {
+            const tbody = document.getElementById('labsTable');
+            if (!data.projects || data.projects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">Proje bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = `
+                <tr>
+                    <td>Sistem</td>
+                    <td>${data.projects.length}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>${Math.round(data.successRate || 0)}%</td>
+                    <td><button onclick="refreshRD()" class="btn-sm">🔄 Yenile</button></td>
+                </tr>
+            `;
+        }
+
+        function refreshRD() {
+            loadRDData();
+        }
+    </script>
+</body>
+</html>

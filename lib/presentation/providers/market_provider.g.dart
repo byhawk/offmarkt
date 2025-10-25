@@ -6,7 +6,7 @@ part of 'market_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$marketNotifierHash() => r'e0f723fdd0ae6b37c78fc3de7705fb3a3e3aac82';
+String _$marketNotifierHash() => r'329c6f4b6f166ab697ddbefb26c6f0c13f1f3aed';
 
 /// See also [MarketNotifier].
 @ProviderFor(MarketNotifier)
@@ -22,7 +22,7 @@ final marketNotifierProvider =
     );
 
 typedef _$MarketNotifier = AutoDisposeNotifier<List<Product>>;
-String _$inventoryNotifierHash() => r'485b85129aaa9ee678ff8d0728965fe9ffabc0bf';
+String _$inventoryNotifierHash() => r'd9b3c5babaa6a7d5fdc08fbdc5536fb7d2d73589';
 
 /// Envanter provider'ı
 ///

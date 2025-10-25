@@ -107,6 +107,7 @@ class Shop with _$Shop {
     // Ekonomik sistem alanları
     @Default([]) List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   }) = _Shop;
 
   factory Shop.fromJson(Map<String, dynamic> json) => _$ShopFromJson(json);
@@ -118,6 +119,7 @@ class Shop with _$Shop {
 @freezed
 class ShopType with _$ShopType {
   const factory ShopType({
+    // ignore: invalid_annotation_target
     @JsonKey(name: '_id') required String id,
     required String shopType, // kodu: 'flower_shop', 'supermarket' vs
     required String displayName, // görünüm adı: 'Çiçekçi Mağazası'
@@ -127,10 +129,12 @@ class ShopType with _$ShopType {
     required int storageCapacity, // depo kapasitesi (adet)
     required int minCustomers, // minimum müşteri
     required String locationType, // 'street', 'mall' vs
-    @Default([]) List<String> allowedCategories, // izin verilen ürün kategorileri
+    @Default([])
+    List<String> allowedCategories, // izin verilen ürün kategorileri
     @Default(true) bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? imageUrl,
   }) = _ShopType;
 
   factory ShopType.fromJson(Map<String, dynamic> json) =>
@@ -141,6 +145,7 @@ class ShopType with _$ShopType {
 @freezed
 class ShopInstance with _$ShopInstance {
   const factory ShopInstance({
+    // ignore: invalid_annotation_target
     @JsonKey(name: '_id') required String id,
     required String shopType, // bağlı olduğu type kodu
     ShopType? shopTypeData, // populate edildiğinde gelir
@@ -156,6 +161,7 @@ class ShopInstance with _$ShopInstance {
     // Ürün sistemi (eski sistemden)
     @Default([]) List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   }) = _ShopInstance;
 
   factory ShopInstance.fromJson(Map<String, dynamic> json) =>

@@ -65,6 +65,16 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  minPrice: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  maxPrice: {
+    type: Number,
+    default: 1000,
+    min: 0
+  },
   isLegal: {
     type: Boolean,
     default: true

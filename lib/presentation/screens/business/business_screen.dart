@@ -5,7 +5,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../data/models/research_development.dart';
 import '../../../data/models/shop.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
@@ -193,7 +192,6 @@ class _BusinessCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return GradientCard(
       gradientColors: shop.isActive
           ? AppColors.successGradient
@@ -284,11 +282,16 @@ class _BusinessCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const HrScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HrScreen()),
+                    );
                   },
                   icon: const Icon(Icons.groups, size: 18),
                   label: const Text('Çalışanlar'),
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
               const Gap(AppSpacing.sm),
@@ -296,12 +299,16 @@ class _BusinessCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Ürün yönetimi yakında eklenecek!')),
+                      const SnackBar(
+                        content: Text('Ürün yönetimi yakında eklenecek!'),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.inventory_2, size: 18),
                   label: const Text('Ürünler'),
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
               const Gap(AppSpacing.sm),
@@ -309,12 +316,16 @@ class _BusinessCard extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Raporlar yakında eklenecek!')),
+                      const SnackBar(
+                        content: Text('Raporlar yakında eklenecek!'),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.analytics, size: 18),
                   label: const Text('Raporlar'),
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -348,8 +359,81 @@ class _StatRow extends StatelessWidget {
   }
 }
 
-// TODO: Implement _NewProjectDialog when RdRequest, RdProjectType, RdProjectLevel types are defined
-// class _NewProjectDialog extends StatefulWidget { ... }
+class _NewProjectDialog extends StatefulWidget {
+  final Function(String, int) onSubmit;
+
+  const _NewProjectDialog({required this.onSubmit});
+
+  @override
+  State<_NewProjectDialog> createState() => _NewProjectDialogState();
+}
+
+class _NewProjectDialogState extends State<_NewProjectDialog> {
+  late TextEditingController _nameController;
+  int _selectedDuration = 60;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Yeni Proje Başlat'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(
+              labelText: 'Proje Adı',
+              hintText: 'Örn: Yeni Ürün Geliştirme',
+            ),
+          ),
+          const Gap(AppSpacing.md),
+          DropdownButton<int>(
+            value: _selectedDuration,
+            isExpanded: true,
+            items: [60, 300, 600, 1800].map((duration) {
+              return DropdownMenuItem(
+                value: duration,
+                child: Text('${duration ~/ 60} dakika'),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedDuration = value);
+              }
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('İptal'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if (_nameController.text.isNotEmpty) {
+              widget.onSubmit(_nameController.text, _selectedDuration);
+              Navigator.pop(context);
+            }
+          },
+          child: const Text('Başlat'),
+        ),
+      ],
+    );
+  }
+}
 
 class _ActiveResearchCard extends ConsumerWidget {
   @override
@@ -359,13 +443,27 @@ class _ActiveResearchCard extends ConsumerWidget {
 
     if (activeResearch == null) {
       return GestureDetector(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ResearchScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ResearchScreen()),
+        ),
         child: GradientCard(
           child: Row(
             children: [
-              const Icon(Icons.science_outlined, size: 28, color: AppColors.textMuted),
+              const Icon(
+                Icons.science_outlined,
+                size: 28,
+                color: AppColors.textMuted,
+              ),
               const Gap(AppSpacing.md),
-              Expanded(child: Text('Aktif araştırma yok.', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted))),
+              Expanded(
+                child: Text(
+                  'Aktif araştırma yok.',
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ),
               const Icon(Icons.arrow_forward_ios, color: AppColors.textMuted),
             ],
           ),
@@ -373,12 +471,19 @@ class _ActiveResearchCard extends ConsumerWidget {
       );
     }
 
-    final node = researchState.researchTree.firstWhere((n) => n.id == activeResearch.nodeId);
-    final progress = DateTime.now().difference(activeResearch.startTime).inSeconds / activeResearch.endTime.difference(activeResearch.startTime).inSeconds;
+    final node = researchState.researchTree.firstWhere(
+      (n) => n.id == activeResearch.nodeId,
+    );
+    final progress =
+        DateTime.now().difference(activeResearch.startTime).inSeconds /
+        activeResearch.endTime.difference(activeResearch.startTime).inSeconds;
     final timeRemaining = activeResearch.endTime.difference(DateTime.now());
 
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ResearchScreen())),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ResearchScreen()),
+      ),
       child: GradientCard(
         gradientColors: AppColors.primaryGradient,
         child: Column(
@@ -402,8 +507,10 @@ class _ActiveResearchCard extends ConsumerWidget {
               borderRadius: const BorderRadius.all(Radius.circular(10)),
               child: LinearProgressIndicator(
                 value: progress.clamp(0.0, 1.0),
-                backgroundColor: Colors.white.withOpacity(0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentGold),
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.accentGold,
+                ),
                 minHeight: 12,
               ),
             ),
@@ -427,7 +534,9 @@ class _ActiveResearchCard extends ConsumerWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Hızlandırma özelliği yakında gelecek!')),
+                    const SnackBar(
+                      content: Text('Hızlandırma özelliği yakında gelecek!'),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.rocket_launch, size: 18),

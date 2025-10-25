@@ -26,7 +26,6 @@ class ShopTypesNotifier extends _$ShopTypesNotifier {
       }
     } catch (error) {
       // Error handling
-      print('Error loading shop types: $error');
     }
   }
 }
@@ -40,16 +39,12 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
   Future<void> loadPlayerShops() async {
     try {
       final response = await apiService.get('/shop/owned');
-      print('📍 loadPlayerShops response: ${response.data}');
       if (response.data['success']) {
         final shopsList = response.data['data']['shops'] as List;
-        print('📦 Found ${shopsList.length} owned shops');
-        state = shopsList
-            .map((json) => ShopInstance.fromJson(json))
-            .toList();
+        state = shopsList.map((json) => ShopInstance.fromJson(json)).toList();
       }
     } catch (error) {
-      print('❌ Error loading player shops: $error');
+      // Player shops loading failed - maintain empty state
     }
   }
 
@@ -59,7 +54,6 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
     String? customName,
   }) async {
     try {
-      print('🛒 Attempting to purchase shop: $shopId with category: $businessCategory');
       final response = await apiService.post(
         '/shop/purchase',
         data: {
@@ -70,34 +64,30 @@ class PlayerShopsNotifier extends _$PlayerShopsNotifier {
         },
       );
 
-      print('📍 Purchase response: ${response.data}');
       if (response.data['success']) {
         await loadPlayerShops();
         return true;
       } else {
-        print('❌ Purchase failed: ${response.data['message']}');
         return false;
       }
     } catch (error) {
-      print('❌ Error purchasing shop: $error');
       return false;
     }
   }
 
   Future<bool> sellShop(String shopId) async {
     try {
-      print('🏚️ Attempting to leave shop: $shopId');
-      final response = await apiService.post('/shop/leave', data: {'shopId': shopId});
-      print('📍 Leave response: ${response.data}');
+      final response = await apiService.post(
+        '/shop/leave',
+        data: {'shopId': shopId},
+      );
       if (response.data['success']) {
         await loadPlayerShops();
         return true;
       } else {
-        print('❌ Leave failed: ${response.data['message']}');
         return false;
       }
     } catch (error) {
-      print('❌ Error leaving shop: $error');
       return false;
     }
   }
@@ -138,7 +128,7 @@ class ShopsNotifier extends _$ShopsNotifier {
             .toList();
       }
     } catch (error) {
-      print('Error loading available shops: $error');
+      // Silently fail on load - maintain current empty state if backend unavailable
     }
   }
 
@@ -147,10 +137,7 @@ class ShopsNotifier extends _$ShopsNotifier {
     try {
       final response = await apiService.post(
         '/shop/rent',
-        data: {
-          'shopId': shopId,
-          'businessCategory': businessCategory,
-        },
+        data: {'shopId': shopId, 'businessCategory': businessCategory},
       );
       if (response.data['success'] ?? false) {
         // Reload shops after renting
@@ -159,7 +146,6 @@ class ShopsNotifier extends _$ShopsNotifier {
       }
       return false;
     } catch (error) {
-      print('Error renting shop: $error');
       return false;
     }
   }

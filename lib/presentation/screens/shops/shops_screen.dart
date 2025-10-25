@@ -33,9 +33,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
     final player = ref.watch(playerNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🏢 Dükkanlar'),
-      ),
+      appBar: AppBar(title: const Text('🏢 Dükkanlar')),
       body: shopTypes.isEmpty
           ? const Center(
               child: Column(
@@ -64,10 +62,27 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            _getShopIcon(shopType.shopType),
-                            style: const TextStyle(fontSize: 40),
-                          ),
+                          if (shopType.imageUrl != null &&
+                              shopType.imageUrl!.isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                shopType.imageUrl!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Text(
+                                      _getShopIcon(shopType.shopType),
+                                      style: const TextStyle(fontSize: 40),
+                                    ),
+                              ),
+                            )
+                          else
+                            Text(
+                              _getShopIcon(shopType.shopType),
+                              style: const TextStyle(fontSize: 40),
+                            ),
                           const Gap(AppSpacing.md),
                           Expanded(
                             child: Column(
@@ -96,13 +111,19 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.monetization_on, size: 14, color: AppColors.textMuted),
+                                  Icon(
+                                    Icons.monetization_on,
+                                    size: 14,
+                                    color: AppColors.textMuted,
+                                  ),
                                   Gap(AppSpacing.xs),
                                   Text('Fiyat', style: AppTextStyles.caption),
                                 ],
                               ),
                               Text(
-                                Formatters.formatCurrency(shopType.purchasePrice),
+                                Formatters.formatCurrency(
+                                  shopType.purchasePrice,
+                                ),
                                 style: AppTextStyles.h4.copyWith(
                                   color: canAfford
                                       ? AppColors.success
@@ -116,9 +137,16 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.group, size: 14, color: AppColors.textMuted),
+                                  Icon(
+                                    Icons.group,
+                                    size: 14,
+                                    color: AppColors.textMuted,
+                                  ),
                                   Gap(AppSpacing.xs),
-                                  Text('Min Müşteri', style: AppTextStyles.caption),
+                                  Text(
+                                    'Min Müşteri',
+                                    style: AppTextStyles.caption,
+                                  ),
                                 ],
                               ),
                               Text(
@@ -131,7 +159,10 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                       ),
                       if (shopType.allowedCategories.isNotEmpty) ...[
                         const Gap(AppSpacing.sm),
-                        Text('📦 İzin Verilen Kategoriler:', style: AppTextStyles.caption),
+                        Text(
+                          '📦 İzin Verilen Kategoriler:',
+                          style: AppTextStyles.caption,
+                        ),
                         const Gap(AppSpacing.xs),
                         Wrap(
                           spacing: AppSpacing.xs,
@@ -143,10 +174,12 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.2),
+                                color: AppColors.primary.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.5),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                               child: Text(
@@ -169,7 +202,8 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.accentGold,
                             foregroundColor: AppColors.backgroundPrimary,
-                            disabledBackgroundColor: AppColors.ashGrey.withOpacity(0.5),
+                            disabledBackgroundColor: AppColors.ashGrey
+                                .withValues(alpha: 0.5),
                             disabledForegroundColor: AppColors.textMuted,
                           ),
                           child: Text(
@@ -253,7 +287,9 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
     if (confirmed != true || !context.mounted) return;
 
     try {
-      final playerShopsNotifier = ref.read(playerShopsNotifierProvider.notifier);
+      final playerShopsNotifier = ref.read(
+        playerShopsNotifierProvider.notifier,
+      );
       final playerNotifier = ref.read(playerNotifierProvider.notifier);
 
       final success = await playerShopsNotifier.purchaseShop(
@@ -269,7 +305,9 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('✅ ${shopType.displayName} başarıyla satın alındı!'),
+              content: Text(
+                '✅ ${shopType.displayName} başarıyla satın alındı!',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -287,10 +325,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Hata: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('❌ Hata: $e'), backgroundColor: Colors.red),
         );
       }
     }

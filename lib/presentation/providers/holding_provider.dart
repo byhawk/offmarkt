@@ -22,9 +22,24 @@ class HoldingNotifier extends _$HoldingNotifier {
       treasury: 1250000,
       level: 5,
       members: [
-        HoldingMember(playerId: 'player1', playerName: 'Ahmet CEO', rank: HoldingRank.ceo, totalContribution: 800000),
-        HoldingMember(playerId: 'player2', playerName: 'Ayşe Yönetici', rank: HoldingRank.executive, totalContribution: 450000),
-        HoldingMember(playerId: 'player3', playerName: 'Mehmet Üye', rank: HoldingRank.member, totalContribution: 120000),
+        HoldingMember(
+          playerId: 'player1',
+          playerName: 'Ahmet CEO',
+          rank: HoldingRank.ceo,
+          totalContribution: 800000,
+        ),
+        HoldingMember(
+          playerId: 'player2',
+          playerName: 'Ayşe Yönetici',
+          rank: HoldingRank.executive,
+          totalContribution: 450000,
+        ),
+        HoldingMember(
+          playerId: 'player3',
+          playerName: 'Mehmet Üye',
+          rank: HoldingRank.member,
+          totalContribution: 120000,
+        ),
       ],
     );
   }
@@ -38,7 +53,7 @@ class HoldingNotifier extends _$HoldingNotifier {
       return (false, 'Yetersiz nakit!');
     }
 
-    playerNotifier.removeCash(amount);
+    playerNotifier.removeCash(amount.toDouble());
 
     if (state != null) {
       state = state!.copyWith(treasury: state!.treasury + amount);
@@ -57,7 +72,7 @@ class HoldingNotifier extends _$HoldingNotifier {
       return (false, 'Holding kurmak için yetersiz bakiye!');
     }
 
-    playerNotifier.removeCash(creationCost);
+    playerNotifier.removeCash(creationCost.toDouble());
 
     final newHolding = Holding(
       id: tag.toLowerCase(),
@@ -66,7 +81,12 @@ class HoldingNotifier extends _$HoldingNotifier {
       treasury: 0,
       level: 1,
       members: [
-        HoldingMember(playerId: 'player1', playerName: currentPlayer.name, rank: HoldingRank.ceo, totalContribution: 0),
+        HoldingMember(
+          playerId: 'player1',
+          playerName: currentPlayer.name,
+          rank: HoldingRank.ceo,
+          totalContribution: 0,
+        ),
       ],
     );
 

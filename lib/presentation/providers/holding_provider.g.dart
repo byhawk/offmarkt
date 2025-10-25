@@ -6,7 +6,7 @@ part of 'holding_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$holdingNotifierHash() => r'6d3650a86a9ca7e2b03522f8a9879e33a5eab6f2';
+String _$holdingNotifierHash() => r'854e587c6cf043437308aace171d8bef92b60149';
 
 /// See also [HoldingNotifier].
 @ProviderFor(HoldingNotifier)

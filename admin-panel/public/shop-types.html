@@ -139,6 +139,17 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Dükkan Türü Resmi</label>
+                    <div class="image-upload-group">
+                        <input type="file" id="shopTypeImage" accept="image/*">
+                        <div id="shopTypeImagePreview" class="image-preview"></div>
+                        <button type="button" onclick="uploadShopTypeImage()" class="btn-secondary">📤 Resim Yükle</button>
+                    </div>
+                    <input type="hidden" id="shopTypeImageUrl">
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" onclick="closeModal()" class="btn-secondary">İptal</button>
                     <button type="submit" class="btn-primary">Kaydet</button>
@@ -362,6 +373,37 @@
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+
+        // Resim yükleme fonksiyonları
+        document.getElementById('shopTypeImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('shopTypeImagePreview').innerHTML = 
+                        `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadShopTypeImage() {
+            const fileInput = document.getElementById('shopTypeImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Lütfen bir resim seçin');
+                return;
+            }
+
+            const result = await uploadImage(file, 'shop-types');
+            if (result && result.success) {
+                document.getElementById('shopTypeImageUrl').value = result.imageUrl;
+                alert('Resim başarıyla yüklendi!');
+            } else {
+                alert('Resim yükleme başarısız: ' + (result?.message || 'Bilinmeyen hata'));
+            }
         }
     </script>
 </body>

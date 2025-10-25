@@ -128,6 +128,16 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Dükkan Resmi</label>
+                    <div class="image-upload-group">
+                        <input type="file" id="shopImage" accept="image/*">
+                        <div id="shopImagePreview" class="image-preview"></div>
+                        <button type="button" onclick="uploadShopImage()" class="btn-secondary">📤 Resim Yükle</button>
+                    </div>
+                    <input type="hidden" id="shopImageUrl">
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Ülke</label>
@@ -569,6 +579,37 @@
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+
+        // Resim yükleme fonksiyonları
+        document.getElementById('shopImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('shopImagePreview').innerHTML = 
+                        `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadShopImage() {
+            const fileInput = document.getElementById('shopImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Lütfen bir resim seçin');
+                return;
+            }
+
+            const result = await uploadImage(file, 'shops');
+            if (result && result.success) {
+                document.getElementById('shopImageUrl').value = result.imageUrl;
+                alert('Resim başarıyla yüklendi!');
+            } else {
+                alert('Resim yükleme başarısız: ' + (result?.message || 'Bilinmeyen hata'));
+            }
         }
     </script>
 </body>

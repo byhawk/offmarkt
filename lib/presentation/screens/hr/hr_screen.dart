@@ -4,7 +4,6 @@ import 'package:gap/gap.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../data/models/employee.dart';
 import '../../providers/employee_provider.dart';
 import '../../widgets/hr/employee_card.dart';
 
@@ -16,9 +15,7 @@ class HrScreen extends ConsumerWidget {
     final employees = ref.watch(employeeNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('İK Yönetimi'),
-      ),
+      appBar: AppBar(title: const Text('İK Yönetimi')),
       body: employees.isEmpty
           ? Center(
               child: Column(
@@ -40,17 +37,16 @@ class HrScreen extends ConsumerWidget {
                 return EmployeeCard(
                   employee: employee,
                   onFire: () {
-                    ref.read(employeeNotifierProvider.notifier).fireEmployee(employee.id);
+                    ref
+                        .read(employeeNotifierProvider.notifier)
+                        .fireEmployee(employee.id);
                   },
                 );
               },
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          showDialog(
-            context: context,
-            builder: (_) => _HireEmployeeDialog(),
-          );
+          showDialog(context: context, builder: (_) => _HireEmployeeDialog());
         },
         label: const Text('Çalışan İşe Al'),
         icon: const Icon(Icons.add),
@@ -63,7 +59,8 @@ class HrScreen extends ConsumerWidget {
 
 class _HireEmployeeDialog extends ConsumerStatefulWidget {
   @override
-  ConsumerState<_HireEmployeeDialog> createState() => _HireEmployeeDialogState();
+  ConsumerState<_HireEmployeeDialog> createState() =>
+      _HireEmployeeDialogState();
 }
 
 class _HireEmployeeDialogState extends ConsumerState<_HireEmployeeDialog> {
@@ -86,20 +83,24 @@ class _HireEmployeeDialogState extends ConsumerState<_HireEmployeeDialog> {
       final position = _positionController.text;
       final salary = double.tryParse(_salaryController.text) ?? 0;
 
-      final (success, message) = ref.read(employeeNotifierProvider.notifier).hireEmployee(
-            name: name,
-            position: position,
-            salary: salary,
-          );
+      final (success, message) = ref
+          .read(employeeNotifierProvider.notifier)
+          .hireEmployee(name: name, position: position, salary: salary);
 
       if (success) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$name işe alındı!'), backgroundColor: AppColors.success),
+          SnackBar(
+            content: Text('$name işe alındı!'),
+            backgroundColor: AppColors.success,
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message ?? 'Bir hata oluştu.'), backgroundColor: AppColors.danger),
+          SnackBar(
+            content: Text(message ?? 'Bir hata oluştu.'),
+            backgroundColor: AppColors.danger,
+          ),
         );
       }
     }
@@ -124,12 +125,16 @@ class _HireEmployeeDialogState extends ConsumerState<_HireEmployeeDialog> {
               TextFormField(
                 controller: _positionController,
                 decoration: const InputDecoration(labelText: 'Pozisyon'),
-                validator: (value) => value!.isEmpty ? 'Pozisyon boş olamaz' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Pozisyon boş olamaz' : null,
               ),
               const Gap(AppSpacing.md),
               TextFormField(
                 controller: _salaryController,
-                decoration: const InputDecoration(labelText: 'Maaş', prefixText: '₺'),
+                decoration: const InputDecoration(
+                  labelText: 'Maaş',
+                  prefixText: '₺',
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty) return 'Maaş boş olamaz';
@@ -146,10 +151,7 @@ class _HireEmployeeDialogState extends ConsumerState<_HireEmployeeDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('İptal'),
         ),
-        ElevatedButton(
-          onPressed: _submit,
-          child: const Text('İşe Al'),
-        ),
+        ElevatedButton(onPressed: _submit, child: const Text('İşe Al')),
       ],
     );
   }

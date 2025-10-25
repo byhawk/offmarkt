@@ -14,17 +14,26 @@ async function apiRequest(endpoint, options = {}) {
     
     try {
         const response = await fetch(`${API_URL}${endpoint}`, config);
-        const data = await response.json();
-        
+
         if (response.status === 401) {
             logout();
             return null;
         }
-        
+
+        if (!response.ok) {
+            console.error(`API Error: ${response.status} ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+            console.error('Error details:', errorData);
+            return null;
+        }
+
+        const data = await response.json();
         return data;
     } catch (error) {
         console.error('API Error:', error);
-        alert('Bağlantı hatası! Backend çalışıyor mu?');
+        console.error('Endpoint:', endpoint);
+        console.error('API_URL:', API_URL);
+        alert('Bağlantı hatası! Backend çalışıyor mu?\n\nDetay: ' + error.message);
         return null;
     }
 }
@@ -177,6 +186,147 @@ async function getTransactions(params = {}) {
 async function getEvents(params = {}) {
     const query = new URLSearchParams(params).toString();
     return await apiRequest(`/events?${query}`);
+}
+
+// Global Events API
+async function getGlobalEvents(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/global-events?${query}`);
+}
+
+async function createGlobalEvent(data) {
+    return await apiRequest('/global-events', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+async function triggerGlobalEvent(eventId) {
+    return await apiRequest(`/global-events/${eventId}/trigger`, {
+        method: 'POST'
+    });
+}
+
+async function updateGlobalEvent(id, data) {
+    return await apiRequest(`/global-events/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+async function deleteGlobalEvent(id) {
+    return await apiRequest(`/global-events/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+// Bank API
+async function getBankAccounts(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/bank/accounts?${query}`);
+}
+
+async function getBankAccount(playerId) {
+    return await apiRequest(`/bank/account/${playerId}`);
+}
+
+async function getBankTransactions(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/bank/transactions?${query}`);
+}
+
+async function calculateBankInterest() {
+    return await apiRequest('/bank/calculate-interest', {
+        method: 'POST'
+    });
+}
+
+// Premium API
+async function getPremiumCurrencies(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/premium/currencies?${query}`);
+}
+
+async function getPremiumBoosts(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/premium/boosts?${query}`);
+}
+
+async function createPremiumBoost(data) {
+    return await apiRequest('/premium/boosts', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+async function updatePremiumBoost(id, data) {
+    return await apiRequest(`/premium/boosts/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+async function deletePremiumBoost(id) {
+    return await apiRequest(`/premium/boosts/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+async function getPremiumTransactions(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return await apiRequest(`/premium/transactions?${query}`);
+}
+
+// Upload API
+async function uploadImage(file, type = 'general') {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('type', type);
+    
+    try {
+        const response = await fetch(`http://213.142.159.245:3000/api/admin/upload`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.status === 401) {
+            logout();
+            return null;
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Upload Error:', error);
+        alert('Resim yükleme hatası!');
+        return null;
+    }
+}
+
+async function updateProductImage(productId, imageUrl) {
+    return await apiRequest(`/products/${productId}/image`, {
+        method: 'PUT',
+        body: JSON.stringify({ imageUrl })
+    });
+}
+
+async function updateShopImage(shopId, imageUrl) {
+    return await apiRequest(`/shops/${shopId}/image`, {
+        method: 'PUT',
+        body: JSON.stringify({ imageUrl })
+    });
+}
+
+async function updateShopTypeImage(shopTypeId, imageUrl) {
+    return await apiRequest(`/shop-types/${shopTypeId}/image`, {
+        method: 'PUT',
+        body: JSON.stringify({ imageUrl })
+    });
 }
 
 // Utility functions

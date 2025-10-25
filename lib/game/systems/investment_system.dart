@@ -1,5 +1,5 @@
-import 'package:offmarket_flutter/data/models/investment.dart';
-import 'package:offmarket_flutter/data/models/player.dart';
+import 'package:deal_baron/data/models/investment.dart';
+import 'package:deal_baron/data/models/player.dart';
 
 /// Yatırım sistemi için saf fonksiyonlar
 /// Tüm fonksiyonlar saf (side-effect içermeyen) fonksiyonlardır
@@ -17,7 +17,10 @@ class InvestmentSystem {
     // Yeterli nakit kontrolü
     final totalCost = shareCount * pricePerShare;
     if (player.cash < totalCost) {
-      return (false, 'Yeterli nakitiniz yok. Gerekli: ₺${totalCost.toStringAsFixed(2)}');
+      return (
+        false,
+        'Yeterli nakitiniz yok. Gerekli: ₺${totalCost.toStringAsFixed(2)}',
+      );
     }
 
     // Hisse alımı
@@ -32,14 +35,15 @@ class InvestmentSystem {
     );
 
     // Oyuncu bakiyesini güncelle
-    final updatedPlayer = player.copyWith(
-      cash: player.cash - totalCost,
-    );
+    final updatedPlayer = player.copyWith(cash: player.cash - totalCost);
 
     onPlayerUpdate(updatedPlayer);
     onInvestmentAdd(investment);
 
-    return (true, 'Başarıyla $shareCount adet $companyName hissesi satın aldınız. Toplam maliyet: ₺${totalCost.toStringAsFixed(2)}');
+    return (
+      true,
+      'Başarıyla $shareCount adet $companyName hissesi satın aldınız. Toplam maliyet: ₺${totalCost.toStringAsFixed(2)}',
+    );
   }
 
   /// Mevcut hisse senetlerini satma işlemi
@@ -57,7 +61,11 @@ class InvestmentSystem {
     }
 
     if (shareCount > investment.shares) {
-      return (false, 'Yeterli hisseniz yok. Sahip olduğunuz: ${investment.shares}', 0.0);
+      return (
+        false,
+        'Yeterli hisseniz yok. Sahip olduğunuz: ${investment.shares}',
+        0.0,
+      );
     }
 
     final totalSaleValue = shareCount * currentPrice;
@@ -65,9 +73,7 @@ class InvestmentSystem {
     final profitLoss = totalSaleValue - totalPurchaseValue;
 
     // Oyuncu bakiyesini güncelle
-    final updatedPlayer = player.copyWith(
-      cash: player.cash + totalSaleValue,
-    );
+    final updatedPlayer = player.copyWith(cash: player.cash + totalSaleValue);
     onPlayerUpdate(updatedPlayer);
 
     // Yatırım miktarını güncelle veya kaldır
@@ -87,7 +93,7 @@ class InvestmentSystem {
     return (
       true,
       '$shareCount adet hisse satıldı. $profitLossText: ₺${profitLoss.abs().toStringAsFixed(2)}',
-      profitLoss
+      profitLoss,
     );
   }
 

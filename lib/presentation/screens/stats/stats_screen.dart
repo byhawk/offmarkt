@@ -42,9 +42,7 @@ class StatsScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('📊 İstatistikler'),
-      ),
+      appBar: AppBar(title: const Text('📊 İstatistikler')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
@@ -268,71 +266,6 @@ class StatsScreen extends ConsumerWidget {
   }
 }
 
-class _ProgressCard extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final int value;
-  final int maxValue;
-  final Color color;
-
-  const _ProgressCard({
-    required this.emoji,
-    required this.label,
-    required this.value,
-    required this.maxValue,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final percentage = (value / maxValue).clamp(0.0, 1.0);
-
-    return GradientCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 24)),
-              const Gap(AppSpacing.sm),
-              Expanded(
-                child: Text(label, style: AppTextStyles.label),
-              ),
-            ],
-          ),
-          const Gap(AppSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$value/$maxValue',
-                style: AppTextStyles.caption,
-              ),
-              Text(
-                '${(percentage * 100).toInt()}%',
-                style: AppTextStyles.caption.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const Gap(AppSpacing.xs),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: percentage,
-              minHeight: 8,
-              backgroundColor: Colors.white12,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _AchievementCard extends StatelessWidget {
   final String emoji;
   final String title;
@@ -362,10 +295,7 @@ class _AchievementCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 24),
-              ),
+              child: Text(emoji, style: const TextStyle(fontSize: 24)),
             ),
           ),
           const Gap(AppSpacing.md),
@@ -390,17 +320,9 @@ class _AchievementCard extends StatelessWidget {
             ),
           ),
           if (isCompleted)
-            const Icon(
-              Icons.check_circle,
-              color: Colors.white,
-              size: 32,
-            )
+            const Icon(Icons.check_circle, color: Colors.white, size: 32)
           else
-            const Icon(
-              Icons.lock,
-              color: Colors.grey,
-              size: 32,
-            ),
+            const Icon(Icons.lock, color: Colors.grey, size: 32),
         ],
       ),
     );

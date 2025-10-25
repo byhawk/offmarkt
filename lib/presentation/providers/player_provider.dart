@@ -40,9 +40,8 @@ class PlayerNotifier extends _$PlayerNotifier {
         totalProfit: (playerData['totalProfit'] ?? 0.0).toDouble(),
         portfolioValue: (playerData['portfolioValue'] ?? 0.0).toDouble(),
       );
-      print('💾 Player data loaded: cash=${state.cash}');
     } catch (e) {
-      print('Error loading player data: $e');
+      // Player data loading failed - maintain default state
     }
   }
 
@@ -54,12 +53,10 @@ class PlayerNotifier extends _$PlayerNotifier {
 
       if (response.data['success'] == true) {
         final playerData = response.data['data']['player'];
-        print('🔄 Refreshing player data: cash=${playerData['cash']}');
         await loadPlayerFromBackend(playerData);
-        print('✅ Player refreshed: cash=${state.cash}');
       }
     } catch (e) {
-      print('❌ Error refreshing player data: $e');
+      // Silently fail on refresh - maintain current state if backend unavailable
     }
   }
 
@@ -217,7 +214,20 @@ class PlayerNotifier extends _$PlayerNotifier {
       completedResearchIds: newCompletedIds,
       activeResearch: null, // Aktif araştırmayı temizle
     );
-    // TODO: Araştırma bonuslarını oyuncuya uygula
+
+    // Araştırma bonuslarını oyuncuya uygula
+    _applyResearchBonus(nodeId);
+  }
+
+  /// Araştırma bonuslarını oyuncuya uygula
+  void _applyResearchBonus(String nodeId) {
+    // Basit bonus sistemi - her araştırma tamamlandığında
+    // oyuncuya araştırma puanı ve deneyim bonusu ver
+    const bonusPoints = 10;
+    const bonusExp = 50;
+
+    updateResearchPoints(bonusPoints);
+    addExperience(bonusExp);
   }
 
   // --- Holding Metodları ---

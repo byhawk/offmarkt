@@ -17,7 +17,6 @@ class InventoryScreen extends ConsumerWidget {
     final marketNotifier = ref.watch(marketNotifierProvider.notifier);
 
     // DEBUG
-    print('📦 InventoryScreen: ${inventory.length} items in inventory');
 
     // Envanter ürünlerini grupla
     final Map<String, List<int>> groupedInventory = {};
@@ -282,7 +281,7 @@ class _InventoryCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(

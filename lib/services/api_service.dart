@@ -165,8 +165,9 @@ class ApiService {
           return 'İstenen kaynak bulunamadı';
         } else if (statusCode == 500) {
           return 'Sunucu hatası oluştu';
+        } else {
+          return message ?? 'Bir hata oluştu';
         }
-        return message ?? 'Bir hata oluştu';
       case DioExceptionType.cancel:
         return 'İstek iptal edildi';
       case DioExceptionType.unknown:
@@ -209,7 +210,6 @@ class ApiService {
       }
       return [];
     } catch (e) {
-      print('Market products error: $e');
       return [];
     }
   }
@@ -310,13 +310,18 @@ class ApiService {
     bool? smartPricing,
   }) async {
     final updateData = <String, dynamic>{};
-    if (enableBalanceControl != null)
+    if (enableBalanceControl != null) {
       updateData['enableBalanceControl'] = enableBalanceControl;
-    if (balanceInterval != null)
+    }
+    if (balanceInterval != null) {
       updateData['balanceInterval'] = balanceInterval;
-    if (priceAdjustmentRate != null)
+    }
+    if (priceAdjustmentRate != null) {
       updateData['priceAdjustmentRate'] = priceAdjustmentRate;
-    if (smartPricing != null) updateData['smartPricing'] = smartPricing;
+    }
+    if (smartPricing != null) {
+      updateData['smartPricing'] = smartPricing;
+    }
 
     final response = await put('/shop/$shopId/auto-settings', data: updateData);
     return response.data;

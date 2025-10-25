@@ -17,6 +17,8 @@ class Player with _$Player {
     @Default(0) int totalTransactions,
     @Default(0.0) double totalProfit,
     @Default(0.0) double portfolioValue,
+    @Default(0) int legalReputation,
+    @Default(0) int streetReputation,
     ActiveResearch? activeResearch,
     @Default([]) List<String> completedResearchIds,
     @Default(10) int researchPoints,

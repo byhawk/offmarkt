@@ -62,6 +62,20 @@ const playerSchema = new mongoose.Schema({
     default: 0
   },
 
+  // Reputation
+  legalReputation: {
+    type: Number,
+    default: 0,
+    min: -100,
+    max: 100
+  },
+  streetReputation: {
+    type: Number,
+    default: 0,
+    min: -100,
+    max: 100
+  },
+
   // Progress
   currentDay: {
     type: Number,
@@ -93,6 +107,12 @@ const playerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Shop'
   }],
+
+  // Holding
+  holdingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Holding'
+  },
   
   // Online Status
   isOnline: {

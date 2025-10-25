@@ -7,7 +7,6 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/shop.dart';
 import '../../../services/api_service.dart';
-import '../../providers/market_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 
 /// Dükkan detay ekranı - Ekonomik sistem yönetimi

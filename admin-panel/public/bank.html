@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Baron Admin - Banka</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🏦</div>
+                    <div class="stat-content">
+                        <h3 id="total-accounts">0</h3>
+                        <p>Toplam Hesap</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="total-balance">₺0</h3>
+                        <p>Toplam Bakiye</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💵</div>
+                    <div class="stat-content">
+                        <h3 id="total-interest">₺0</h3>
+                        <p>Toplam Faiz</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>Banka Yönetimi</h1>
+                <div class="header-actions">
+                    <button onclick="refreshBank()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Oyuncu</th>
+                                <th>Bakiye</th>
+                                <th>Faiz Oranı</th>
+                                <th>Toplam Faiz</th>
+                                <th>Son Faiz Tarihi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bankTable">
+                            <tr><td colspan="5" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadBankData();
+        });
+
+        async function loadBankData() {
+            try {
+                const result = await getBankAccounts();
+                if (result && result.success) {
+                    const accounts = result.data.accounts || [];
+                    if (accounts.length > 0) {
+                        updateStats({ account: accounts[0] });
+                    } else {
+                        document.getElementById('bankTable').innerHTML = '<tr><td colspan="5" class="no-data">Hesap bulunamadı</td></tr>';
+                    }
+                } else {
+                    console.error('Failed to load bank data:', result?.message);
+                    document.getElementById('bankTable').innerHTML = '<tr><td colspan="5" class="error">Veriler yüklenemedi</td></tr>';
+                }
+            } catch (error) {
+                console.error('Load bank error:', error);
+                document.getElementById('bankTable').innerHTML = '<tr><td colspan="5" class="error">Bağlantı hatası</td></tr>';
+            }
+        }
+
+        function updateStats(data) {
+            const account = data.account;
+            document.getElementById('total-accounts').textContent = '1';
+            document.getElementById('total-balance').textContent = '₺' + formatCurrency(account.balance);
+            document.getElementById('total-interest').textContent = '₺' + formatCurrency(account.totalInterestEarned);
+
+            const tbody = document.getElementById('bankTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td>Sistem</td>
+                    <td>₺${formatCurrency(account.balance)}</td>
+                    <td>${(account.interestRate * 100).toFixed(2)}%</td>
+                    <td>₺${formatCurrency(account.totalInterestEarned)}</td>
+                    <td>${account.lastInterestDate ? new Date(account.lastInterestDate).toLocaleString('tr-TR') : '-'}</td>
+                </tr>
+            `;
+        }
+
+        function refreshBank() {
+            loadBankData();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+    </script>
+</body>
+</html>

@@ -1393,6 +1393,7 @@ mixin _$Shop {
   List<ListedProduct> get listedProducts => throw _privateConstructorUsedError;
   AutoPurchaseSettings? get autoPurchaseSettings =>
       throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this Shop to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1430,6 +1431,7 @@ abstract class $ShopCopyWith<$Res> {
     int monthlyCustomers,
     List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   });
 
   $AutoPurchaseSettingsCopyWith<$Res>? get autoPurchaseSettings;
@@ -1471,6 +1473,7 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
     Object? monthlyCustomers = null,
     Object? listedProducts = null,
     Object? autoPurchaseSettings = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1558,6 +1561,10 @@ class _$ShopCopyWithImpl<$Res, $Val extends Shop>
                 ? _value.autoPurchaseSettings
                 : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
                       as AutoPurchaseSettings?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -1610,6 +1617,7 @@ abstract class _$$ShopImplCopyWith<$Res> implements $ShopCopyWith<$Res> {
     int monthlyCustomers,
     List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   });
 
   @override
@@ -1649,6 +1657,7 @@ class __$$ShopImplCopyWithImpl<$Res>
     Object? monthlyCustomers = null,
     Object? listedProducts = null,
     Object? autoPurchaseSettings = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$ShopImpl(
@@ -1736,6 +1745,10 @@ class __$$ShopImplCopyWithImpl<$Res>
             ? _value.autoPurchaseSettings
             : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
                   as AutoPurchaseSettings?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -1766,6 +1779,7 @@ class _$ShopImpl implements _Shop {
     this.monthlyCustomers = 0,
     final List<ListedProduct> listedProducts = const [],
     this.autoPurchaseSettings,
+    this.imageUrl,
   }) : _listedProducts = listedProducts;
 
   factory _$ShopImpl.fromJson(Map<String, dynamic> json) =>
@@ -1833,10 +1847,12 @@ class _$ShopImpl implements _Shop {
 
   @override
   final AutoPurchaseSettings? autoPurchaseSettings;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'Shop(id: $id, name: $name, country: $country, city: $city, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
+    return 'Shop(id: $id, name: $name, country: $country, city: $city, location: $location, locationType: $locationType, squareMeters: $squareMeters, floor: $floor, monthlyRent: $monthlyRent, deposit: $deposit, hasWindow: $hasWindow, parkingSpaces: $parkingSpaces, isAvailable: $isAvailable, rentedBy: $rentedBy, rentedDate: $rentedDate, businessCategory: $businessCategory, isActive: $isActive, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings, imageUrl: $imageUrl)';
   }
 
   @override
@@ -1881,7 +1897,9 @@ class _$ShopImpl implements _Shop {
               _listedProducts,
             ) &&
             (identical(other.autoPurchaseSettings, autoPurchaseSettings) ||
-                other.autoPurchaseSettings == autoPurchaseSettings));
+                other.autoPurchaseSettings == autoPurchaseSettings) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1909,6 +1927,7 @@ class _$ShopImpl implements _Shop {
     monthlyCustomers,
     const DeepCollectionEquality().hash(_listedProducts),
     autoPurchaseSettings,
+    imageUrl,
   ]);
 
   /// Create a copy of Shop
@@ -1948,6 +1967,7 @@ abstract class _Shop implements Shop {
     final int monthlyCustomers,
     final List<ListedProduct> listedProducts,
     final AutoPurchaseSettings? autoPurchaseSettings,
+    final String? imageUrl,
   }) = _$ShopImpl;
 
   factory _Shop.fromJson(Map<String, dynamic> json) = _$ShopImpl.fromJson;
@@ -1994,6 +2014,8 @@ abstract class _Shop implements Shop {
   List<ListedProduct> get listedProducts;
   @override
   AutoPurchaseSettings? get autoPurchaseSettings;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of Shop
   /// with the given fields replaced by the non-null parameter values.
@@ -2030,6 +2052,7 @@ mixin _$ShopType {
   bool get isActive => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this ShopType to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -2060,6 +2083,7 @@ abstract class $ShopTypeCopyWith<$Res> {
     bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? imageUrl,
   });
 }
 
@@ -2091,6 +2115,7 @@ class _$ShopTypeCopyWithImpl<$Res, $Val extends ShopType>
     Object? isActive = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -2146,6 +2171,10 @@ class _$ShopTypeCopyWithImpl<$Res, $Val extends ShopType>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -2175,6 +2204,7 @@ abstract class _$$ShopTypeImplCopyWith<$Res>
     bool isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? imageUrl,
   });
 }
 
@@ -2205,6 +2235,7 @@ class __$$ShopTypeImplCopyWithImpl<$Res>
     Object? isActive = null,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$ShopTypeImpl(
@@ -2260,6 +2291,10 @@ class __$$ShopTypeImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -2282,6 +2317,7 @@ class _$ShopTypeImpl implements _ShopType {
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
+    this.imageUrl,
   }) : _allowedCategories = allowedCategories;
 
   factory _$ShopTypeImpl.fromJson(Map<String, dynamic> json) =>
@@ -2333,10 +2369,12 @@ class _$ShopTypeImpl implements _ShopType {
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'ShopType(id: $id, shopType: $shopType, displayName: $displayName, nameTemplate: $nameTemplate, purchasePrice: $purchasePrice, rackCapacity: $rackCapacity, storageCapacity: $storageCapacity, minCustomers: $minCustomers, locationType: $locationType, allowedCategories: $allowedCategories, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ShopType(id: $id, shopType: $shopType, displayName: $displayName, nameTemplate: $nameTemplate, purchasePrice: $purchasePrice, rackCapacity: $rackCapacity, storageCapacity: $storageCapacity, minCustomers: $minCustomers, locationType: $locationType, allowedCategories: $allowedCategories, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt, imageUrl: $imageUrl)';
   }
 
   @override
@@ -2370,7 +2408,9 @@ class _$ShopTypeImpl implements _ShopType {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2390,6 +2430,7 @@ class _$ShopTypeImpl implements _ShopType {
     isActive,
     createdAt,
     updatedAt,
+    imageUrl,
   );
 
   /// Create a copy of ShopType
@@ -2421,6 +2462,7 @@ abstract class _ShopType implements ShopType {
     final bool isActive,
     final DateTime? createdAt,
     final DateTime? updatedAt,
+    final String? imageUrl,
   }) = _$ShopTypeImpl;
 
   factory _ShopType.fromJson(Map<String, dynamic> json) =
@@ -2453,6 +2495,8 @@ abstract class _ShopType implements ShopType {
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of ShopType
   /// with the given fields replaced by the non-null parameter values.
@@ -2487,6 +2531,7 @@ mixin _$ShopInstance {
   List<ListedProduct> get listedProducts => throw _privateConstructorUsedError;
   AutoPurchaseSettings? get autoPurchaseSettings =>
       throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Serializes this ShopInstance to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -2519,6 +2564,7 @@ abstract class $ShopInstanceCopyWith<$Res> {
     bool isActive,
     List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   });
 
   $ShopTypeCopyWith<$Res>? get shopTypeData;
@@ -2553,6 +2599,7 @@ class _$ShopInstanceCopyWithImpl<$Res, $Val extends ShopInstance>
     Object? isActive = null,
     Object? listedProducts = null,
     Object? autoPurchaseSettings = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -2608,6 +2655,10 @@ class _$ShopInstanceCopyWithImpl<$Res, $Val extends ShopInstance>
                 ? _value.autoPurchaseSettings
                 : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
                       as AutoPurchaseSettings?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -2667,6 +2718,7 @@ abstract class _$$ShopInstanceImplCopyWith<$Res>
     bool isActive,
     List<ListedProduct> listedProducts,
     AutoPurchaseSettings? autoPurchaseSettings,
+    String? imageUrl,
   });
 
   @override
@@ -2702,6 +2754,7 @@ class __$$ShopInstanceImplCopyWithImpl<$Res>
     Object? isActive = null,
     Object? listedProducts = null,
     Object? autoPurchaseSettings = freezed,
+    Object? imageUrl = freezed,
   }) {
     return _then(
       _$ShopInstanceImpl(
@@ -2757,6 +2810,10 @@ class __$$ShopInstanceImplCopyWithImpl<$Res>
             ? _value.autoPurchaseSettings
             : autoPurchaseSettings // ignore: cast_nullable_to_non_nullable
                   as AutoPurchaseSettings?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -2779,6 +2836,7 @@ class _$ShopInstanceImpl implements _ShopInstance {
     this.isActive = true,
     final List<ListedProduct> listedProducts = const [],
     this.autoPurchaseSettings,
+    this.imageUrl,
   }) : _listedProducts = listedProducts;
 
   factory _$ShopInstanceImpl.fromJson(Map<String, dynamic> json) =>
@@ -2827,10 +2885,12 @@ class _$ShopInstanceImpl implements _ShopInstance {
 
   @override
   final AutoPurchaseSettings? autoPurchaseSettings;
+  @override
+  final String? imageUrl;
 
   @override
   String toString() {
-    return 'ShopInstance(id: $id, shopType: $shopType, shopTypeData: $shopTypeData, ownerId: $ownerId, country: $country, city: $city, customName: $customName, purchasedAt: $purchasedAt, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, isActive: $isActive, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings)';
+    return 'ShopInstance(id: $id, shopType: $shopType, shopTypeData: $shopTypeData, ownerId: $ownerId, country: $country, city: $city, customName: $customName, purchasedAt: $purchasedAt, monthlyRevenue: $monthlyRevenue, monthlyCustomers: $monthlyCustomers, isActive: $isActive, listedProducts: $listedProducts, autoPurchaseSettings: $autoPurchaseSettings, imageUrl: $imageUrl)';
   }
 
   @override
@@ -2861,7 +2921,9 @@ class _$ShopInstanceImpl implements _ShopInstance {
               _listedProducts,
             ) &&
             (identical(other.autoPurchaseSettings, autoPurchaseSettings) ||
-                other.autoPurchaseSettings == autoPurchaseSettings));
+                other.autoPurchaseSettings == autoPurchaseSettings) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2881,6 +2943,7 @@ class _$ShopInstanceImpl implements _ShopInstance {
     isActive,
     const DeepCollectionEquality().hash(_listedProducts),
     autoPurchaseSettings,
+    imageUrl,
   );
 
   /// Create a copy of ShopInstance
@@ -2912,6 +2975,7 @@ abstract class _ShopInstance implements ShopInstance {
     final bool isActive,
     final List<ListedProduct> listedProducts,
     final AutoPurchaseSettings? autoPurchaseSettings,
+    final String? imageUrl,
   }) = _$ShopInstanceImpl;
 
   factory _ShopInstance.fromJson(Map<String, dynamic> json) =
@@ -2944,6 +3008,8 @@ abstract class _ShopInstance implements ShopInstance {
   List<ListedProduct> get listedProducts;
   @override
   AutoPurchaseSettings? get autoPurchaseSettings;
+  @override
+  String? get imageUrl;
 
   /// Create a copy of ShopInstance
   /// with the given fields replaced by the non-null parameter values.

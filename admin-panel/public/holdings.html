@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Baron Admin - Holdingler</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3 id="total-holdings">0</h3>
+                        <p>Toplam Holding</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 id="total-value">₺0</h3>
+                        <p>Toplam Değer</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💵</div>
+                    <div class="stat-content">
+                        <h3 id="total-dividends">₺0</h3>
+                        <p>Toplam Temettü</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="avg-diversification">0%</h3>
+                        <p>Ort. Çeşitlendirme</p>
+                    </div>
+                </div>
+            </div>
+
+            <header class="header">
+                <h1>Holdingler</h1>
+                <div class="header-actions">
+                    <button onclick="refreshHoldings()" class="btn-refresh">🔄 Yenile</button>
+                </div>
+            </header>
+
+            <div class="section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Oyuncu</th>
+                                <th>Hisse Sayısı</th>
+                                <th>Toplam Değer</th>
+                                <th>Kar/Zarar</th>
+                                <th>Aylık Temettü</th>
+                                <th>Çeşitlendirme</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsTable">
+                            <tr><td colspan="6" class="loading">Yükleniyor...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadHoldings();
+        });
+
+        async function loadHoldings() {
+            try {
+                const result = await API.call('/holding');
+                if (result && result.success) {
+                    updateStats(result.data);
+                }
+            } catch (error) {
+                console.error('Load holdings error:', error);
+            }
+        }
+
+        function updateStats(data) {
+            const holding = data.holding;
+            document.getElementById('total-holdings').textContent = '1';
+            document.getElementById('total-value').textContent = '₺' + formatCurrency(holding.totalValue || 0);
+            document.getElementById('total-dividends').textContent = '₺' + formatCurrency(holding.totalDividendReceived || 0);
+            document.getElementById('avg-diversification').textContent = Math.round(holding.diversificationScore || 0) + '%';
+
+            const tbody = document.getElementById('holdingsTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td>Sistem</td>
+                    <td>${holding.shares?.length || 0}</td>
+                    <td>₺${formatCurrency(holding.totalValue || 0)}</td>
+                    <td>₺${formatCurrency(holding.profitLoss || 0)} (${(holding.profitLossPercentage || 0).toFixed(1)}%)</td>
+                    <td>₺${formatCurrency(holding.monthlyDividend || 0)}</td>
+                    <td>${Math.round(holding.diversificationScore || 0)}%</td>
+                </tr>
+            `;
+        }
+
+        function refreshHoldings() {
+            loadHoldings();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR').format(amount);
+        }
+    </script>
+</body>
+</html>

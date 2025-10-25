@@ -67,7 +67,7 @@ class EmployeeCard extends StatelessWidget {
               label: const Text('Kov'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.danger,
-                side: BorderSide(color: AppColors.danger.withOpacity(0.5)),
+                side: BorderSide(color: AppColors.danger.withValues(alpha: 0.5)),
               ),
             ),
           ),

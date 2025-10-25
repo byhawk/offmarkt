@@ -5,7 +5,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../data/models/player.dart';
 import '../../../services/auth_service.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
@@ -50,7 +49,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final products = ref.watch(marketNotifierProvider);
 
     // DEBUG: Player cash'i logla
-    print('🏠 HomeScreen: Player cash = ${player.cash}');
 
     return Scaffold(
       appBar: AppBar(
@@ -190,7 +188,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Canlı İhale!', style: AppTextStyles.h4),
-                            Text('Nadir bir arsa satışta!', style: AppTextStyles.caption),
+                            Text(
+                              'Nadir bir arsa satışta!',
+                              style: AppTextStyles.caption,
+                            ),
                           ],
                         ),
                       ),
@@ -217,7 +218,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Text(
                             'Toplam Net Kar',
-                            style: AppTextStyles.h4.copyWith(color: AppColors.textSecondary),
+                            style: AppTextStyles.h4.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           const Gap(AppSpacing.sm),
                           Text(
@@ -239,7 +242,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Text(
                             'Toplam İşlem',
-                            style: AppTextStyles.label.copyWith(color: AppColors.textMuted),
+                            style: AppTextStyles.label.copyWith(
+                              color: AppColors.textMuted,
+                            ),
                           ),
                           const Gap(AppSpacing.xs),
                           Text(
@@ -274,9 +279,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             child: const Text('Çıkış Yap'),
           ),
         ],

@@ -12,7 +12,7 @@ async function loadDashboard() {
 
         // Ekonomik sistem verileri
         const economicResult = await API.call('/admin/economic-dashboard');
-        if (economicResult.success) {
+        if (economicResult && economicResult.success) {
             economicData = economicResult.data;
         }
 

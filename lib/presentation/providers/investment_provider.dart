@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:offmarket_flutter/data/models/investment.dart';
+import 'package:deal_baron/data/models/investment.dart';
 
 part 'investment_provider.g.dart';
 
@@ -31,7 +31,9 @@ class InvestmentState extends _$InvestmentState {
 
   // Yatırımı kaldır
   void removeInvestment(String investmentId) {
-    final newList = state.where((investment) => investment.id != investmentId).toList();
+    final newList = state
+        .where((investment) => investment.id != investmentId)
+        .toList();
     state = newList;
   }
 
@@ -43,7 +45,9 @@ class InvestmentState extends _$InvestmentState {
   // Belirli bir şirketteki yatırımı bul
   Investment? getInvestmentByCompanyId(String companyId) {
     try {
-      return state.firstWhere((investment) => investment.companyId == companyId);
+      return state.firstWhere(
+        (investment) => investment.companyId == companyId,
+      );
     } catch (e) {
       return null;
     }

@@ -1,5 +1,5 @@
-import '../../data/models/player.dart';
-import '../../data/models/research_development.dart';
+import 'package:deal_baron/data/models/player.dart';
+import 'package:deal_baron/data/models/research_development.dart';
 
 /// Araştırma ve Geliştirme (Ar-Ge) sistemi
 class ResearchDevelopmentSystem {
@@ -68,7 +68,7 @@ class ResearchDevelopmentSystem {
   static int calculateProjectDuration({
     required RdProjectType type,
     required RdProjectLevel level,
-    required bool usePremiumResources,
+    bool usePremiumResources = false,
     required bool hireExternalExperts,
     required int playerLevel,
   }) {
@@ -216,23 +216,11 @@ class ResearchDevelopmentSystem {
       researchReputation: player.level * 5, // Örnek: seviye * 5 ar-ge itibarı
     );
 
-    // Potansiyel değer
-    double potentialValue =
-        cost * (1 + (successProbability * 2)); // Başarıya göre artan değer
-
     // Etki hesaplamaları
     double efficiencyIncrease =
         (request.level.index + 1) *
         (request.usePremiumResources ? 1.5 : 1.0) *
         0.05;
-    double qualityImprovement =
-        (request.level.index + 1) *
-        (request.usePremiumResources ? 1.3 : 1.0) *
-        0.03;
-    double marketAdvantage =
-        (request.level.index + 1) *
-        (request.hireExternalExperts ? 1.4 : 1.0) *
-        0.02;
 
     // Kilometre taşları oluştur
     List<RdMilestone> milestones = _generateMilestones(duration, request.level);
@@ -243,23 +231,16 @@ class ResearchDevelopmentSystem {
     // Ar-Ge projesi oluştur
     final project = RdProject(
       id: 'rd_${DateTime.now().millisecondsSinceEpoch}',
-      playerId: request.playerId,
-      type: request.type,
+      name: request.projectName,
       level: request.level,
       status: RdProjectStatus.inProgress,
-      name: request.projectName,
-      description: request.projectDescription,
       startDate: DateTime.now(),
       durationInDays: duration,
-      budget: cost,
       progress: 0.0,
-      successProbability: successProbability,
-      potentialValue: potentialValue,
       efficiencyIncrease: efficiencyIncrease,
-      qualityImprovement: qualityImprovement,
-      marketAdvantage: marketAdvantage,
       milestones: milestones,
       requiredResources: requiredResources,
+      successProbability: successProbability,
     );
 
     return (true, null, project);
@@ -316,10 +297,14 @@ class ResearchDevelopmentSystem {
     if (equipmentCount > 0) {
       resources.add(
         RdResource(
+          id: 'equipment_${DateTime.now().millisecondsSinceEpoch}',
           type: RdResourceType.equipment,
           name: request.usePremiumResources
               ? 'Premium Araç-Gereç'
               : 'Standart Araç-Gereç',
+          description: request.usePremiumResources
+              ? 'Premium kalitede araç-gereç'
+              : 'Standart kalitede araç-gereç',
           quantity: equipmentCount,
           unitCost: request.usePremiumResources ? 500.0 : 200.0,
         ),
@@ -329,10 +314,14 @@ class ResearchDevelopmentSystem {
     if (materialCount > 0) {
       resources.add(
         RdResource(
+          id: 'material_${DateTime.now().millisecondsSinceEpoch}',
           type: RdResourceType.material,
           name: request.usePremiumResources
               ? 'Premium Malzeme'
               : 'Standart Malzeme',
+          description: request.usePremiumResources
+              ? 'Premium kalitede malzeme'
+              : 'Standart kalitede malzeme',
           quantity: materialCount,
           unitCost: request.usePremiumResources ? 50.0 : 25.0,
         ),
@@ -342,10 +331,14 @@ class ResearchDevelopmentSystem {
     if (softwareCount > 0) {
       resources.add(
         RdResource(
+          id: 'software_${DateTime.now().millisecondsSinceEpoch}',
           type: RdResourceType.software,
           name: request.usePremiumResources
               ? 'İleri Düzey Yazılım'
               : 'Standart Yazılım',
+          description: request.usePremiumResources
+              ? 'İleri düzey yazılım araçları'
+              : 'Standart yazılım araçları',
           quantity: softwareCount,
           unitCost: request.usePremiumResources ? 1000.0 : 500.0,
         ),
@@ -476,19 +469,11 @@ class ResearchDevelopmentSystem {
     // Laboratuvar özelliklerini geliştir
     return lab.copyWith(
       totalInvestment: lab.totalInvestment + upgradeCost,
-      currentBudget:
-          lab.currentBudget +
-          (upgradeCost * 0.2), // Yatırımla birlikte bütçe artar
-      efficiencyBonus: (lab.efficiencyBonus + 0.05).clamp(
-        0.0,
-        0.5,
-      ), // Maksimum %50 verimlilik artışı
-      safetyFactor: (lab.safetyFactor + 0.05).clamp(0.0, 1.0), // Güvenlik artar
-      innovationRate: (lab.innovationRate + 0.02).clamp(
-        0.0,
-        0.3,
-      ), // İnovasyon oranı artar
-      maxProjects: lab.maxProjects + 1, // Daha fazla proje yapılabilir
+      currentBudget: lab.currentBudget + (upgradeCost * 0.2),
+      efficiencyBonus: (lab.efficiencyBonus + 0.05).clamp(0.0, 0.5),
+      safetyFactor: (lab.safetyFactor + 0.05).clamp(0.0, 1.0),
+      innovationRate: (lab.innovationRate + 0.02).clamp(0.0, 0.3),
+      maxProjects: lab.maxProjects + 1,
     );
   }
 

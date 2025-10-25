@@ -86,11 +86,11 @@ class ResearchNodeWidget extends StatelessWidget {
       case ResearchStatus.locked:
         return null;
       case ResearchStatus.available:
-        return LinearGradient(colors: [AppColors.accentGold.withOpacity(0.3), AppColors.accentGold.withOpacity(0.1)]);
+        return LinearGradient(colors: [AppColors.accentGold.withValues(alpha: 0.3), AppColors.accentGold.withValues(alpha: 0.1)]);
       case ResearchStatus.inProgress:
-        return LinearGradient(colors: [AppColors.primary.withOpacity(0.5), AppColors.primary.withOpacity(0.2)]);
+        return LinearGradient(colors: [AppColors.primary.withValues(alpha: 0.5), AppColors.primary.withValues(alpha: 0.2)]);
       case ResearchStatus.completed:
-        return LinearGradient(colors: [AppColors.success.withOpacity(0.5), AppColors.success.withOpacity(0.2)]);
+        return LinearGradient(colors: [AppColors.success.withValues(alpha: 0.5), AppColors.success.withValues(alpha: 0.2)]);
     }
   }
 }

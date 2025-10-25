@@ -19,6 +19,13 @@ const tradeRoutes = require('./routes/trade');
 const eventRoutes = require('./routes/event');
 const leaderboardRoutes = require('./routes/leaderboard');
 const adminRoutes = require('./routes/admin');
+const hrRoutes = require('./routes/hr');
+const rdRoutes = require('./routes/rd');
+const holdingRoutes = require('./routes/holding');
+const auctionRoutes = require('./routes/auction');
+const globalEventsRoutes = require('./routes/global-events');
+const bankRoutes = require('./routes/bank');
+const premiumRoutes = require('./routes/premium');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -79,6 +86,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
+// Static files for uploads
+app.use('/uploads', express.static('uploads'));
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000,
@@ -128,6 +138,13 @@ app.use('/api/trade', tradeRoutes);
 app.use('/api/event', eventRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/hr', hrRoutes);
+app.use('/api/rd', rdRoutes);
+app.use('/api/holding', holdingRoutes);
+app.use('/api/auction', auctionRoutes);
+app.use('/api/global-events', globalEventsRoutes);
+app.use('/api/bank', bankRoutes);
+app.use('/api/premium', premiumRoutes);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
