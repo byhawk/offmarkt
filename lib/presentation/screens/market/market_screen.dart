@@ -10,17 +10,36 @@ import '../../../game/systems/trading_system.dart';
 import '../../../services/api_service.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../providers/auction_provider.dart';
 import '../../widgets/common/gradient_card.dart';
+import '../../widgets/market/auction_card.dart';
+import '../../widgets/market/bid_dialog.dart';
 
-class MarketScreen extends ConsumerWidget {
+class MarketScreen extends ConsumerStatefulWidget {
   const MarketScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MarketScreen> createState() => _MarketScreenState();
+}
+
+class _MarketScreenState extends ConsumerState<MarketScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final player = ref.watch(playerNotifierProvider);
-    final products = ref.watch(marketNotifierProvider);
-    final inventory = ref.watch(inventoryNotifierProvider);
-    final inventoryNotifier = ref.watch(inventoryNotifierProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -39,62 +58,56 @@ class MarketScreen extends ConsumerWidget {
             ),
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.accentGold,
+          labelColor: AppColors.accentGold,
+          unselectedLabelColor: AppColors.textMuted,
+          tabs: const [
+            Tab(icon: Icon(Icons.shopping_bag), text: 'Ürün Pazarı'),
+            Tab(icon: Icon(Icons.gavel), text: 'İhaleler'),
+          ],
+        ),
       ),
-      body: Column(
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          // Pazar bilgisi header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.primaryGradient,
-              ),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Ürün Pazarı',
-                  style: AppTextStyles.h3.copyWith(color: Colors.white),
-                ),
-                const Gap(AppSpacing.xs),
-                Text(
-                  '${products.length} ürün mevcut',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white70,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Ürün listesi
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                final inventoryQty = inventoryNotifier.getQuantity(product.id);
-
-                return _ProductCard(
-                  product: product,
-                  inventoryQuantity: inventoryQty,
-                  playerCash: player.cash,
-                  onBuy: (quantity) {
-                    _buyProduct(context, ref, product, quantity);
-                  },
-                  onSell: (quantity) {
-                    _sellProduct(context, ref, product, quantity);
-                  },
-                );
-              },
-            ),
-          ),
+          _ProductMarketView(),
+          _AuctionView(), // İhale görünümü
         ],
       ),
-      // Fiyatlar artık otomatik güncelleniyor (TickEngine ile)
-      // FloatingActionButton kaldırıldı
+    );
+  }
+}
+
+// Ürün Pazarı Sekmesi
+class _ProductMarketView extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final products = ref.watch(marketNotifierProvider);
+    final inventory = ref.watch(inventoryNotifierProvider);
+    final inventoryNotifier = ref.watch(inventoryNotifierProvider.notifier);
+    final player = ref.watch(playerNotifierProvider);
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        final inventoryQty = inventoryNotifier.getQuantity(product.id);
+
+        return _ProductCard(
+          product: product,
+          inventoryQuantity: inventoryQty,
+          playerCash: player.cash,
+          onBuy: (quantity) {
+            _buyProduct(context, ref, product, quantity);
+          },
+          onSell: (quantity) {
+            _sellProduct(context, ref, product, quantity);
+          },
+        );
+      },
     );
   }
 
@@ -127,7 +140,6 @@ class MarketScreen extends ConsumerWidget {
     }
 
     try {
-      // Backend'e istek gönder
       final apiService = ApiService();
       final response = await apiService.post('/trade/buy', data: {
         'productId': product.id,
@@ -135,13 +147,9 @@ class MarketScreen extends ConsumerWidget {
       });
 
       if (response.data['success'] == true) {
-        // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
-
-        // Inventory'yi yenile
         await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
 
-        // Başarı mesajı
         final discount = TradingSystem.calculateBulkDiscount(quantity);
         String message = '✅ $quantity ${product.name} satın alındı!';
         if (discount > 0) {
@@ -187,7 +195,6 @@ class MarketScreen extends ConsumerWidget {
     final playerNotifier = ref.read(playerNotifierProvider.notifier);
 
     try {
-      // Backend'e istek gönder
       final apiService = ApiService();
       final response = await apiService.post('/trade/sell', data: {
         'productId': product.id,
@@ -195,13 +202,9 @@ class MarketScreen extends ConsumerWidget {
       });
 
       if (response.data['success'] == true) {
-        // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
-
-        // Inventory'yi yenile
         await ref.read(inventoryNotifierProvider.notifier).loadInventoryFromBackend();
 
-        // Başarı mesajı
         final profitData = response.data['data'];
         final profit = profitData['profit'] ?? 0.0;
 
@@ -243,6 +246,43 @@ class MarketScreen extends ConsumerWidget {
   }
 }
 
+// İhale Sekmesi
+class _AuctionView extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auctions = ref.watch(auctionNotifierProvider);
+
+    if (auctions.isEmpty) {
+      return const Center(
+        child: Text('Şu anda aktif ihale yok.'),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: auctions.length,
+      itemBuilder: (context, index) {
+        final auction = auctions[index];
+        return AuctionCard(
+          auction: auction,
+          onBid: () {
+            showDialog(
+              context: context,
+              builder: (_) => BidDialog(
+                auction: auction,
+                onBidPlaced: (bidAmount) {
+                  ref.read(auctionNotifierProvider.notifier).placeBid(auction.id, bidAmount);
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+// Ürün Kartı (Değişiklik yok)
 class _ProductCard extends StatelessWidget {
   final Product product;
   final int inventoryQuantity;
@@ -271,7 +311,6 @@ class _ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Ürün başlığı
           Row(
             children: [
               Text(
@@ -303,7 +342,6 @@ class _ProductCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Fiyat değişimi göstergesi
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
@@ -324,8 +362,6 @@ class _ProductCard extends StatelessWidget {
             ],
           ),
           const Gap(AppSpacing.md),
-
-          // Fiyat bilgisi
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -364,8 +400,6 @@ class _ProductCard extends StatelessWidget {
             ],
           ),
           const Gap(AppSpacing.md),
-
-          // Alım-Satım butonları
           Row(
             children: [
               Expanded(

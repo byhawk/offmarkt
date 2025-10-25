@@ -226,4 +226,11 @@ class PlayerNotifier extends _$PlayerNotifier {
   void setHoldingId(String? holdingId) {
     state = state.copyWith(holdingId: holdingId);
   }
+
+  // --- İhale Metodları ---
+
+  /// Bloke edilmiş nakit miktarını güncelle
+  void updateBlockedCash(double amount) {
+    state = state.copyWith(blockedCash: (state.blockedCash + amount).clamp(0, state.cash));
+  }
 }

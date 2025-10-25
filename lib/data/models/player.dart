@@ -21,6 +21,7 @@ class Player with _$Player {
     @Default([]) List<String> completedResearchIds,
     @Default(10) int researchPoints,
     String? holdingId,
+    @Default(0.0) double blockedCash,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
