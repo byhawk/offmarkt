@@ -35,4 +35,22 @@ class Formatters {
   static String formatDay(int day) {
     return 'Gün $day';
   }
+
+  /// Süre formatı: Duration -> "1g 12s 30d"
+  static String formatDuration(Duration duration) {
+    if (duration.isNegative) return '0s';
+
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
+    final parts = <String>[];
+    if (days > 0) parts.add('${days}g');
+    if (hours > 0) parts.add('${hours}s');
+    if (minutes > 0) parts.add('${minutes}d');
+    if (seconds > 0 || parts.isEmpty) parts.add('${seconds}s');
+
+    return parts.join(' ');
+  }
 }
