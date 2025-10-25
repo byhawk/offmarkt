@@ -185,8 +185,22 @@
 
                 // Load players data for analytics
                 const playersResult = await API.call('/players');
-                const players = (playersResult && playersResult.data) || [];
-                
+                if (!playersResult || !playersResult.success) {
+                    console.warn('Players API failed:', playersResult);
+                    document.getElementById('totalRevenue').textContent = '₺0';
+                    document.getElementById('avgTransaction').textContent = '₺0';
+                    document.getElementById('activeUsers').textContent = '0';
+                    document.getElementById('transactionCount').textContent = '0';
+                    document.getElementById('topPlayersTable').innerHTML =
+                        '<tr><td colspan="5" class="no-data">Oyuncu verileri yüklenemedi</td></tr>';
+
+                    // Still try to load products
+                    await loadTopProducts();
+                    return;
+                }
+
+                const players = playersResult.data || [];
+
                 // Calculate metrics
                 const totalPlayers = players.length;
                 const activePlayers = players.filter(p => {
@@ -200,9 +214,9 @@
                 const totalProfit = players.reduce((sum, p) => sum + (p.totalProfit || 0), 0);
 
                 // Update key metrics
-                document.getElementById('totalRevenue').textContent = 
+                document.getElementById('totalRevenue').textContent =
                     formatCurrency(totalProfit);
-                document.getElementById('avgTransaction').textContent = 
+                document.getElementById('avgTransaction').textContent =
                     formatCurrency(totalTransactions > 0 ? totalProfit / totalTransactions : 0);
                 document.getElementById('activeUsers').textContent = activePlayers;
                 document.getElementById('transactionCount').textContent = totalTransactions;
@@ -221,13 +235,18 @@
 
                 // Update market analysis
                 document.getElementById('marketCap').textContent = formatCurrency(totalCash);
-                document.getElementById('avgPrice').textContent = 
+                document.getElementById('avgPrice').textContent =
                     formatCurrency(totalCash / Math.max(totalPlayers, 1));
                 document.getElementById('priceVolatility').textContent = '12.5%';
 
             } catch (error) {
                 console.error('Analytics yükleme hatası:', error);
-                showError('Analitik verileri yüklenirken hata oluştu');
+                console.error('Stack:', error.stack);
+                // Don't show alert, just set default values
+                document.getElementById('totalRevenue').textContent = '₺0';
+                document.getElementById('avgTransaction').textContent = '₺0';
+                document.getElementById('activeUsers').textContent = '0';
+                document.getElementById('transactionCount').textContent = '0';
             }
         }
 
