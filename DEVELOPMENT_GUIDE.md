@@ -195,9 +195,76 @@ static (bool, String?) validateAdvancedPurchase({
 }
 ```
 
-## 4. Geliştirme Pratikleri
+## 4. Build Runner ve Code Generation
 
-### 4.1. Kod Standardı
+### 4.1. Build Runner Kullanımı
+
+Projede Freezed ve Riverpod için kod oluşturma işlemi build_runner ile yapılır:
+
+```bash
+# Build runner çalıştırma (yeni kod oluşturma)
+flutter packages pub run build_runner build
+
+# Mevcut dosyaları overwrite ederek çalıştırma
+flutter packages pub run build_runner build --delete-conflicting-outputs
+
+# Watch modunda çalıştırma (dosya değişikliklerini otomatik takip)
+flutter packages pub run build_runner watch
+```
+
+**Build runner sonrası oluşan dosyalar:**
+- `*.freezed.dart` - Freezed sınıfları için immutable kod
+- `*.g.dart` - JSON serialization ve Riverpod provider kodları
+
+### 4.2. GitHub Push Süreci
+
+Değişiklikleri GitHub'a push etmek için:
+
+```bash
+# Değişiklikleri stage'e alma
+git add .
+
+# Commit mesajı ile commit
+git commit -m "feat: Yeni özellik eklendi
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+# Ana branch'a push
+git push origin main
+```
+
+**Not:** Personal Access Token gerekebilir:
+```bash
+# Remote URL'i token ile güncelleme
+git remote set-url origin https://YOUR_TOKEN@github.com/byhawk/offmarkt.git
+```
+
+### 4.3. Branch Yönetimi
+
+Development workflow için:
+
+```bash
+# Feature branch oluşturma
+git checkout -b feature/yeni-ozellik
+
+# Feature'ı main'e merge etme
+git checkout main
+git merge feature/yeni-ozellik
+
+# Conflict çözme (gerekirse)
+# Çakışan dosyaları düzenle
+git add .
+git commit -m "resolve: Merge conflict çözüldü"
+
+# Push
+git push origin main
+```
+
+## 5. Geliştirme Pratikleri
+
+### 5.1. Kod Standardı
 
 - Fonksiyon isimleri `lowerCamelCase`
 - Sınıf isimleri `UpperCamelCase`
