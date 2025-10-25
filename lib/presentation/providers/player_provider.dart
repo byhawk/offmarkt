@@ -219,4 +219,11 @@ class PlayerNotifier extends _$PlayerNotifier {
     );
     // TODO: Araştırma bonuslarını oyuncuya uygula
   }
+
+  // --- Holding Metodları ---
+
+  /// Oyuncunun holding ID'sini ayarla
+  void setHoldingId(String? holdingId) {
+    state = state.copyWith(holdingId: holdingId);
+  }
 }
