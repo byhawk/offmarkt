@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import 'home/home_screen.dart';
-import 'market/market_screen.dart';
 import 'inventory/inventory_screen.dart';
 import 'shops/shops_screen.dart';
 import 'business/business_screen.dart';
@@ -19,7 +18,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    MarketScreen(),
     InventoryScreen(),
     ShopsScreen(),
     BusinessScreen(),
@@ -28,7 +26,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<NavigationItem> _navItems = const [
     NavigationItem(icon: Icons.home, label: 'Ana Sayfa', emoji: '🏠'),
-    NavigationItem(icon: Icons.store, label: 'Pazar', emoji: '🏪'),
     NavigationItem(icon: Icons.inventory, label: 'Envanter', emoji: '📦'),
     NavigationItem(icon: Icons.apartment, label: 'Dükkanlar', emoji: '🏢'),
     NavigationItem(icon: Icons.business_center, label: 'İşletme', emoji: '💼'),
@@ -48,7 +45,7 @@ class _MainNavigationState extends State<MainNavigation> {
       child: Scaffold(
         body: IndexedStack(index: _selectedIndex, children: _screens),
         bottomNavigationBar: _selectedIndex < 3 ? _buildBottomNav() : null,
-        bottomSheet: _selectedIndex >= 3 ? _buildExtendedNav() : null,
+        bottomSheet: _selectedIndex >= 2 ? _buildExtendedNav() : null,
       ),
     );
   }
@@ -80,7 +77,7 @@ class _MainNavigationState extends State<MainNavigation> {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         elevation: 0,
-        items: _navItems.take(6).map((item) {
+        items: _navItems.take(5).map((item) {
           return BottomNavigationBarItem(
             icon: Icon(item.icon),
             label: item.label,
@@ -110,7 +107,7 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(6, (index) {
+        children: List.generate(5, (index) {
           final item = _navItems[index];
           final isSelected = _selectedIndex == index;
 

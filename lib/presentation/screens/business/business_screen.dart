@@ -6,6 +6,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/shop.dart';
+import '../../../services/api_service.dart';
 import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 import '../../widgets/common/stat_card.dart';
@@ -298,9 +299,10 @@ class _BusinessCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Ürün yönetimi yakında eklenecek!'),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => _ProductManagementScreen(shop: shop),
                       ),
                     );
                   },
@@ -431,6 +433,333 @@ class _NewProjectDialogState extends State<_NewProjectDialog> {
           child: const Text('Başlat'),
         ),
       ],
+    );
+  }
+}
+
+class _ProductManagementScreen extends StatefulWidget {
+  final ShopInstance shop;
+
+  const _ProductManagementScreen({required this.shop});
+
+  @override
+  State<_ProductManagementScreen> createState() =>
+      _ProductManagementScreenState();
+}
+
+class _ProductManagementScreenState extends State<_ProductManagementScreen> {
+  late Future<Map<String, dynamic>> _shopInventoryFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadShopInventory();
+  }
+
+  void _loadShopInventory() {
+    _shopInventoryFuture = _fetchShopInventory();
+  }
+
+  Future<Map<String, dynamic>> _fetchShopInventory() async {
+    try {
+      final apiService = ApiService();
+      final response = await apiService.get(
+        '/shop/${widget.shop.id}/inventory',
+      );
+      return response.data['data'] ?? {};
+    } catch (e) {
+      return {'inventory': [], 'error': e.toString()};
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('📦 ${widget.shop.customName} - Ürün Yönetimi'),
+      ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _shopInventoryFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Hata: ${snapshot.error}'));
+          }
+
+          final data = snapshot.data ?? {};
+          final inventory = data['inventory'] as List? ?? [];
+
+          if (inventory.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('📦', style: TextStyle(fontSize: 80)),
+                  const Gap(AppSpacing.lg),
+                  Text(
+                    'Dükkan Envanteri Boş',
+                    style: AppTextStyles.h2.copyWith(color: Colors.grey),
+                  ),
+                  const Gap(AppSpacing.sm),
+                  Text(
+                    'Envanterinizden ürün ekleyin',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const Gap(AppSpacing.xl),
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Geri Dön'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            itemCount: inventory.length,
+            itemBuilder: (context, index) {
+              final item = inventory[index];
+              final product = item['productId'] as Map<String, dynamic>?;
+
+              if (product == null) return const SizedBox.shrink();
+
+              return GradientCard(
+                gradientColors: AppColors.primaryGradient,
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          product['emoji'] ?? '📦',
+                          style: const TextStyle(fontSize: 36),
+                        ),
+                        const Gap(AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product['name'] ?? 'Bilinmeyen Ürün',
+                                style: AppTextStyles.h4,
+                              ),
+                              Text(
+                                'Kategori: ${product['category'] ?? 'N/A'}',
+                                style: AppTextStyles.caption,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(AppSpacing.md),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Stok', style: AppTextStyles.caption),
+                            Text(
+                              '${item['quantity'] ?? 0} adet',
+                              style: AppTextStyles.h4,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('Satış Fiyatı', style: AppTextStyles.caption),
+                            Text(
+                              '₺${(item['sellPrice'] ?? 0).toStringAsFixed(2)}',
+                              style: AppTextStyles.h4.copyWith(
+                                color: AppColors.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const Gap(AppSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              _showPriceDialog(
+                                context,
+                                product['name'] ?? 'Ürün',
+                                item['sellPrice'] ?? 0.0,
+                                item['productId']['_id'] ?? '',
+                              );
+                            },
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text('Fiyat Değiştir'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const Gap(AppSpacing.sm),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              _removeProduct(
+                                context,
+                                item['productId']['_id'] ?? '',
+                                product['name'] ?? 'Ürün',
+                              );
+                            },
+                            icon: const Icon(Icons.delete, size: 18),
+                            label: const Text('Kaldır'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _showPriceDialog(
+    BuildContext context,
+    String productName,
+    double currentPrice,
+    String productId,
+  ) {
+    final controller = TextEditingController(text: currentPrice.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$productName Fiyatını Değiştir'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Yeni Fiyat',
+            prefixText: '₺',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newPrice = double.tryParse(controller.text);
+              if (newPrice != null && newPrice > 0) {
+                await _updatePrice(productId, newPrice);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  _loadShopInventory();
+                  setState(() {});
+                }
+              }
+            },
+            child: const Text('Kaydet'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updatePrice(String productId, double newPrice) async {
+    try {
+      final apiService = ApiService();
+      await apiService.put(
+        '/shop/${widget.shop.id}/inventory/$productId/price',
+        data: {'sellPrice': newPrice},
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Fiyat güncellendi'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ Hata: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeProduct(
+    BuildContext context,
+    String productId,
+    String productName,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ürünü Kaldır'),
+        content: Text(
+          '$productName dükkan envanterinden kaldırılacak ve envanterinize geri eklenecek. Devam etmek istiyor musunuz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                final apiService = ApiService();
+                await apiService.delete(
+                  '/shop/${widget.shop.id}/inventory/$productId',
+                );
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  _loadShopInventory();
+                  setState(() {});
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('✅ Ürün envanterinize geri eklendi'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('❌ Hata: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Kaldır'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -141,21 +141,37 @@
 
         async function loadTransactions() {
             try {
-                // Load players to generate transaction data
-                const players = await api.get('/admin/players');
-                const products = await api.get('/admin/products');
-                
-                // Generate mock transactions based on player data
-                allTransactions = generateMockTransactions(players, products);
+                // Get real transactions from backend API
+                const result = await API.call('/transactions');
+                if (result && result.success) {
+                    // Convert backend format to display format
+                    allTransactions = (result.data || []).map(tx => ({
+                        id: tx._id,
+                        date: new Date(tx.createdAt),
+                        player: tx.playerName || 'Unknown',
+                        playerId: tx.playerId,
+                        type: tx.type,
+                        product: tx.productName || tx.metadata?.productName || 'Unknown',
+                        productId: tx.productId,
+                        quantity: tx.quantity || 1,
+                        amount: tx.amount || 0,
+                        status: 'completed'
+                    }));
+                } else {
+                    allTransactions = [];
+                }
+
                 filteredTransactions = [...allTransactions];
-                
+
                 updateStats();
                 filterTransactions();
-                
+
             } catch (error) {
                 console.error('İşlemler yükleme hatası:', error);
-                document.getElementById('transactionsTable').innerHTML = 
-                    '<tr><td colspan="7" class="no-data">İşlemler yüklenirken hata oluştu</td></tr>';
+                allTransactions = [];
+                filteredTransactions = [];
+                document.getElementById('transactionsTable').innerHTML =
+                    '<tr><td colspan="7" class="no-data">İşlemler yüklenirken hata oluştu. Backend bağlantısını kontrol edin.</td></tr>';
             }
         }
 

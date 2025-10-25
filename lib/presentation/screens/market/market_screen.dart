@@ -10,6 +10,7 @@ import '../../../game/systems/trading_system.dart';
 import '../../../services/api_service.dart';
 import '../../providers/player_provider.dart';
 import '../../providers/market_provider.dart';
+import '../../providers/shops_provider.dart';
 import '../../widgets/common/gradient_card.dart';
 
 class MarketScreen extends ConsumerWidget {
@@ -99,6 +100,65 @@ class MarketScreen extends ConsumerWidget {
     Product product,
     int quantity,
   ) async {
+    final playerShops = ref.read(playerShopsNotifierProvider);
+
+    if (playerShops.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Satın almak için önce bir dükkan açmalısınız'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (context.mounted) {
+      _showShopSelectionDialog(context, ref, product, quantity);
+    }
+  }
+
+  void _showShopSelectionDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+    int quantity,
+  ) {
+    final playerShops = ref.read(playerShopsNotifierProvider);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Dükkan Seçin'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            itemCount: playerShops.length,
+            itemBuilder: (context, index) {
+              final shop = playerShops[index];
+              return ListTile(
+                title: Text(shop.customName),
+                subtitle: Text('${shop.city}, ${shop.country}'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _performBuy(context, ref, product, quantity, shop.id);
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _performBuy(
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+    int quantity,
+    String shopId,
+  ) async {
     final playerNotifier = ref.read(playerNotifierProvider.notifier);
     final player = ref.read(playerNotifierProvider);
 
@@ -126,21 +186,17 @@ class MarketScreen extends ConsumerWidget {
       final apiService = ApiService();
       final response = await apiService.post(
         '/trade/buy',
-        data: {'productId': product.id, 'quantity': quantity},
+        data: {'productId': product.id, 'quantity': quantity, 'shopId': shopId},
       );
 
       if (response.data['success'] == true) {
         // Backend'den güncel player verisini yükle
         await playerNotifier.refreshPlayerData();
 
-        // Inventory'yi yenile
-        await ref
-            .read(inventoryNotifierProvider.notifier)
-            .loadInventoryFromBackend();
-
         // Başarı mesajı
         final discount = TradingSystem.calculateBulkDiscount(quantity);
-        String message = '✅ $quantity ${product.name} satın alındı!';
+        String message =
+            '✅ $quantity ${product.name} dükkan envanterine eklendi!';
         if (discount > 0) {
           message += ' (%${(discount * 100).toStringAsFixed(0)} indirim!)';
         }

@@ -180,11 +180,12 @@
         async function loadAnalytics() {
             try {
                 // Update last update time
-                document.getElementById('lastUpdate').textContent = 
+                document.getElementById('lastUpdate').textContent =
                     'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR');
 
                 // Load players data for analytics
-                const players = await api.get('/admin/players');
+                const playersResult = await API.call('/players');
+                const players = (playersResult && playersResult.data) || [];
                 
                 // Calculate metrics
                 const totalPlayers = players.length;
@@ -232,7 +233,8 @@
 
         async function loadTopProducts() {
             try {
-                const products = await api.get('/admin/products');
+                const productsResult = await API.call('/products');
+                const products = (productsResult && productsResult.data) || [];
                 const tbody = document.getElementById('topProductsTable');
                 
                 if (!products || products.length === 0) {

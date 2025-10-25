@@ -6,10 +6,10 @@ const Product = require('../models/Product');
 const Transaction = require('../models/Transaction');
 
 // @route   POST /api/trade/buy
-// @desc    Ürün satın al
+// @desc    Ürün satın al (Doğrudan dükkan envanterine gider)
 // @access  Private
 router.post('/buy', protect, asyncHandler(async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, shopId } = req.body;
 
   if (!quantity || quantity <= 0) {
     return res.status(400).json({
@@ -18,11 +18,29 @@ router.post('/buy', protect, asyncHandler(async (req, res) => {
     });
   }
 
+  if (!shopId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Dükkan seçilmelidir'
+    });
+  }
+
   const product = await Product.findById(productId);
   if (!product) {
     return res.status(404).json({
       success: false,
       message: 'Ürün bulunamadı'
+    });
+  }
+
+  // Dükkanı kontrol et
+  const { ShopInstance } = require('../models/Shop');
+  const shop = await ShopInstance.findById(shopId);
+
+  if (!shop || shop.ownerId.toString() !== req.user._id.toString()) {
+    return res.status(403).json({
+      success: false,
+      message: 'Bu dükkan size ait değil'
     });
   }
 
@@ -35,26 +53,28 @@ router.post('/buy', protect, asyncHandler(async (req, res) => {
     });
   }
 
-  // Envantere ekle
-  const existingItem = req.user.inventory.find(
+  // Dükkan envanterine ekle
+  const existingItem = shop.inventory.find(
     item => item.productId.toString() === productId
   );
 
   if (existingItem) {
     existingItem.quantity += quantity;
   } else {
-    req.user.inventory.push({
+    shop.inventory.push({
       productId,
       quantity,
       purchasePrice: product.currentPrice,
-      purchaseDate: new Date(),
-      source: 'market'
+      sellPrice: product.currentPrice * 1.2,
+      totalSold: 0,
+      lastSoldAt: null
     });
   }
 
   req.user.cash -= totalCost;
   req.user.totalTransactions += 1;
   await req.user.save();
+  await shop.save();
 
   // İşlem kaydı
   await Transaction.createTransaction({
@@ -64,83 +84,26 @@ router.post('/buy', protect, asyncHandler(async (req, res) => {
     productId,
     quantity,
     price: product.currentPrice,
-    description: `${product.name} satın alındı`
+    description: `${product.name} satın alındı (${shop.customName})`
   });
 
   res.json({
     success: true,
-    message: 'Ürün satın alındı',
+    message: 'Ürün dükkan envanterine eklendi',
     data: {
       cash: req.user.cash,
-      inventory: req.user.inventory
+      shop: shop
     }
   });
 }));
 
 // @route   POST /api/trade/sell
-// @desc    Ürün sat
+// @desc    Ürün sat (Pazarda satış yapılamaz - sadece dükkan üzerinden)
 // @access  Private
 router.post('/sell', protect, asyncHandler(async (req, res) => {
-  const { productId, quantity } = req.body;
-
-  if (!quantity || quantity <= 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Geçerli bir miktar girin'
-    });
-  }
-
-  const inventoryItem = req.user.inventory.find(
-    item => item.productId.toString() === productId
-  );
-
-  if (!inventoryItem || inventoryItem.quantity < quantity) {
-    return res.status(400).json({
-      success: false,
-      message: 'Yetersiz stok'
-    });
-  }
-
-  const product = await Product.findById(productId);
-  const totalRevenue = product.currentPrice * quantity;
-  const profit = (product.currentPrice - inventoryItem.purchasePrice) * quantity;
-
-  // Envanterden çıkar
-  inventoryItem.quantity -= quantity;
-  if (inventoryItem.quantity === 0) {
-    req.user.inventory = req.user.inventory.filter(
-      item => item.productId.toString() !== productId
-    );
-  }
-
-  req.user.cash += totalRevenue;
-  req.user.totalProfit += profit;
-  req.user.totalTransactions += 1;
-  await req.user.save();
-
-  // İşlem kaydı
-  await Transaction.createTransaction({
-    playerId: req.user._id,
-    type: 'sell',
-    amount: totalRevenue,
-    productId,
-    quantity,
-    price: product.currentPrice,
-    profit,
-    description: `${product.name} satıldı`
-  });
-
-  // Deneyim kazan
-  await req.user.addExperience(Math.floor(profit / 100));
-
-  res.json({
-    success: true,
-    message: 'Ürün satıldı',
-    data: {
-      cash: req.user.cash,
-      profit,
-      inventory: req.user.inventory
-    }
+  return res.status(403).json({
+    success: false,
+    message: 'Pazarda satış yapılamaz. Ürünlerinizi dükkanınızda satabilirsiniz.'
   });
 }));
 

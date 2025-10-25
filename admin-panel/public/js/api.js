@@ -188,93 +188,253 @@ async function getEvents(params = {}) {
     return await apiRequest(`/events?${query}`);
 }
 
-// Global Events API
+// Global Events API - Detached (Non-admin) endpoints, need separate base URL
+const GLOBAL_EVENTS_URL = 'http://213.142.159.245:3000/api/global-events';
+
 async function getGlobalEvents(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/global-events?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${GLOBAL_EVENTS_URL}?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Global Events Error:', error);
+        return null;
+    }
 }
 
 async function createGlobalEvent(data) {
-    return await apiRequest('/global-events', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${GLOBAL_EVENTS_URL}/create`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Create Global Event Error:', error);
+        return null;
+    }
 }
 
 async function triggerGlobalEvent(eventId) {
-    return await apiRequest(`/global-events/${eventId}/trigger`, {
-        method: 'POST'
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${GLOBAL_EVENTS_URL}/${eventId}/trigger`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Trigger Global Event Error:', error);
+        return null;
+    }
 }
 
 async function updateGlobalEvent(id, data) {
-    return await apiRequest(`/global-events/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data)
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${GLOBAL_EVENTS_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Update Global Event Error:', error);
+        return null;
+    }
 }
 
 async function deleteGlobalEvent(id) {
-    return await apiRequest(`/global-events/${id}`, {
-        method: 'DELETE'
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${GLOBAL_EVENTS_URL}/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Delete Global Event Error:', error);
+        return null;
+    }
 }
 
-// Bank API
+// Bank API - Separate endpoint
+const BANK_URL = 'http://213.142.159.245:3000/api/bank';
+
 async function getBankAccounts(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/bank/accounts?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${BANK_URL}/accounts?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Bank Accounts Error:', error);
+        return null;
+    }
 }
 
 async function getBankAccount(playerId) {
-    return await apiRequest(`/bank/account/${playerId}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${BANK_URL}/account/${playerId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Bank Account Error:', error);
+        return null;
+    }
 }
 
 async function getBankTransactions(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/bank/transactions?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${BANK_URL}/transactions?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Bank Transactions Error:', error);
+        return null;
+    }
 }
 
 async function calculateBankInterest() {
-    return await apiRequest('/bank/calculate-interest', {
-        method: 'POST'
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${BANK_URL}/calculate-interest`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Calculate Interest Error:', error);
+        return null;
+    }
 }
 
-// Premium API
+// Premium API - Separate endpoint
+const PREMIUM_URL = 'http://213.142.159.245:3000/api/premium';
+
 async function getPremiumCurrencies(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/premium/currencies?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/currencies?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Premium Currencies Error:', error);
+        return null;
+    }
 }
 
 async function getPremiumBoosts(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/premium/boosts?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/boosts?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Premium Boosts Error:', error);
+        return null;
+    }
 }
 
 async function createPremiumBoost(data) {
-    return await apiRequest('/premium/boosts', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/boosts`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Create Premium Boost Error:', error);
+        return null;
+    }
 }
 
 async function updatePremiumBoost(id, data) {
-    return await apiRequest(`/premium/boosts/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data)
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/boosts/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Update Premium Boost Error:', error);
+        return null;
+    }
 }
 
 async function deletePremiumBoost(id) {
-    return await apiRequest(`/premium/boosts/${id}`, {
-        method: 'DELETE'
-    });
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/boosts/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Delete Premium Boost Error:', error);
+        return null;
+    }
 }
 
 async function getPremiumTransactions(params = {}) {
     const query = new URLSearchParams(params).toString();
-    return await apiRequest(`/premium/transactions?${query}`);
+    const token = getToken();
+    try {
+        const response = await fetch(`${PREMIUM_URL}/transactions?${query}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error('Premium Transactions Error:', error);
+        return null;
+    }
 }
 
 // Upload API
